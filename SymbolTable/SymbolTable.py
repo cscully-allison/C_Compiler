@@ -3,7 +3,7 @@ from bintrees import FastRBTree
 class SymbolTable():
     def __init__(self):
         self.Table = [] #declare table as a stack (list) containing an empty tree
-        self.TopScope = FastRBTree()
+        self.TopScope = FastRBTree() # a place where the current top scope is held
 
     #Function: InsertSymbol
     #Desc: Insert a symbol into the current top of the symbol table
@@ -26,12 +26,12 @@ class SymbolTable():
         return False
 
     #Function:PushNewScope
-    #Desc: Create a push a new scope onto the table
+    #Desc: Create a new scope and push it onto the table
     def PushNewScope(self):
         return
 
-    #Function: PopScope
-    #Desc: Remove and return scope (RBtree) from the symbol table
+    #Function: PushScope
+    #Desc: Insert symbol tree (RBTree) onto our table
     def PushScope(self, SymbolTree):
         self.Table.append(self.TopScope)
         self.TopScope = SymbolTree
@@ -42,7 +42,7 @@ class SymbolTable():
     def PopScope(self):
         TScope = self.TopScope
         self.TopScope = self.Table.pop()
-        return Return
+        return TScope
 
     #Function: WriteSymbolTableToFile
     #Desc: Write the current contents of the symbol table to file
