@@ -1,6 +1,7 @@
 from bintrees import FastRBTree
 
 class SymbolTable():
+    #constructor
     def __init__(self):
         self.Table = [] #declare table as a stack (list) containing an empty tree
         self.TopScope = FastRBTree() # a place where the current top scope is held
