@@ -29,6 +29,7 @@ class SymbolTable():
     #Function:PushNewScope
     #Desc: Create a new scope and push it onto the table
     def PushNewScope(self):
+        self.PushScope(FastRBTree())
         return
 
     #Function: PushScope

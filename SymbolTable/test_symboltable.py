@@ -50,10 +50,10 @@ def test_push_scope():
     T2 = FastRBTree()
 
     ST.PushScope(T)
-    assert( len(ST.Table()) == 1 )
+    assert( len(ST.Table) == 1 )
 
     ST.PushScope(T2)
-    assert( len(ST.Table()) == 2 )
+    assert( len(ST.Table) == 2 )
 
     return
 
