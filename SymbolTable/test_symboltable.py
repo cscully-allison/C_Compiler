@@ -107,3 +107,9 @@ def test_find_in_table():
     assert( ST.FindSymbolInCurrentScope("age") == False )
 
     return
+
+def test_toggle_read_mode():
+    ST = SymbolTable()
+    ST.ToggleReadMode()
+    assert(ST.ReadMode == False)
+    return

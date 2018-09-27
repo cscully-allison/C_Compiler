@@ -4,6 +4,7 @@ class SymbolTable():
     def __init__(self):
         self.Table = [] #declare table as a stack (list) containing an empty tree
         self.TopScope = FastRBTree() # a place where the current top scope is held
+        self.ReadMode = True #Read or lookup mode
 
     #Function: InsertSymbol
     #Desc: Insert a symbol into the current top of the symbol table
@@ -47,4 +48,8 @@ class SymbolTable():
     #Function: WriteSymbolTableToFile
     #Desc: Write the current contents of the symbol table to file
     def WriteSymbolTableToFile(self, FileName_str):
+        return
+
+    def ToggleReadMode(self):
+        self.ReadMode = not self.ReadMode
         return
