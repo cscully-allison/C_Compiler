@@ -1,4 +1,5 @@
 from bintrees import FastRBTree
+from copy import deepcopy
 
 class SymbolTable():
     #constructor
@@ -14,7 +15,8 @@ class SymbolTable():
     #                       ContainedValue: (char/float/int) literal,
     #                       TokenLocation: tuple(line, char) }
     def InsertSymbol(self, SymbolKey_str, Content_dict):
-        self.TopScope.insert(SymbolKey_str, Content_dict)
+        #perform deepcopy on passed in dictionary
+        self.TopScope.insert(SymbolKey_str, deepcopy(Content_dict) )
         return
 
     #Function: FindSymbolInTable
