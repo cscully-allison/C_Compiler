@@ -22,6 +22,7 @@ class SymbolTable():
     #Function: FindSymbolInTable
     #Desc: Search all scopes of the symbol table to find a specific symbol
     def FindSymbolInTable(self, SymbolKey_str):
+
         return False
 
     #Function: FindSymbolInCurrentScope
