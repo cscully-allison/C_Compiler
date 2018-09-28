@@ -19,6 +19,11 @@ class SymbolTable():
     #Function: FindSymbolInTable
     #Desc: Search all scopes of the symbol table to find a specific symbol
     def FindSymbolInTable(self, SymbolKey_str):
+        #loop
+        #check current scope
+        #not in current scope, move top to new stack
+        #pop original stack to topscope
+        #once found, assign data, then move other parts back to original stack 
         return False
 
     #Function: FindSymbolInCurrentScope
