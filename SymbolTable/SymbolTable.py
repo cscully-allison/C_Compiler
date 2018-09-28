@@ -24,8 +24,8 @@ class SymbolTable():
 
     #Function: FindSymbolInCurrentScope
     #Desc: Search only the top level of the symbol table for key
-    def FindSymbolInCurrentScope(self, SymbolKey_str):
-        return False
+    def FindSymbolInCurrentScope(self, SymbolKey_str): 
+        return self.TopScope.get(SymbolKey_str, False)
 
     #Function:PushNewScope
     #Desc: Create a new scope and push it onto the table
