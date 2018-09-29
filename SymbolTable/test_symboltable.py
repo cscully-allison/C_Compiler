@@ -98,10 +98,10 @@ def test_find_in_table():
     ST.InsertSymbol("letter", Content3)
     ST.PushNewScope();
 
-    assert( ST.FindSymbolInTable("letter") == Content3 )
-    assert( ST.FindSymbolInTable("temperature") == Content2 )
+    assert( ST.FindSymbolInTable("letter")[0] == {1: Content3} )
+    assert( ST.FindSymbolInTable("temperature")[0] == {2: Content2} )
 
-    assert( (ST.FindSymbolInTable("age") is Content1) == False )
+    assert( (ST.FindSymbolInTable("age")[0] is {3: Content1}) == False )
 
     #nonexistent symbol case
     assert( ST.FindSymbolInTable("foo") == False )

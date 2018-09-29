@@ -21,8 +21,23 @@ class SymbolTable():
 
     #Function: FindSymbolInTable
     #Desc: Search all scopes of the symbol table to find a specific symbol
+    #Return: [{Level_int: Content_dict}, False] (list of keys for possibility of many shadowed vars)
     def FindSymbolInTable(self, SymbolKey_str):
+        T_list = []
+        Level_int = 0
 
+        T_list.append(FindSymbolInCurrentScope(SymbolKey_str))
+        Level_int += 1
+
+        for Tree in Table:
+            if Tree.__contains__(SymbolKey_str):
+                T_list.append( {Level_int: Tree.get(SymbolKey_str)} )
+            Level_int += 1
+
+        if len(T_list) > 0:
+            return T_list
+            
+        #nothing found case
         return False
 
     #Function: FindSymbolInCurrentScope
