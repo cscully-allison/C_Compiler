@@ -30,7 +30,6 @@ class SymbolTable():
         #search the top of our stack
         if self.FindSymbolInCurrentScope(SymbolKey_str):
             T_list.append( self.FindSymbolInCurrentScope(SymbolKey_str) )
-
         Level_int += 1
 
         #iterate over all trees
