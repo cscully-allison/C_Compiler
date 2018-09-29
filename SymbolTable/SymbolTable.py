@@ -7,6 +7,7 @@ class SymbolTable():
         self.Table = [] #declare table as a stack (list) containing an empty tree
         self.TopScope = FastRBTree() # a place where the current top scope is held
         self.ReadMode = True #Read or lookup mode
+        self.DebugMode = False
 
     #Function: InsertSymbol
     #Desc: Insert a symbol into the current top of the symbol table
@@ -26,10 +27,15 @@ class SymbolTable():
         T_list = []
         Level_int = 0
 
-        T_list.append(FindSymbolInCurrentScope(SymbolKey_str))
+        #search the top of our stack
+        if self.FindSymbolInCurrentScope(SymbolKey_str):
+            T_list.append( self.FindSymbolInCurrentScope(SymbolKey_str) )
+
         Level_int += 1
 
-        for Tree in Table:
+        #iterate over all trees
+        #add found isntances of symbols to list if present
+        for Tree in reversed(self.Table): #reversed so appended items are at the front
             if Tree.__contains__(SymbolKey_str):
                 T_list.append( {Level_int: Tree.get(SymbolKey_str)} )
             Level_int += 1
@@ -62,14 +68,51 @@ class SymbolTable():
     #Desc: Remove and return scope (RBtree) from the symbol table
     def PopScope(self):
         TScope = self.TopScope
-        self.TopScope = self.Table.pop()
+        if len(self.Table) > 0:
+            self.TopScope = self.Table.pop()
+        else:
+            self.TopScope = None
         return TScope
 
     #Function: WriteSymbolTableToFile
     #Desc: Write the current contents of the symbol table to file
     def WriteSymbolTableToFile(self, FileName_str):
+        T_Stack = []
+        i = 0
+
+        try:
+            if self.DebugMode == True:
+
+                with open(FileName_str, "w") as File:
+
+                    File.write("\n**** Outputting Contents of Symbol Table **** \n\n")
+
+                    while not self.TableIsEmpty():
+                        File.write( "Items in Tree at Level {}: \n".format(i) )
+                        self.PrettyPrintScope(self.TopScope, FilePtr=File)
+                        T_Stack.append( self.PopScope() )
+                        i += 1
+
+                while len(T_Stack) > 0:
+                    self.PushScope(T_Stack.pop())
+            pass
+
+        except Exception as e:
+            raise
+
+    def PrettyPrintScope(self, Scope, FilePtr=None):
+        for Key in Scope.keys():
+            if FilePtr is not None:
+                FilePtr.write( "\tKey: \"{}\" | Content: {}\n".format(Key, Scope.get(Key)) )
+            else:
+                print( "\tKey: \"{}\" | Content: {}\n".format(Key, Scope.get(Key)) )
         return
 
     def ToggleReadMode(self):
         self.ReadMode = not self.ReadMode
         return
+
+    def TableIsEmpty(self):
+        if self.TopScope is None:
+            return True
+        return False

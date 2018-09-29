@@ -116,3 +116,21 @@ def test_toggle_read_mode():
     ST.ToggleReadMode()
     assert(ST.ReadMode == False)
     return
+
+def test_write_symbol_table():
+        ST = SymbolTable()
+        ST.DebugMode = True
+
+        Content1 = {'DataType': "int" , 'AssignedValue': 110 , 'TokenLocation': (10,2) }
+        ST.InsertSymbol("age", Content1)
+        ST.PushNewScope();
+        Content2 = {'DataType': "float" , 'AssignedValue': 28.9 , 'TokenLocation': (11,2) }
+        ST.InsertSymbol("temperature", Content2)
+        Content2 = {'DataType': "float" , 'AssignedValue': 38.9 , 'TokenLocation': (12,2) }
+        ST.InsertSymbol("t2", Content2)
+        ST.PushNewScope();
+        Content3 = {'DataType': "char" , 'AssignedValue': 'a' , 'TokenLocation': (13,2) }
+        ST.InsertSymbol("letter", Content3)
+        ST.PushNewScope();
+
+        ST.WriteSymbolTableToFile("Debug.out")
