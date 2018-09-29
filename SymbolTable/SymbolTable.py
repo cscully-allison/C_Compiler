@@ -36,14 +36,14 @@ class SymbolTable():
 
         if len(T_list) > 0:
             return T_list
-            
+
         #nothing found case
         return False
 
     #Function: FindSymbolInCurrentScope
     #Desc: Search only the top level of the symbol table for key
     def FindSymbolInCurrentScope(self, SymbolKey_str):
-        return False
+        return self.TopScope.get(SymbolKey_str, False)
 
     #Function:PushNewScope
     #Desc: Create a new scope and push it onto the table
