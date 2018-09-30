@@ -11,6 +11,7 @@ def test_tokenizing():
     #basic token test for identifier
     ST = SymbolTable()
     LA = LexicalAnalizer(ST)
+    LA.BuildLexer()
 
     data = ''' var vary vars '''
 
