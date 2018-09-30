@@ -7,6 +7,8 @@ class Parser():
     def __init__(self):
         self.LA = LexicalAnalizer()
 
+    #PLY Documentation http://www.dabeaz.com/ply/ply.html
+    #Starting at 5
     def BuildParser():
         def p_Translation_Unit(p):
             '''translation_unit
@@ -14,6 +16,7 @@ class Parser():
         	| translation_unit external_declaration
         	;'''
             return
+
         def p_External_Declaration(p):
             '''
             external_declaration
