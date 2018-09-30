@@ -11,9 +11,10 @@ class SymbolTable():
 
     #Function: InsertSymbol
     #Desc: Insert a symbol into the current top of the symbol table
+    # The symbol key string is a lexeme
     #Content_dict: At present this will contain
-    #                       {DataType: (the token adjacent to the SymbolKey i.e. >int< <SymbolKey>),
-    #                       ContainedValue: (char/float/int) literal,
+    #                       {Type: (the token adjacent to the SymbolKey i.e. >int< <SymbolKey>),
+    #                       Attribute: some modifier on the symbol 'static' 'const' etc.,
     #                       TokenLocation: tuple(line, char) }
     def InsertSymbol(self, SymbolKey_str, Content_dict):
         #perform deepcopy on passed in dictionary

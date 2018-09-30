@@ -3,9 +3,9 @@
 
 Items in Tree at Level 0: 
 Items in Tree at Level 1: 
-	Key: "letter" | Content: {'DataType': 'char', 'AssignedValue': 'a', 'TokenLocation': (13, 2)}
+	Key: "letter" | Content: {'Attribute': None, 'Type': 'char', 'TokenLocation': (13, 2)}
 Items in Tree at Level 2: 
-	Key: "t2" | Content: {'DataType': 'float', 'AssignedValue': 38.9, 'TokenLocation': (12, 2)}
-	Key: "temperature" | Content: {'DataType': 'float', 'AssignedValue': 28.9, 'TokenLocation': (11, 2)}
+	Key: "t2" | Content: {'Attribute': 'static', 'Type': 'float', 'TokenLocation': (12, 2)}
+	Key: "temperature" | Content: {'Attribute': None, 'Type': 'float', 'TokenLocation': (11, 2)}
 Items in Tree at Level 3: 
-	Key: "age" | Content: {'DataType': 'int', 'AssignedValue': 110, 'TokenLocation': (10, 2)}
+	Key: "age" | Content: {'Attribute': 'static', 'Type': 'int', 'TokenLocation': (10, 2)}

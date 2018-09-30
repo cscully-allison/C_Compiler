@@ -11,15 +11,15 @@ def test_add_symbol():
     ST = SymbolTable()
     T = FastRBTree()
 
-    Content = {'DataType': "int" , 'AssignedValue': 110 , 'TokenLocation': (10,2) }
+    Content = {'Type': "int" , 'Attribute': None , 'TokenLocation': (10,2) }
     ST.InsertSymbol("age", Content)
     T.insert("age", Content)
 
-    Content = {'DataType': "float" , 'AssignedValue': 28.9 , 'TokenLocation': (11,2) }
+    Content = {'Type': "float" , 'Attribute': 'static' , 'TokenLocation': (11,2) }
     ST.InsertSymbol("temperature", Content)
     T.insert("temperature", Content)
 
-    Content = {'DataType': "char" , 'AssignedValue': 'a' , 'TokenLocation': (12,2) }
+    Content = {'Type': "char" , 'Attribute': 'const' , 'TokenLocation': (12,2) }
     ST.InsertSymbol("letter", Content)
     T.insert("letter", Content)
 
@@ -63,17 +63,17 @@ def test_push_scope():
 def test_find_in_current_scope():
     ST = SymbolTable()
 
-    Content = {'DataType': "int" , 'AssignedValue': 110 , 'TokenLocation': (10,2) }
+    Content = {'Type': "int" , 'Attribute': None , 'TokenLocation': (10,2) }
     ST.InsertSymbol("age", Content)
 
     assert( ST.FindSymbolInCurrentScope("age") == Content )
 
-    Content = {'DataType': "float" , 'AssignedValue': 28.9 , 'TokenLocation': (11,2) }
+    Content = {'Type': "float" , 'Attribute': 'const' , 'TokenLocation': (11,2) }
     ST.InsertSymbol("temperature", Content)
 
     assert( ST.FindSymbolInCurrentScope("temperature") == Content )
 
-    Content = {'DataType': "char" , 'AssignedValue': 'a' , 'TokenLocation': (12,2) }
+    Content = {'Type': "char" , 'Attribute': None , 'TokenLocation': (12,2) }
     ST.InsertSymbol("letter", Content)
 
     assert( ST.FindSymbolInCurrentScope("letter") == Content )
@@ -88,13 +88,13 @@ def test_find_in_current_scope():
 def test_find_in_table():
     ST = SymbolTable()
 
-    Content1 = {'DataType': "int" , 'AssignedValue': 110 , 'TokenLocation': (10,2) }
+    Content1 = {'Type': "int" , 'Attribute': 'static' , 'TokenLocation': (10,2) }
     ST.InsertSymbol("age", Content1)
     ST.PushNewScope();
-    Content2 = {'DataType': "float" , 'AssignedValue': 28.9 , 'TokenLocation': (11,2) }
+    Content2 = {'Type': "float" , 'Attribute': None , 'TokenLocation': (11,2) }
     ST.InsertSymbol("temperature", Content2)
     ST.PushNewScope();
-    Content3 = {'DataType': "char" , 'AssignedValue': 'a' , 'TokenLocation': (12,2) }
+    Content3 = {'Type': "char" , 'Attribute': None , 'TokenLocation': (13,2) }
     ST.InsertSymbol("letter", Content3)
     ST.PushNewScope();
 
@@ -121,15 +121,15 @@ def test_write_symbol_table():
         ST = SymbolTable()
         ST.DebugMode = True
 
-        Content1 = {'DataType': "int" , 'AssignedValue': 110 , 'TokenLocation': (10,2) }
+        Content1 = {'Type': "int" , 'Attribute': 'static' , 'TokenLocation': (10,2) }
         ST.InsertSymbol("age", Content1)
         ST.PushNewScope();
-        Content2 = {'DataType': "float" , 'AssignedValue': 28.9 , 'TokenLocation': (11,2) }
+        Content2 = {'Type': "float" , 'Attribute': None , 'TokenLocation': (11,2) }
         ST.InsertSymbol("temperature", Content2)
-        Content2 = {'DataType': "float" , 'AssignedValue': 38.9 , 'TokenLocation': (12,2) }
+        Content2 = {'Type': "float" , 'Attribute': 'static' , 'TokenLocation': (12,2) }
         ST.InsertSymbol("t2", Content2)
         ST.PushNewScope();
-        Content3 = {'DataType': "char" , 'AssignedValue': 'a' , 'TokenLocation': (13,2) }
+        Content3 = {'Type': "char" , 'Attribute': None , 'TokenLocation': (13,2) }
         ST.InsertSymbol("letter", Content3)
         ST.PushNewScope();
 

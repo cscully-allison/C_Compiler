@@ -11,7 +11,7 @@ def driver():
 
     data = '''
     int var 4382
-    vary vars
+    vary vars 42.26
     '''
 
     LA.Lexer.input(data)

@@ -96,8 +96,41 @@ class LexicalAnalizer():
             'TILDE',
             'BANG',
             'PERIOD'
-
         )
+        self.Reserved = {
+            'if':'IF',
+            'auto': 'AUTO',
+            'break': 'BREAK',
+            'case': 'CASE',
+            'char': 'CHAR',
+            'const': 'CONST',
+            'continue': 'CONTINUE',
+            'default': 'DEFAULT',
+            'do': 'DO',
+            'double': 'DOUBLE',
+            'else': 'ELSE',
+            'enum': 'ENUM',
+            'extern': 'EXTERN',
+            'float': 'FLOAT',
+            'for': 'FOR',
+            'goto': 'GOTO', #THE FORBIDDEN WORD
+            'int': 'INT',
+            'long': 'LONG',
+            'register': 'REGISTER',
+            'return': 'RETURN',
+            'short': 'SHORT',
+            'signed': 'SIGNED',
+            'sizeof': 'SIZEOF',
+            'static': 'STATIC',
+            'struct': 'STRUCT',
+            'switch': 'SWITCH',
+            'typedef': 'TYPEDEF',
+            'union': 'UNION',
+            'unsigned': 'UNSIGNED',
+            'void': 'VOID',
+            'volatile': 'VOLATILE',
+            'while': 'WHILE'
+         }
 
         if DebugSwitch and "l" in DebugSwitch:
             self.DebugLex = True
@@ -117,99 +150,71 @@ class LexicalAnalizer():
         #regular expression rules
         #see PLY DOC 4.3 for ordering problems
 
-        t_FLOATING_CONSTANT   = r'[+-]?[0-9]+(\.[0-9]+)?(E[+-]?[0-9])?'
+        t_FLOATING_CONSTANT   = r'^[+-]?[0-9]+((\.[0-9]+)|(E[+-]?[0-9])){1}$'
         t_INTEGER_CONSTANT   = r'[+-]?[0-9]+'
         # t_CHARACTER_CONSTANT   = r''
         # ENUMERATION_CONSTANT   = r''
         # STRING_LITERAL   = r''
 
         # PTR_OP   = r''
-        INC_OP   = r'\+\+'
-        DEC_OP   = r'--'
-        LEFT_OP   = r'<<'
-        RIGHT_OP   = r'>>'
-        LE_OP   = r'<='
-        GE_OP   = r'>='
-        EQ_OP   = r'=='
-        NE_OP   = r'\!='
-        AND_OP   = r'&&'
-        OR_OP   = r'\|\|'
-        MUL_ASSIGN   = r'\*='
-        DIV_ASSIGN   = r'/='
-        MOD_ASSIGN   = r'%='
-        ADD_ASSIGN   = r'\+='
-        SUB_ASSIGN   = r'-='
-        LEFT_ASSIGN   = r'<<='
-        RIGHT_ASSIGN   = r'>>='
-        AND_ASSIGN   = r'&='
-        XOR_ASSIGN   = r'\^='
-        OR_ASSIGN   = r'\|='
+        t_INC_OP   = r'\+\+'
+        t_DEC_OP   = r'--'
+        t_LEFT_OP   = r'<<'
+        t_RIGHT_OP   = r'>>'
+        t_LE_OP   = r'<='
+        t_GE_OP   = r'>='
+        t_EQ_OP   = r'=='
+        t_NE_OP   = r'\!='
+        t_AND_OP   = r'&&'
+        t_OR_OP   = r'\|\|'
+        t_MUL_ASSIGN   = r'\*='
+        t_DIV_ASSIGN   = r'/='
+        t_MOD_ASSIGN   = r'%='
+        t_ADD_ASSIGN   = r'\+='
+        t_SUB_ASSIGN   = r'-='
+        t_LEFT_ASSIGN   = r'<<='
+        t_RIGHT_ASSIGN   = r'>>='
+        t_AND_ASSIGN   = r'&='
+        t_XOR_ASSIGN   = r'\^='
+        t_OR_ASSIGN   = r'\|='
 
         #we are changing the structure of reserved words
-        SIZEOF   = r'sizeof'
-        TYPEDEF_NAME   = r''
-        TYPEDEF   = r'typedef'
-        EXTERN   = r'extern'
-        STATIC   = r'static'
-        AUTO   = r'auto'
-        REGISTER   = r'register'
-        CHAR   = r'char'
-        SHORT   = r'short'
-        INT   = r'int'
-        LONG   = r'long'
-        SIGNED   = r'signed'
-        UNSIGNED   = r'unsigned'
-        FLOAT   = r'float'
-        DOUBLE   = r'double'
-        CONST   = r'const'
-        VOLATILE   = r'volatile'
-        VOID   = r'void'
-        STRUCT   = r'struct'
-        UNION   = r'union'
-        ENUM   = r'enum'
-        ELIPSIS   = r'\.\.\.'
-        RANGE   = r' \.\.\. '
 
-        CASE   = r'case'
-        DEFAULT   = r'default'
-        IF   = r'if'
-        ELSE   = r'else'
-        SWITCH   = r'switch'
-        WHILE   = r'while'
-        DO   = r'do'
-        FOR   = r'for'
-        GOTO   = r'goto'
-        CONTINUE   = r'continue'
-        BREAK   = r'break'
-        RETURN   = r'return'
+        # t_TYPEDEF_NAME   = r''
+        t_ELIPSIS   = r'\.\.\.'
+        t_RANGE   = r' \.\.\. '
 
         # #we need string literal Tokens
-        SEMI   = r';'
-        OPENBRACE   = r'{'
-        CLOSEBRACE   = r'}'
-        COMMA   = r','
-        ASSIGN   = r'='
-        COLON   = r':'
-        OPENBRACKET   = r'\['
-        CLOSEBRACKET   = r'\]'
-        OPENPAREN   = r'\('
-        CLOSEPAREN   = r'\)'
-        MULT   = r'\*'
-        PIPE   = r'\|'
-        CARAT   = r'\^'
-        AMPERSAND   = r'&'
-        LE   = r'<'
-        GT   = r'>'
-        PLUS   = r'\+'
-        MINUS   = r'-'
-        DIV   = r'/'
-        PERCENT   = r'%'
-        TILDE   = r'~'
-        BANG  = r'\!'
-        PERIOD = r'\.'
+        t_SEMI   = r';'
+        t_OPENBRACE   = r'{'
+        t_CLOSEBRACE   = r'}'
+        t_COMMA   = r','
+        t_ASSIGN   = r'='
+        t_COLON   = r':'
+        t_OPENBRACKET   = r'\['
+        t_CLOSEBRACKET   = r'\]'
+        t_OPENPAREN   = r'\('
+        t_CLOSEPAREN   = r'\)'
+        t_MULT   = r'\*'
+        t_PIPE   = r'\|'
+        t_CARAT   = r'\^'
+        t_AMPERSAND   = r'&'
+        t_LE   = r'<'
+        t_GT   = r'>'
+        t_PLUS   = r'\+'
+        t_MINUS   = r'-'
+        t_DIV   = r'/'
+        t_PERCENT   = r'%'
+        t_TILDE   = r'~'
+        t_BANG  = r'\!'
+        t_PERIOD = r'\.'
 
 
-        t_IDENTIFIER  = r'[a-z|A-Z][a-zA-Z0-9\_]*'
+        def t_IDENTIFIER(t):
+            r'[a-z|A-Z][a-zA-Z0-9_]*'
+            t.type = self.Reserved.get(t.value,'IDENTIFIER')
+            return t
+
 
         #rules
 
