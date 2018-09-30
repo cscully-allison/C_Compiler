@@ -21,6 +21,8 @@ class Parser():
         	| declaration
         	;
             '''
+            if self.DebugProd:
+                print("nt -> prod")
             return
 
         function_definition
