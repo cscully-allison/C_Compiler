@@ -83,7 +83,7 @@ class LexicalAnalizer():
             'CLOSEBRACKET',
             'OPENPAREN',
             'CLOSEPAREN',
-            'MULT',
+            'ASTERISK',
             'PIPE',
             'CARAT',
             'AMPERSAND',
@@ -95,6 +95,7 @@ class LexicalAnalizer():
             'PERCENT',
             'TILDE',
             'BANG',
+            'QMARK',
             'PERIOD'
         )
         self.Reserved = {
@@ -150,11 +151,8 @@ class LexicalAnalizer():
         #regular expression rules
         #see PLY DOC 4.3 for ordering problems
 
-        t_FLOATING_CONSTANT   = r'^[+-]?[0-9]+((\.[0-9]+)|(E[+-]?[0-9])){1}$'
-        t_INTEGER_CONSTANT   = r'[+-]?[0-9]+'
-        # t_CHARACTER_CONSTANT   = r''
-        # ENUMERATION_CONSTANT   = r''
-        # STRING_LITERAL   = r''
+
+
 
         # PTR_OP   = r''
         t_INC_OP   = r'\+\+'
@@ -178,8 +176,6 @@ class LexicalAnalizer():
         t_XOR_ASSIGN   = r'\^='
         t_OR_ASSIGN   = r'\|='
 
-        #we are changing the structure of reserved words
-
         # t_TYPEDEF_NAME   = r''
         t_ELIPSIS   = r'\.\.\.'
         t_RANGE   = r' \.\.\. '
@@ -195,7 +191,7 @@ class LexicalAnalizer():
         t_CLOSEBRACKET   = r'\]'
         t_OPENPAREN   = r'\('
         t_CLOSEPAREN   = r'\)'
-        t_MULT   = r'\*'
+        t_ASTERISK   = r'\*'
         t_PIPE   = r'\|'
         t_CARAT   = r'\^'
         t_AMPERSAND   = r'&'
@@ -207,11 +203,29 @@ class LexicalAnalizer():
         t_PERCENT   = r'%'
         t_TILDE   = r'~'
         t_BANG  = r'\!'
+        t_QMARK = r'\?'
         t_PERIOD = r'\.'
 
+        def t_FLOATING_CONSTANT(t):
+            r'[+-]?[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?'
+            return t
+
+        def t_INTEGER_CONSTANT(t):
+            r'[+-]?[0-9]+'
+            return t
+
+        def t_CHARACTER_CONSTANT(t):
+            r'\'[\D\d\n]\''
+            return t
+
+        def t_STRING_LITERAL(t):
+            r'\"[\D\n\d]*\"'
+            return t
+
+        # t_ENUMERATION_CONSTANT   = r''
 
         def t_IDENTIFIER(t):
-            r'[a-z|A-Z][a-zA-Z0-9_]*'
+            r'[a-zA-Z_][a-zA-Z0-9_]*' #yes all underscores is a valid name
             t.type = self.Reserved.get(t.value,'IDENTIFIER')
             return t
 
