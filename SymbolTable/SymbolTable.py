@@ -28,6 +28,8 @@ class SymbolTable():
     #Function:PushNewScope
     #Desc: Create a new scope and push it onto the table
     def PushNewScope(self):
+        self.Table.append(self.TopScope)
+        self.TopScope = FastRBTree()
         return
 
     #Function: PushScope
@@ -40,8 +42,11 @@ class SymbolTable():
     #Function: PopScope
     #Desc: Remove and return scope (RBtree) from the symbol table
     def PopScope(self):
-        TScope = self.TopScope
-        self.TopScope = self.Table.pop()
+        if self.TopScope is not None:
+            TScope = self.TopScope
+            #if list is empty
+            # we do not pop and instead set topscope to None
+            self.TopScope = self.Table.pop()
         return TScope
 
     #Function: WriteSymbolTableToFile
