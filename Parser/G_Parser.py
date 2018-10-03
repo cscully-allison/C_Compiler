@@ -16,8 +16,6 @@ class Parser():
     #PLY Documentation http://www.dabeaz.com/ply/ply.html
     #Starting at 5
     def BuildParser(self):
-        tokens = self.LA.Tokens
-
         def p_translation_unit_1(p):
             'translation_unit :  external_declaration'
             if self.DebugProd == True:
@@ -1355,6 +1353,10 @@ class Parser():
             if self.DebugProd == True:
                 print("\tidentifier -->  IDENTIFIER")
             return
+
+
+        tokens = self.LA.Tokens
+
 
         #at some point we will use the following code:
         #(See PLY Documentation 6.12)
