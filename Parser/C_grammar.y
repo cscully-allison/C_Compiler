@@ -38,8 +38,8 @@ function_definition
 	;
 
 declaration
-	: declaration_specifiers ';'
-	| declaration_specifiers init_declarator_list ';'
+	: declaration_specifiers SEMI
+	| declaration_specifiers init_declarator_list SEMI
 	;
 
 declaration_list
@@ -85,8 +85,8 @@ type_qualifier
 	;
 
 struct_or_union_specifier
-	: struct_or_union identifier '{' struct_declaration_list '}'
-	| struct_or_union '{' struct_declaration_list '}'
+	: struct_or_union identifier OPENBRACE struct_declaration_list CLOSEBRACE
+	| struct_or_union OPENBRACE struct_declaration_list CLOSEBRACE
 	| struct_or_union identifier
 	;
 
@@ -102,16 +102,16 @@ struct_declaration_list
 
 init_declarator_list
 	: init_declarator
-	| init_declarator_list ',' init_declarator
+	| init_declarator_list COMMA init_declarator
 	;
 
 init_declarator
 	: declarator
-	| declarator '=' initializer
+	| declarator ASSIGN initializer
 	;
 
 struct_declaration
-	: specifier_qualifier_list struct_declarator_list ';'
+	: specifier_qualifier_list struct_declarator_list SEMI
 	;
 
 specifier_qualifier_list
@@ -123,29 +123,29 @@ specifier_qualifier_list
 
 struct_declarator_list
 	: struct_declarator
-	| struct_declarator_list ',' struct_declarator
+	| struct_declarator_list COMMA struct_declarator
 	;
 
 struct_declarator
 	: declarator
-	| ':' constant_expression
-	| declarator ':' constant_expression
+	| COLON constant_expression
+	| declarator COLON constant_expression
 	;
 
 enum_specifier
-	: ENUM '{' enumerator_list '}'
-	| ENUM identifier '{' enumerator_list '}'
+	: ENUM OPENBRACE enumerator_list CLOSEBRACE
+	| ENUM identifier OPENBRACE enumerator_list CLOSEBRACE
 	| ENUM identifier
 	;
 
 enumerator_list
 	: enumerator
-	| enumerator_list ',' enumerator
+	| enumerator_list COMMA enumerator
 	;
 
 enumerator
 	: identifier
-	| identifier '=' constant_expression
+	| identifier ASSIGN constant_expression
 	;
 
 declarator
@@ -155,19 +155,19 @@ declarator
 
 direct_declarator
 	: identifier
-	| '(' declarator ')'
-	| direct_declarator '[' ']'
-	| direct_declarator '[' constant_expression ']'
-	| direct_declarator '(' ')'
-	| direct_declarator '(' parameter_type_list ')'
-	| direct_declarator '(' identifier_list ')'
+	| OPENPAREN declarator CLOSEPAREN
+	| direct_declarator OPENBRACKET CLOSEBRACKET
+	| direct_declarator OPENBRACKET constant_expression CLOSEBRACKET
+	| direct_declarator OPENPAREN CLOSEPAREN
+	| direct_declarator OPENPAREN parameter_type_list CLOSEPAREN
+	| direct_declarator OPENPAREN identifier_list CLOSEPAREN
 	;
 
 pointer
-	: '*'
-	| '*' type_qualifier_list
-	| '*' pointer
-	| '*' type_qualifier_list pointer
+	: ASTERISK
+	| ASTERISK type_qualifier_list
+	| ASTERISK pointer
+	| ASTERISK type_qualifier_list pointer
 	;
 
 type_qualifier_list
@@ -177,12 +177,12 @@ type_qualifier_list
 
 parameter_type_list
 	: parameter_list
-	| parameter_list ',' ELIPSIS
+	| parameter_list COMMA ELIPSIS
 	;
 
 parameter_list
 	: parameter_declaration
-	| parameter_list ',' parameter_declaration
+	| parameter_list COMMA parameter_declaration
 	;
 
 parameter_declaration
@@ -193,18 +193,18 @@ parameter_declaration
 
 identifier_list
 	: identifier
-	| identifier_list ',' identifier
+	| identifier_list COMMA identifier
 	;
 
 initializer
 	: assignment_expression
-	| '{' initializer_list '}'
-	| '{' initializer_list ',' '}'
+	| OPENBRACE initializer_list CLOSEBRACE
+	| OPENBRACE initializer_list COMMA CLOSEBRACE
 	;
 
 initializer_list
 	: initializer
-	| initializer_list ',' initializer
+	| initializer_list COMMA initializer
 	;
 
 type_name
@@ -219,15 +219,15 @@ abstract_declarator
 	;
 
 direct_abstract_declarator
-	: '(' abstract_declarator ')'
-	| '[' ']'
-	| '[' constant_expression ']'
-	| direct_abstract_declarator '[' ']'
-	| direct_abstract_declarator '[' constant_expression ']'
-	| '(' ')'
-	| '(' parameter_type_list ')'
-	| direct_abstract_declarator '(' ')'
-	| direct_abstract_declarator '(' parameter_type_list ')'
+	: OPENPAREN abstract_declarator CLOSEPAREN
+	| OPENBRACKET CLOSEBRACKET
+	| OPENBRACKET constant_expression CLOSEBRACKET
+	| direct_abstract_declarator OPENBRACKET CLOSEBRACKET
+	| direct_abstract_declarator OPENBRACKET constant_expression CLOSEBRACKET
+	| OPENPAREN CLOSEPAREN
+	| OPENPAREN parameter_type_list CLOSEPAREN
+	| direct_abstract_declarator OPENPAREN CLOSEPAREN
+	| direct_abstract_declarator OPENPAREN parameter_type_list CLOSEPAREN
 	;
 
 statement
@@ -240,21 +240,21 @@ statement
 	;
 
 labeled_statement
-	: identifier ':' statement
-	| CASE constant_expression ':' statement
-	| DEFAULT ':' statement
+	: identifier COLON statement
+	| CASE constant_expression COLON statement
+	| DEFAULT COLON statement
 	;
 
 expression_statement
-	: ';'
-	| expression ';'
+	: SEMI
+	| expression SEMI
 	;
 
 compound_statement
-	: '{' '}'
-	| '{' statement_list '}'
-	| '{' declaration_list '}'
-	| '{' declaration_list statement_list '}'
+	: OPENBRACE CLOSEBRACE
+	| OPENBRACE statement_list CLOSEBRACE
+	| OPENBRACE declaration_list CLOSEBRACE
+	| OPENBRACE declaration_list statement_list CLOSEBRACE
 	;
 
 statement_list
@@ -263,35 +263,35 @@ statement_list
 	;
 
 selection_statement
-	: IF '(' expression ')' statement
-	| IF '(' expression ')' statement ELSE statement
-	| SWITCH '(' expression ')' statement
+	: IF OPENPAREN expression CLOSEPAREN statement
+	| IF OPENPAREN expression CLOSEPAREN statement ELSE statement
+	| SWITCH OPENPAREN expression CLOSEPAREN statement
 	;
 
 iteration_statement
-	: WHILE '(' expression ')' statement
-	| DO statement WHILE '(' expression ')' ';'
-	| FOR '(' ';' ';' ')' statement
-	| FOR '(' ';' ';' expression ')' statement
-	| FOR '(' ';' expression ';' ')' statement
-	| FOR '(' ';' expression ';' expression ')' statement
-	| FOR '(' expression ';' ';' ')' statement
-	| FOR '(' expression ';' ';' expression ')' statement
-	| FOR '(' expression ';' expression ';' ')' statement
-	| FOR '(' expression ';' expression ';' expression ')' statement
+	: WHILE OPENPAREN expression CLOSEPAREN statement
+	| DO statement WHILE OPENPAREN expression CLOSEPAREN SEMI
+	| FOR OPENPAREN SEMI SEMI CLOSEPAREN statement
+	| FOR OPENPAREN SEMI SEMI expression CLOSEPAREN statement
+	| FOR OPENPAREN SEMI expression SEMI CLOSEPAREN statement
+	| FOR OPENPAREN SEMI expression SEMI expression CLOSEPAREN statement
+	| FOR OPENPAREN expression SEMI SEMI CLOSEPAREN statement
+	| FOR OPENPAREN expression SEMI SEMI expression CLOSEPAREN statement
+	| FOR OPENPAREN expression SEMI expression SEMI CLOSEPAREN statement
+	| FOR OPENPAREN expression SEMI expression SEMI expression CLOSEPAREN statement
 	;
 
 jump_statement
-	: GOTO identifier ';'
-	| CONTINUE ';'
-	| BREAK ';'
-	| RETURN ';'
-	| RETURN expression ';'
+	: GOTO identifier SEMI
+	| CONTINUE SEMI
+	| BREAK SEMI
+	| RETURN SEMI
+	| RETURN expression SEMI
 	;
 
 expression
 	: assignment_expression
-	| expression ',' assignment_expression
+	| expression COMMA assignment_expression
 	;
 
 assignment_expression
@@ -300,7 +300,7 @@ assignment_expression
 	;
 
 assignment_operator
-	: '='
+	: ASSIGN
 	| MUL_ASSIGN
 	| DIV_ASSIGN
 	| MOD_ASSIGN
@@ -315,7 +315,7 @@ assignment_operator
 
 conditional_expression
 	: logical_or_expression
-	| logical_or_expression '?' expression ':' conditional_expression
+	| logical_or_expression QMARK expression COLON conditional_expression
 	;
 
 constant_expression
@@ -334,17 +334,17 @@ logical_and_expression
 
 inclusive_or_expression
 	: exclusive_or_expression
-	| inclusive_or_expression '|' exclusive_or_expression
+	| inclusive_or_expression PIPE exclusive_or_expression
 	;
 
 exclusive_or_expression
 	: and_expression
-	| exclusive_or_expression '^' and_expression
+	| exclusive_or_expression CARAT and_expression
 	;
 
 and_expression
 	: equality_expression
-	| and_expression '&' equality_expression
+	| and_expression AMPERSAND equality_expression
 	;
 
 equality_expression
@@ -355,8 +355,8 @@ equality_expression
 
 relational_expression
 	: shift_expression
-	| relational_expression '<' shift_expression
-	| relational_expression '>' shift_expression
+	| relational_expression LE shift_expression
+	| relational_expression GT shift_expression
 	| relational_expression LE_OP shift_expression
 	| relational_expression GE_OP shift_expression
 	;
@@ -369,20 +369,20 @@ shift_expression
 
 additive_expression
 	: multiplicative_expression
-	| additive_expression '+' multiplicative_expression
-	| additive_expression '-' multiplicative_expression
+	| additive_expression PLUS multiplicative_expression
+	| additive_expression MINUS multiplicative_expression
 	;
 
 multiplicative_expression
 	: cast_expression
-	| multiplicative_expression '*' cast_expression
-	| multiplicative_expression '/' cast_expression
-	| multiplicative_expression '%' cast_expression
+	| multiplicative_expression ASTERISK cast_expression
+	| multiplicative_expression DIV cast_expression
+	| multiplicative_expression PERCENT cast_expression
 	;
 
 cast_expression
 	: unary_expression
-	| '(' type_name ')' cast_expression
+	| OPENPAREN type_name CLOSEPAREN cast_expression
 	;
 
 unary_expression
@@ -391,24 +391,24 @@ unary_expression
 	| DEC_OP unary_expression
 	| unary_operator cast_expression
 	| SIZEOF unary_expression
-	| SIZEOF '(' type_name ')'
+	| SIZEOF OPENPAREN type_name CLOSEPAREN
 	;
 
 unary_operator
-	: '&'
-	| '*'
-	| '+'
-	| '-'
-	| '~'
-	| '!'
+	: AMPERSAND
+	| ASTERISK
+	| PLUS
+	| MINUS
+	| TILDE
+	| BANG
 	;
 
 postfix_expression
 	: primary_expression
-	| postfix_expression '[' expression ']'
-	| postfix_expression '(' ')'
-	| postfix_expression '(' argument_expression_list ')'
-	| postfix_expression '.' identifier
+	| postfix_expression OPENBRACKET expression CLOSEBRACKET
+	| postfix_expression OPENPAREN CLOSEPAREN
+	| postfix_expression OPENPAREN argument_expression_list CLOSEPAREN
+	| postfix_expression PERIOD identifier
 	| postfix_expression PTR_OP identifier
 	| postfix_expression INC_OP
 	| postfix_expression DEC_OP
@@ -418,12 +418,12 @@ primary_expression
 	: identifier
 	| constant
 	| string
-	| '(' expression ')'
+	| OPENPAREN expression CLOSEPAREN
 	;
 
 argument_expression_list
 	: assignment_expression
-	| argument_expression_list ',' assignment_expression
+	| argument_expression_list COMMA assignment_expression
 	;
 
 constant
@@ -440,16 +440,3 @@ string
 identifier
 	: IDENTIFIER
 	;
-%%
-
-#include <stdio.h>
-
-extern char yytext[];
-extern int column;
-
-yyerror(s)
-char *s;
-{
-	fflush(stdout);
-	printf("\n%*s\n%*s\n", column, "^", column, s);
-}

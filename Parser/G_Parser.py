@@ -1,16 +1,23 @@
 import sys
-sys.path.append("/LexicalAnalizer")
+sys.path.append("LexicalAnalizer/")
+sys.path.append("../LexicalAnalizer/")
 from LexicalAnalizer import LexicalAnalizer
+from SymbolTable import SymbolTable
+import ply.yacc as yacc
 
 class Parser():
 
     def __init__(self):
-        self.LA = LexicalAnalizer()
-        self.DebugProd = False;
+        self.ST = SymbolTable()
+        self.LA = LexicalAnalizer(self.ST)
+        self.Parser = None
+        self.DebugProd = True
 
     #PLY Documentation http://www.dabeaz.com/ply/ply.html
     #Starting at 5
-    def BuildParser():
+    def BuildParser(self):
+        tokens = self.LA.Tokens
+
         def p_translation_unit_1(p):
             'translation_unit :  external_declaration'
             if self.DebugProd == True:
@@ -57,6 +64,18 @@ class Parser():
             'function_definition :  declaration_specifiers declarator declaration_list compound_statement'
             if self.DebugProd == True:
                 print("\tfunction_definition -->  declaration_specifiers declarator declaration_list compound_statement")
+            return
+
+        def p_declaration_1(p):
+            'declaration :  declaration_specifiers SEMI'
+            if self.DebugProd == True:
+                print("\tdeclaration -->  declaration_specifiers SEMI")
+            return
+
+        def p_declaration_2(p):
+            'declaration :  declaration_specifiers init_declarator_list SEMI'
+            if self.DebugProd == True:
+                print("\tdeclaration -->  declaration_specifiers init_declarator_list SEMI")
             return
 
         def p_declaration_list_1(p):
@@ -222,15 +241,15 @@ class Parser():
             return
 
         def p_struct_or_union_specifier_1(p):
-            'struct_or_union_specifier :  struct_or_union identifier '{' struct_declaration_list '}''
+            'struct_or_union_specifier :  struct_or_union identifier OPENBRACE struct_declaration_list CLOSEBRACE'
             if self.DebugProd == True:
-                print("\tstruct_or_union_specifier -->  struct_or_union identifier '{' struct_declaration_list '}'")
+                print("\tstruct_or_union_specifier -->  struct_or_union identifier OPENBRACE struct_declaration_list CLOSEBRACE")
             return
 
         def p_struct_or_union_specifier_2(p):
-            'struct_or_union_specifier :  struct_or_union '{' struct_declaration_list '}''
+            'struct_or_union_specifier :  struct_or_union OPENBRACE struct_declaration_list CLOSEBRACE'
             if self.DebugProd == True:
-                print("\tstruct_or_union_specifier -->  struct_or_union '{' struct_declaration_list '}'")
+                print("\tstruct_or_union_specifier -->  struct_or_union OPENBRACE struct_declaration_list CLOSEBRACE")
             return
 
         def p_struct_or_union_specifier_3(p):
@@ -270,9 +289,9 @@ class Parser():
             return
 
         def p_init_declarator_list_2(p):
-            'init_declarator_list :  init_declarator_list ',' init_declarator'
+            'init_declarator_list :  init_declarator_list COMMA init_declarator'
             if self.DebugProd == True:
-                print("\tinit_declarator_list -->  init_declarator_list ',' init_declarator")
+                print("\tinit_declarator_list -->  init_declarator_list COMMA init_declarator")
             return
 
         def p_init_declarator_1(p):
@@ -282,9 +301,15 @@ class Parser():
             return
 
         def p_init_declarator_2(p):
-            'init_declarator :  declarator '=' initializer'
+            'init_declarator :  declarator ASSIGN initializer'
             if self.DebugProd == True:
-                print("\tinit_declarator -->  declarator '=' initializer")
+                print("\tinit_declarator -->  declarator ASSIGN initializer")
+            return
+
+        def p_struct_declaration_1(p):
+            'struct_declaration :  specifier_qualifier_list struct_declarator_list SEMI'
+            if self.DebugProd == True:
+                print("\tstruct_declaration -->  specifier_qualifier_list struct_declarator_list SEMI")
             return
 
         def p_specifier_qualifier_list_1(p):
@@ -318,9 +343,9 @@ class Parser():
             return
 
         def p_struct_declarator_list_2(p):
-            'struct_declarator_list :  struct_declarator_list ',' struct_declarator'
+            'struct_declarator_list :  struct_declarator_list COMMA struct_declarator'
             if self.DebugProd == True:
-                print("\tstruct_declarator_list -->  struct_declarator_list ',' struct_declarator")
+                print("\tstruct_declarator_list -->  struct_declarator_list COMMA struct_declarator")
             return
 
         def p_struct_declarator_1(p):
@@ -330,27 +355,27 @@ class Parser():
             return
 
         def p_struct_declarator_2(p):
-            'struct_declarator :  '' constant_expression'
+            'struct_declarator :  COLON constant_expression'
             if self.DebugProd == True:
-                print("\tstruct_declarator -->  '' constant_expression")
+                print("\tstruct_declarator -->  COLON constant_expression")
             return
 
         def p_struct_declarator_3(p):
-            'struct_declarator :  declarator '' constant_expression'
+            'struct_declarator :  declarator COLON constant_expression'
             if self.DebugProd == True:
-                print("\tstruct_declarator -->  declarator '' constant_expression")
+                print("\tstruct_declarator -->  declarator COLON constant_expression")
             return
 
         def p_enum_specifier_1(p):
-            'enum_specifier :  ENUM '{' enumerator_list '}''
+            'enum_specifier :  ENUM OPENBRACE enumerator_list CLOSEBRACE'
             if self.DebugProd == True:
-                print("\tenum_specifier -->  ENUM '{' enumerator_list '}'")
+                print("\tenum_specifier -->  ENUM OPENBRACE enumerator_list CLOSEBRACE")
             return
 
         def p_enum_specifier_2(p):
-            'enum_specifier :  ENUM identifier '{' enumerator_list '}''
+            'enum_specifier :  ENUM identifier OPENBRACE enumerator_list CLOSEBRACE'
             if self.DebugProd == True:
-                print("\tenum_specifier -->  ENUM identifier '{' enumerator_list '}'")
+                print("\tenum_specifier -->  ENUM identifier OPENBRACE enumerator_list CLOSEBRACE")
             return
 
         def p_enum_specifier_3(p):
@@ -366,9 +391,9 @@ class Parser():
             return
 
         def p_enumerator_list_2(p):
-            'enumerator_list :  enumerator_list ',' enumerator'
+            'enumerator_list :  enumerator_list COMMA enumerator'
             if self.DebugProd == True:
-                print("\tenumerator_list -->  enumerator_list ',' enumerator")
+                print("\tenumerator_list -->  enumerator_list COMMA enumerator")
             return
 
         def p_enumerator_1(p):
@@ -378,9 +403,9 @@ class Parser():
             return
 
         def p_enumerator_2(p):
-            'enumerator :  identifier '=' constant_expression'
+            'enumerator :  identifier ASSIGN constant_expression'
             if self.DebugProd == True:
-                print("\tenumerator -->  identifier '=' constant_expression")
+                print("\tenumerator -->  identifier ASSIGN constant_expression")
             return
 
         def p_declarator_1(p):
@@ -402,63 +427,63 @@ class Parser():
             return
 
         def p_direct_declarator_2(p):
-            'direct_declarator :  '(' declarator ')''
+            'direct_declarator :  OPENPAREN declarator CLOSEPAREN'
             if self.DebugProd == True:
-                print("\tdirect_declarator -->  '(' declarator ')'")
+                print("\tdirect_declarator -->  OPENPAREN declarator CLOSEPAREN")
             return
 
         def p_direct_declarator_3(p):
-            'direct_declarator :  direct_declarator '[' ']''
+            'direct_declarator :  direct_declarator OPENBRACKET CLOSEBRACKET'
             if self.DebugProd == True:
-                print("\tdirect_declarator -->  direct_declarator '[' ']'")
+                print("\tdirect_declarator -->  direct_declarator OPENBRACKET CLOSEBRACKET")
             return
 
         def p_direct_declarator_4(p):
-            'direct_declarator :  direct_declarator '[' constant_expression ']''
+            'direct_declarator :  direct_declarator OPENBRACKET constant_expression CLOSEBRACKET'
             if self.DebugProd == True:
-                print("\tdirect_declarator -->  direct_declarator '[' constant_expression ']'")
+                print("\tdirect_declarator -->  direct_declarator OPENBRACKET constant_expression CLOSEBRACKET")
             return
 
         def p_direct_declarator_5(p):
-            'direct_declarator :  direct_declarator '(' ')''
+            'direct_declarator :  direct_declarator OPENPAREN CLOSEPAREN'
             if self.DebugProd == True:
-                print("\tdirect_declarator -->  direct_declarator '(' ')'")
+                print("\tdirect_declarator -->  direct_declarator OPENPAREN CLOSEPAREN")
             return
 
         def p_direct_declarator_6(p):
-            'direct_declarator :  direct_declarator '(' parameter_type_list ')''
+            'direct_declarator :  direct_declarator OPENPAREN parameter_type_list CLOSEPAREN'
             if self.DebugProd == True:
-                print("\tdirect_declarator -->  direct_declarator '(' parameter_type_list ')'")
+                print("\tdirect_declarator -->  direct_declarator OPENPAREN parameter_type_list CLOSEPAREN")
             return
 
         def p_direct_declarator_7(p):
-            'direct_declarator :  direct_declarator '(' identifier_list ')''
+            'direct_declarator :  direct_declarator OPENPAREN identifier_list CLOSEPAREN'
             if self.DebugProd == True:
-                print("\tdirect_declarator -->  direct_declarator '(' identifier_list ')'")
+                print("\tdirect_declarator -->  direct_declarator OPENPAREN identifier_list CLOSEPAREN")
             return
 
         def p_pointer_1(p):
-            'pointer :  '*''
+            'pointer :  ASTERISK'
             if self.DebugProd == True:
-                print("\tpointer -->  '*'")
+                print("\tpointer -->  ASTERISK")
             return
 
         def p_pointer_2(p):
-            'pointer :  '*' type_qualifier_list'
+            'pointer :  ASTERISK type_qualifier_list'
             if self.DebugProd == True:
-                print("\tpointer -->  '*' type_qualifier_list")
+                print("\tpointer -->  ASTERISK type_qualifier_list")
             return
 
         def p_pointer_3(p):
-            'pointer :  '*' pointer'
+            'pointer :  ASTERISK pointer'
             if self.DebugProd == True:
-                print("\tpointer -->  '*' pointer")
+                print("\tpointer -->  ASTERISK pointer")
             return
 
         def p_pointer_4(p):
-            'pointer :  '*' type_qualifier_list pointer'
+            'pointer :  ASTERISK type_qualifier_list pointer'
             if self.DebugProd == True:
-                print("\tpointer -->  '*' type_qualifier_list pointer")
+                print("\tpointer -->  ASTERISK type_qualifier_list pointer")
             return
 
         def p_type_qualifier_list_1(p):
@@ -480,9 +505,9 @@ class Parser():
             return
 
         def p_parameter_type_list_2(p):
-            'parameter_type_list :  parameter_list ',' ELIPSIS'
+            'parameter_type_list :  parameter_list COMMA ELIPSIS'
             if self.DebugProd == True:
-                print("\tparameter_type_list -->  parameter_list ',' ELIPSIS")
+                print("\tparameter_type_list -->  parameter_list COMMA ELIPSIS")
             return
 
         def p_parameter_list_1(p):
@@ -492,9 +517,9 @@ class Parser():
             return
 
         def p_parameter_list_2(p):
-            'parameter_list :  parameter_list ',' parameter_declaration'
+            'parameter_list :  parameter_list COMMA parameter_declaration'
             if self.DebugProd == True:
-                print("\tparameter_list -->  parameter_list ',' parameter_declaration")
+                print("\tparameter_list -->  parameter_list COMMA parameter_declaration")
             return
 
         def p_parameter_declaration_1(p):
@@ -522,9 +547,9 @@ class Parser():
             return
 
         def p_identifier_list_2(p):
-            'identifier_list :  identifier_list ',' identifier'
+            'identifier_list :  identifier_list COMMA identifier'
             if self.DebugProd == True:
-                print("\tidentifier_list -->  identifier_list ',' identifier")
+                print("\tidentifier_list -->  identifier_list COMMA identifier")
             return
 
         def p_initializer_1(p):
@@ -534,15 +559,15 @@ class Parser():
             return
 
         def p_initializer_2(p):
-            'initializer :  '{' initializer_list '}''
+            'initializer :  OPENBRACE initializer_list CLOSEBRACE'
             if self.DebugProd == True:
-                print("\tinitializer -->  '{' initializer_list '}'")
+                print("\tinitializer -->  OPENBRACE initializer_list CLOSEBRACE")
             return
 
         def p_initializer_3(p):
-            'initializer :  '{' initializer_list ',' '}''
+            'initializer :  OPENBRACE initializer_list COMMA CLOSEBRACE'
             if self.DebugProd == True:
-                print("\tinitializer -->  '{' initializer_list ',' '}'")
+                print("\tinitializer -->  OPENBRACE initializer_list COMMA CLOSEBRACE")
             return
 
         def p_initializer_list_1(p):
@@ -552,9 +577,9 @@ class Parser():
             return
 
         def p_initializer_list_2(p):
-            'initializer_list :  initializer_list ',' initializer'
+            'initializer_list :  initializer_list COMMA initializer'
             if self.DebugProd == True:
-                print("\tinitializer_list -->  initializer_list ',' initializer")
+                print("\tinitializer_list -->  initializer_list COMMA initializer")
             return
 
         def p_type_name_1(p):
@@ -588,57 +613,57 @@ class Parser():
             return
 
         def p_direct_abstract_declarator_1(p):
-            'direct_abstract_declarator :  '(' abstract_declarator ')''
+            'direct_abstract_declarator :  OPENPAREN abstract_declarator CLOSEPAREN'
             if self.DebugProd == True:
-                print("\tdirect_abstract_declarator -->  '(' abstract_declarator ')'")
+                print("\tdirect_abstract_declarator -->  OPENPAREN abstract_declarator CLOSEPAREN")
             return
 
         def p_direct_abstract_declarator_2(p):
-            'direct_abstract_declarator :  '[' ']''
+            'direct_abstract_declarator :  OPENBRACKET CLOSEBRACKET'
             if self.DebugProd == True:
-                print("\tdirect_abstract_declarator -->  '[' ']'")
+                print("\tdirect_abstract_declarator -->  OPENBRACKET CLOSEBRACKET")
             return
 
         def p_direct_abstract_declarator_3(p):
-            'direct_abstract_declarator :  '[' constant_expression ']''
+            'direct_abstract_declarator :  OPENBRACKET constant_expression CLOSEBRACKET'
             if self.DebugProd == True:
-                print("\tdirect_abstract_declarator -->  '[' constant_expression ']'")
+                print("\tdirect_abstract_declarator -->  OPENBRACKET constant_expression CLOSEBRACKET")
             return
 
         def p_direct_abstract_declarator_4(p):
-            'direct_abstract_declarator :  direct_abstract_declarator '[' ']''
+            'direct_abstract_declarator :  direct_abstract_declarator OPENBRACKET CLOSEBRACKET'
             if self.DebugProd == True:
-                print("\tdirect_abstract_declarator -->  direct_abstract_declarator '[' ']'")
+                print("\tdirect_abstract_declarator -->  direct_abstract_declarator OPENBRACKET CLOSEBRACKET")
             return
 
         def p_direct_abstract_declarator_5(p):
-            'direct_abstract_declarator :  direct_abstract_declarator '[' constant_expression ']''
+            'direct_abstract_declarator :  direct_abstract_declarator OPENBRACKET constant_expression CLOSEBRACKET'
             if self.DebugProd == True:
-                print("\tdirect_abstract_declarator -->  direct_abstract_declarator '[' constant_expression ']'")
+                print("\tdirect_abstract_declarator -->  direct_abstract_declarator OPENBRACKET constant_expression CLOSEBRACKET")
             return
 
         def p_direct_abstract_declarator_6(p):
-            'direct_abstract_declarator :  '(' ')''
+            'direct_abstract_declarator :  OPENPAREN CLOSEPAREN'
             if self.DebugProd == True:
-                print("\tdirect_abstract_declarator -->  '(' ')'")
+                print("\tdirect_abstract_declarator -->  OPENPAREN CLOSEPAREN")
             return
 
         def p_direct_abstract_declarator_7(p):
-            'direct_abstract_declarator :  '(' parameter_type_list ')''
+            'direct_abstract_declarator :  OPENPAREN parameter_type_list CLOSEPAREN'
             if self.DebugProd == True:
-                print("\tdirect_abstract_declarator -->  '(' parameter_type_list ')'")
+                print("\tdirect_abstract_declarator -->  OPENPAREN parameter_type_list CLOSEPAREN")
             return
 
         def p_direct_abstract_declarator_8(p):
-            'direct_abstract_declarator :  direct_abstract_declarator '(' ')''
+            'direct_abstract_declarator :  direct_abstract_declarator OPENPAREN CLOSEPAREN'
             if self.DebugProd == True:
-                print("\tdirect_abstract_declarator -->  direct_abstract_declarator '(' ')'")
+                print("\tdirect_abstract_declarator -->  direct_abstract_declarator OPENPAREN CLOSEPAREN")
             return
 
         def p_direct_abstract_declarator_9(p):
-            'direct_abstract_declarator :  direct_abstract_declarator '(' parameter_type_list ')''
+            'direct_abstract_declarator :  direct_abstract_declarator OPENPAREN parameter_type_list CLOSEPAREN'
             if self.DebugProd == True:
-                print("\tdirect_abstract_declarator -->  direct_abstract_declarator '(' parameter_type_list ')'")
+                print("\tdirect_abstract_declarator -->  direct_abstract_declarator OPENPAREN parameter_type_list CLOSEPAREN")
             return
 
         def p_statement_1(p):
@@ -678,45 +703,57 @@ class Parser():
             return
 
         def p_labeled_statement_1(p):
-            'labeled_statement :  identifier '' statement'
+            'labeled_statement :  identifier COLON statement'
             if self.DebugProd == True:
-                print("\tlabeled_statement -->  identifier '' statement")
+                print("\tlabeled_statement -->  identifier COLON statement")
             return
 
         def p_labeled_statement_2(p):
-            'labeled_statement :  CASE constant_expression '' statement'
+            'labeled_statement :  CASE constant_expression COLON statement'
             if self.DebugProd == True:
-                print("\tlabeled_statement -->  CASE constant_expression '' statement")
+                print("\tlabeled_statement -->  CASE constant_expression COLON statement")
             return
 
         def p_labeled_statement_3(p):
-            'labeled_statement :  DEFAULT '' statement'
+            'labeled_statement :  DEFAULT COLON statement'
             if self.DebugProd == True:
-                print("\tlabeled_statement -->  DEFAULT '' statement")
+                print("\tlabeled_statement -->  DEFAULT COLON statement")
+            return
+
+        def p_expression_statement_1(p):
+            'expression_statement :  SEMI'
+            if self.DebugProd == True:
+                print("\texpression_statement -->  SEMI")
+            return
+
+        def p_expression_statement_2(p):
+            'expression_statement :  expression SEMI'
+            if self.DebugProd == True:
+                print("\texpression_statement -->  expression SEMI")
             return
 
         def p_compound_statement_1(p):
-            'compound_statement :  '{' '}''
+            'compound_statement :  OPENBRACE CLOSEBRACE'
             if self.DebugProd == True:
-                print("\tcompound_statement -->  '{' '}'")
+                print("\tcompound_statement -->  OPENBRACE CLOSEBRACE")
             return
 
         def p_compound_statement_2(p):
-            'compound_statement :  '{' statement_list '}''
+            'compound_statement :  OPENBRACE statement_list CLOSEBRACE'
             if self.DebugProd == True:
-                print("\tcompound_statement -->  '{' statement_list '}'")
+                print("\tcompound_statement -->  OPENBRACE statement_list CLOSEBRACE")
             return
 
         def p_compound_statement_3(p):
-            'compound_statement :  '{' declaration_list '}''
+            'compound_statement :  OPENBRACE declaration_list CLOSEBRACE'
             if self.DebugProd == True:
-                print("\tcompound_statement -->  '{' declaration_list '}'")
+                print("\tcompound_statement -->  OPENBRACE declaration_list CLOSEBRACE")
             return
 
         def p_compound_statement_4(p):
-            'compound_statement :  '{' declaration_list statement_list '}''
+            'compound_statement :  OPENBRACE declaration_list statement_list CLOSEBRACE'
             if self.DebugProd == True:
-                print("\tcompound_statement -->  '{' declaration_list statement_list '}'")
+                print("\tcompound_statement -->  OPENBRACE declaration_list statement_list CLOSEBRACE")
             return
 
         def p_statement_list_1(p):
@@ -732,27 +769,111 @@ class Parser():
             return
 
         def p_selection_statement_1(p):
-            'selection_statement :  IF '(' expression ')' statement'
+            'selection_statement :  IF OPENPAREN expression CLOSEPAREN statement'
             if self.DebugProd == True:
-                print("\tselection_statement -->  IF '(' expression ')' statement")
+                print("\tselection_statement -->  IF OPENPAREN expression CLOSEPAREN statement")
             return
 
         def p_selection_statement_2(p):
-            'selection_statement :  IF '(' expression ')' statement ELSE statement'
+            'selection_statement :  IF OPENPAREN expression CLOSEPAREN statement ELSE statement'
             if self.DebugProd == True:
-                print("\tselection_statement -->  IF '(' expression ')' statement ELSE statement")
+                print("\tselection_statement -->  IF OPENPAREN expression CLOSEPAREN statement ELSE statement")
             return
 
         def p_selection_statement_3(p):
-            'selection_statement :  SWITCH '(' expression ')' statement'
+            'selection_statement :  SWITCH OPENPAREN expression CLOSEPAREN statement'
             if self.DebugProd == True:
-                print("\tselection_statement -->  SWITCH '(' expression ')' statement")
+                print("\tselection_statement -->  SWITCH OPENPAREN expression CLOSEPAREN statement")
             return
 
         def p_iteration_statement_1(p):
-            'iteration_statement :  WHILE '(' expression ')' statement'
+            'iteration_statement :  WHILE OPENPAREN expression CLOSEPAREN statement'
             if self.DebugProd == True:
-                print("\titeration_statement -->  WHILE '(' expression ')' statement")
+                print("\titeration_statement -->  WHILE OPENPAREN expression CLOSEPAREN statement")
+            return
+
+        def p_iteration_statement_2(p):
+            'iteration_statement :  DO statement WHILE OPENPAREN expression CLOSEPAREN SEMI'
+            if self.DebugProd == True:
+                print("\titeration_statement -->  DO statement WHILE OPENPAREN expression CLOSEPAREN SEMI")
+            return
+
+        def p_iteration_statement_3(p):
+            'iteration_statement :  FOR OPENPAREN SEMI SEMI CLOSEPAREN statement'
+            if self.DebugProd == True:
+                print("\titeration_statement -->  FOR OPENPAREN SEMI SEMI CLOSEPAREN statement")
+            return
+
+        def p_iteration_statement_4(p):
+            'iteration_statement :  FOR OPENPAREN SEMI SEMI expression CLOSEPAREN statement'
+            if self.DebugProd == True:
+                print("\titeration_statement -->  FOR OPENPAREN SEMI SEMI expression CLOSEPAREN statement")
+            return
+
+        def p_iteration_statement_5(p):
+            'iteration_statement :  FOR OPENPAREN SEMI expression SEMI CLOSEPAREN statement'
+            if self.DebugProd == True:
+                print("\titeration_statement -->  FOR OPENPAREN SEMI expression SEMI CLOSEPAREN statement")
+            return
+
+        def p_iteration_statement_6(p):
+            'iteration_statement :  FOR OPENPAREN SEMI expression SEMI expression CLOSEPAREN statement'
+            if self.DebugProd == True:
+                print("\titeration_statement -->  FOR OPENPAREN SEMI expression SEMI expression CLOSEPAREN statement")
+            return
+
+        def p_iteration_statement_7(p):
+            'iteration_statement :  FOR OPENPAREN expression SEMI SEMI CLOSEPAREN statement'
+            if self.DebugProd == True:
+                print("\titeration_statement -->  FOR OPENPAREN expression SEMI SEMI CLOSEPAREN statement")
+            return
+
+        def p_iteration_statement_8(p):
+            'iteration_statement :  FOR OPENPAREN expression SEMI SEMI expression CLOSEPAREN statement'
+            if self.DebugProd == True:
+                print("\titeration_statement -->  FOR OPENPAREN expression SEMI SEMI expression CLOSEPAREN statement")
+            return
+
+        def p_iteration_statement_9(p):
+            'iteration_statement :  FOR OPENPAREN expression SEMI expression SEMI CLOSEPAREN statement'
+            if self.DebugProd == True:
+                print("\titeration_statement -->  FOR OPENPAREN expression SEMI expression SEMI CLOSEPAREN statement")
+            return
+
+        def p_iteration_statement_10(p):
+            'iteration_statement :  FOR OPENPAREN expression SEMI expression SEMI expression CLOSEPAREN statement'
+            if self.DebugProd == True:
+                print("\titeration_statement -->  FOR OPENPAREN expression SEMI expression SEMI expression CLOSEPAREN statement")
+            return
+
+        def p_jump_statement_1(p):
+            'jump_statement :  GOTO identifier SEMI'
+            if self.DebugProd == True:
+                print("\tjump_statement -->  GOTO identifier SEMI")
+            return
+
+        def p_jump_statement_2(p):
+            'jump_statement :  CONTINUE SEMI'
+            if self.DebugProd == True:
+                print("\tjump_statement -->  CONTINUE SEMI")
+            return
+
+        def p_jump_statement_3(p):
+            'jump_statement :  BREAK SEMI'
+            if self.DebugProd == True:
+                print("\tjump_statement -->  BREAK SEMI")
+            return
+
+        def p_jump_statement_4(p):
+            'jump_statement :  RETURN SEMI'
+            if self.DebugProd == True:
+                print("\tjump_statement -->  RETURN SEMI")
+            return
+
+        def p_jump_statement_5(p):
+            'jump_statement :  RETURN expression SEMI'
+            if self.DebugProd == True:
+                print("\tjump_statement -->  RETURN expression SEMI")
             return
 
         def p_expression_1(p):
@@ -762,9 +883,9 @@ class Parser():
             return
 
         def p_expression_2(p):
-            'expression :  expression ',' assignment_expression'
+            'expression :  expression COMMA assignment_expression'
             if self.DebugProd == True:
-                print("\texpression -->  expression ',' assignment_expression")
+                print("\texpression -->  expression COMMA assignment_expression")
             return
 
         def p_assignment_expression_1(p):
@@ -780,9 +901,9 @@ class Parser():
             return
 
         def p_assignment_operator_1(p):
-            'assignment_operator :  '=''
+            'assignment_operator :  ASSIGN'
             if self.DebugProd == True:
-                print("\tassignment_operator -->  '='")
+                print("\tassignment_operator -->  ASSIGN")
             return
 
         def p_assignment_operator_2(p):
@@ -852,9 +973,9 @@ class Parser():
             return
 
         def p_conditional_expression_2(p):
-            'conditional_expression :  logical_or_expression '?' expression '' conditional_expression'
+            'conditional_expression :  logical_or_expression QMARK expression COLON conditional_expression'
             if self.DebugProd == True:
-                print("\tconditional_expression -->  logical_or_expression '?' expression '' conditional_expression")
+                print("\tconditional_expression -->  logical_or_expression QMARK expression COLON conditional_expression")
             return
 
         def p_constant_expression_1(p):
@@ -894,9 +1015,9 @@ class Parser():
             return
 
         def p_inclusive_or_expression_2(p):
-            'inclusive_or_expression :  inclusive_or_expression '' exclusive_or_expression'
+            'inclusive_or_expression :  inclusive_or_expression PIPE exclusive_or_expression'
             if self.DebugProd == True:
-                print("\tinclusive_or_expression -->  inclusive_or_expression '' exclusive_or_expression")
+                print("\tinclusive_or_expression -->  inclusive_or_expression PIPE exclusive_or_expression")
             return
 
         def p_exclusive_or_expression_1(p):
@@ -906,9 +1027,9 @@ class Parser():
             return
 
         def p_exclusive_or_expression_2(p):
-            'exclusive_or_expression :  exclusive_or_expression '^' and_expression'
+            'exclusive_or_expression :  exclusive_or_expression CARAT and_expression'
             if self.DebugProd == True:
-                print("\texclusive_or_expression -->  exclusive_or_expression '^' and_expression")
+                print("\texclusive_or_expression -->  exclusive_or_expression CARAT and_expression")
             return
 
         def p_and_expression_1(p):
@@ -918,9 +1039,9 @@ class Parser():
             return
 
         def p_and_expression_2(p):
-            'and_expression :  and_expression '&' equality_expression'
+            'and_expression :  and_expression AMPERSAND equality_expression'
             if self.DebugProd == True:
-                print("\tand_expression -->  and_expression '&' equality_expression")
+                print("\tand_expression -->  and_expression AMPERSAND equality_expression")
             return
 
         def p_equality_expression_1(p):
@@ -948,15 +1069,15 @@ class Parser():
             return
 
         def p_relational_expression_2(p):
-            'relational_expression :  relational_expression '<' shift_expression'
+            'relational_expression :  relational_expression LE shift_expression'
             if self.DebugProd == True:
-                print("\trelational_expression -->  relational_expression '<' shift_expression")
+                print("\trelational_expression -->  relational_expression LE shift_expression")
             return
 
         def p_relational_expression_3(p):
-            'relational_expression :  relational_expression '>' shift_expression'
+            'relational_expression :  relational_expression GT shift_expression'
             if self.DebugProd == True:
-                print("\trelational_expression -->  relational_expression '>' shift_expression")
+                print("\trelational_expression -->  relational_expression GT shift_expression")
             return
 
         def p_relational_expression_4(p):
@@ -996,15 +1117,15 @@ class Parser():
             return
 
         def p_additive_expression_2(p):
-            'additive_expression :  additive_expression '+' multiplicative_expression'
+            'additive_expression :  additive_expression PLUS multiplicative_expression'
             if self.DebugProd == True:
-                print("\tadditive_expression -->  additive_expression '+' multiplicative_expression")
+                print("\tadditive_expression -->  additive_expression PLUS multiplicative_expression")
             return
 
         def p_additive_expression_3(p):
-            'additive_expression :  additive_expression '-' multiplicative_expression'
+            'additive_expression :  additive_expression MINUS multiplicative_expression'
             if self.DebugProd == True:
-                print("\tadditive_expression -->  additive_expression '-' multiplicative_expression")
+                print("\tadditive_expression -->  additive_expression MINUS multiplicative_expression")
             return
 
         def p_multiplicative_expression_1(p):
@@ -1014,21 +1135,21 @@ class Parser():
             return
 
         def p_multiplicative_expression_2(p):
-            'multiplicative_expression :  multiplicative_expression '*' cast_expression'
+            'multiplicative_expression :  multiplicative_expression ASTERISK cast_expression'
             if self.DebugProd == True:
-                print("\tmultiplicative_expression -->  multiplicative_expression '*' cast_expression")
+                print("\tmultiplicative_expression -->  multiplicative_expression ASTERISK cast_expression")
             return
 
         def p_multiplicative_expression_3(p):
-            'multiplicative_expression :  multiplicative_expression '/' cast_expression'
+            'multiplicative_expression :  multiplicative_expression DIV cast_expression'
             if self.DebugProd == True:
-                print("\tmultiplicative_expression -->  multiplicative_expression '/' cast_expression")
+                print("\tmultiplicative_expression -->  multiplicative_expression DIV cast_expression")
             return
 
         def p_multiplicative_expression_4(p):
-            'multiplicative_expression :  multiplicative_expression '%' cast_expression'
+            'multiplicative_expression :  multiplicative_expression PERCENT cast_expression'
             if self.DebugProd == True:
-                print("\tmultiplicative_expression -->  multiplicative_expression '%' cast_expression")
+                print("\tmultiplicative_expression -->  multiplicative_expression PERCENT cast_expression")
             return
 
         def p_cast_expression_1(p):
@@ -1038,9 +1159,9 @@ class Parser():
             return
 
         def p_cast_expression_2(p):
-            'cast_expression :  '(' type_name ')' cast_expression'
+            'cast_expression :  OPENPAREN type_name CLOSEPAREN cast_expression'
             if self.DebugProd == True:
-                print("\tcast_expression -->  '(' type_name ')' cast_expression")
+                print("\tcast_expression -->  OPENPAREN type_name CLOSEPAREN cast_expression")
             return
 
         def p_unary_expression_1(p):
@@ -1074,45 +1195,45 @@ class Parser():
             return
 
         def p_unary_expression_6(p):
-            'unary_expression :  SIZEOF '(' type_name ')''
+            'unary_expression :  SIZEOF OPENPAREN type_name CLOSEPAREN'
             if self.DebugProd == True:
-                print("\tunary_expression -->  SIZEOF '(' type_name ')'")
+                print("\tunary_expression -->  SIZEOF OPENPAREN type_name CLOSEPAREN")
             return
 
         def p_unary_operator_1(p):
-            'unary_operator :  '&''
+            'unary_operator :  AMPERSAND'
             if self.DebugProd == True:
-                print("\tunary_operator -->  '&'")
+                print("\tunary_operator -->  AMPERSAND")
             return
 
         def p_unary_operator_2(p):
-            'unary_operator :  '*''
+            'unary_operator :  ASTERISK'
             if self.DebugProd == True:
-                print("\tunary_operator -->  '*'")
+                print("\tunary_operator -->  ASTERISK")
             return
 
         def p_unary_operator_3(p):
-            'unary_operator :  '+''
+            'unary_operator :  PLUS'
             if self.DebugProd == True:
-                print("\tunary_operator -->  '+'")
+                print("\tunary_operator -->  PLUS")
             return
 
         def p_unary_operator_4(p):
-            'unary_operator :  '-''
+            'unary_operator :  MINUS'
             if self.DebugProd == True:
-                print("\tunary_operator -->  '-'")
+                print("\tunary_operator -->  MINUS")
             return
 
         def p_unary_operator_5(p):
-            'unary_operator :  '~''
+            'unary_operator :  TILDE'
             if self.DebugProd == True:
-                print("\tunary_operator -->  '~'")
+                print("\tunary_operator -->  TILDE")
             return
 
         def p_unary_operator_6(p):
-            'unary_operator :  '!''
+            'unary_operator :  BANG'
             if self.DebugProd == True:
-                print("\tunary_operator -->  '!'")
+                print("\tunary_operator -->  BANG")
             return
 
         def p_postfix_expression_1(p):
@@ -1122,27 +1243,27 @@ class Parser():
             return
 
         def p_postfix_expression_2(p):
-            'postfix_expression :  postfix_expression '[' expression ']''
+            'postfix_expression :  postfix_expression OPENBRACKET expression CLOSEBRACKET'
             if self.DebugProd == True:
-                print("\tpostfix_expression -->  postfix_expression '[' expression ']'")
+                print("\tpostfix_expression -->  postfix_expression OPENBRACKET expression CLOSEBRACKET")
             return
 
         def p_postfix_expression_3(p):
-            'postfix_expression :  postfix_expression '(' ')''
+            'postfix_expression :  postfix_expression OPENPAREN CLOSEPAREN'
             if self.DebugProd == True:
-                print("\tpostfix_expression -->  postfix_expression '(' ')'")
+                print("\tpostfix_expression -->  postfix_expression OPENPAREN CLOSEPAREN")
             return
 
         def p_postfix_expression_4(p):
-            'postfix_expression :  postfix_expression '(' argument_expression_list ')''
+            'postfix_expression :  postfix_expression OPENPAREN argument_expression_list CLOSEPAREN'
             if self.DebugProd == True:
-                print("\tpostfix_expression -->  postfix_expression '(' argument_expression_list ')'")
+                print("\tpostfix_expression -->  postfix_expression OPENPAREN argument_expression_list CLOSEPAREN")
             return
 
         def p_postfix_expression_5(p):
-            'postfix_expression :  postfix_expression '.' identifier'
+            'postfix_expression :  postfix_expression PERIOD identifier'
             if self.DebugProd == True:
-                print("\tpostfix_expression -->  postfix_expression '.' identifier")
+                print("\tpostfix_expression -->  postfix_expression PERIOD identifier")
             return
 
         def p_postfix_expression_6(p):
@@ -1182,9 +1303,9 @@ class Parser():
             return
 
         def p_primary_expression_4(p):
-            'primary_expression :  '(' expression ')''
+            'primary_expression :  OPENPAREN expression CLOSEPAREN'
             if self.DebugProd == True:
-                print("\tprimary_expression -->  '(' expression ')'")
+                print("\tprimary_expression -->  OPENPAREN expression CLOSEPAREN")
             return
 
         def p_argument_expression_list_1(p):
@@ -1194,9 +1315,9 @@ class Parser():
             return
 
         def p_argument_expression_list_2(p):
-            'argument_expression_list :  argument_expression_list ',' assignment_expression'
+            'argument_expression_list :  argument_expression_list COMMA assignment_expression'
             if self.DebugProd == True:
-                print("\targument_expression_list -->  argument_expression_list ',' assignment_expression")
+                print("\targument_expression_list -->  argument_expression_list COMMA assignment_expression")
             return
 
         def p_constant_1(p):
@@ -1235,10 +1356,7 @@ class Parser():
                 print("\tidentifier -->  IDENTIFIER")
             return
 
-
-
-
-
         #at some point we will use the following code:
         #(See PLY Documentation 6.12)
-        self.parser = yacc.parse(lexer=LA.Lexer)
+        self.LA.BuildLexer()
+        self.Parser = yacc.yacc()
