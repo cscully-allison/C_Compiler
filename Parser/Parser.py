@@ -1,4 +1,4 @@
-OPENPARENimport sys
+import sys
 sys.path.append("/LexicalAnalizer")
 from LexicalAnalizer import LexicalAnalizer
 
@@ -6,6 +6,7 @@ class Parser():
 
     def __init__(self):
         self.LA = LexicalAnalizer()
+        self.DebugProd = False;
 
     #PLY Documentation http://www.dabeaz.com/ply/ply.html
     #Starting at 5
@@ -28,7 +29,7 @@ class Parser():
                 print("nt -> prod")
             return
 
-        def p_Function_Definition(p):   
+        def p_Function_Definition(p):
             '''
             function_definition
         	: declarator compound_statement
