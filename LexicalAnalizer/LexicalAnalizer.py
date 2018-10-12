@@ -90,6 +90,7 @@ Tokens = (
     'BANG',
     'QMARK',
     'PERIOD')
+
 class LexicalAnalizer():
     def __init__(self, SymbolTable, DebugSwitch = None, Output = None):
         self.ST = SymbolTable
@@ -249,22 +250,22 @@ class LexicalAnalizer():
         t_DEC_OP   = r'--'
         t_LEFT_OP   = r'<<'
         t_RIGHT_OP   = r'>>'
-        t_LE_OP   = r'<='
-        t_GE_OP   = r'>='
-        t_EQ_OP   = r'=='
-        t_NE_OP   = r'\!='
+        t_LE_OP   = r'<\='
+        t_GE_OP   = r'>\='
+        t_EQ_OP   = r'\=\='
+        t_NE_OP   = r'\!\='
         t_AND_OP   = r'&&'
         t_OR_OP   = r'\|\|'
-        t_MUL_ASSIGN   = r'\*='
-        t_DIV_ASSIGN   = r'/='
-        t_MOD_ASSIGN   = r'%='
-        t_ADD_ASSIGN   = r'\+='
-        t_SUB_ASSIGN   = r'-='
-        t_LEFT_ASSIGN   = r'<<='
-        t_RIGHT_ASSIGN   = r'>>='
-        t_AND_ASSIGN   = r'&='
-        t_XOR_ASSIGN   = r'\^='
-        t_OR_ASSIGN   = r'\|='
+        t_MUL_ASSIGN   = r'\*\='
+        t_DIV_ASSIGN   = r'/\='
+        t_MOD_ASSIGN   = r'%\='
+        t_ADD_ASSIGN   = r'\+\='
+        t_SUB_ASSIGN   = r'-\='
+        t_LEFT_ASSIGN   = r'<<\='
+        t_RIGHT_ASSIGN   = r'>>\='
+        t_AND_ASSIGN   = r'&\='
+        t_XOR_ASSIGN   = r'\^\='
+        t_OR_ASSIGN   = r'\|\='
 
         # t_TYPEDEF_NAME   = r''
         t_ELIPSIS   = r'\.\.\.'
@@ -275,7 +276,7 @@ class LexicalAnalizer():
         t_OPENBRACE   = r'{'
         t_CLOSEBRACE   = r'}'
         t_COMMA   = r','
-        t_ASSIGN   = r'='
+        t_ASSIGN   = r'\='
         t_COLON   = r':'
         t_OPENBRACKET   = r'\['
         t_CLOSEBRACKET   = r'\]'
@@ -297,7 +298,7 @@ class LexicalAnalizer():
         t_PERIOD = r'\.'
 
         def t_FLOATING_CONSTANT(t):
-            r'[+-]?[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?'
+            r'[+-]?\d+((\.\d+){1}|([eE][+-]?\d+){1})'
             return t
 
         def t_INTEGER_CONSTANT(t):

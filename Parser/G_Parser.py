@@ -4,6 +4,14 @@ sys.path.append("../LexicalAnalizer/")
 from LexicalAnalizer import LexicalAnalizer
 from SymbolTable import SymbolTable
 import ply.yacc as yacc
+import logging
+logging.basicConfig(
+    level = logging.DEBUG,
+    filename = "parselog.txt",
+    filemode = "w",
+    format = "%(filename)10s:%(lineno)4d:%(message)s"
+)
+log = logging.getLogger()
 
 class Parser():
 
@@ -1361,4 +1369,4 @@ class Parser():
         #at some point we will use the following code:
         #(See PLY Documentation 6.12)
         self.LA.BuildLexer()
-        self.Parser = yacc.yacc()
+        self.Parser = yacc.yacc(errorlog=log)

@@ -1,17 +1,18 @@
 from G_Parser import Parser
 
+
 def driver():
     P = Parser()
     P.BuildParser()
 
 
     s = r'''
-            int x;
-            int y;
+            int y = 1;
 
-            float function(y){
-
+            int main(){
+                y = 2;
             }
+
          '''
     result = P.Parser.parse(s)
     print(result)

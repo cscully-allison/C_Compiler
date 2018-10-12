@@ -49,6 +49,8 @@ def driver():
     '\t' 'a' '\n' '\0' abl '"' '\'' '8'
     "Kurt is dumb 12345 ' ' \" \' and some other thing \0 \n \t"
 
+    =
+
     '''
 
     LA.Lexer.input(data)
