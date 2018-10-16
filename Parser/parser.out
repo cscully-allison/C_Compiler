@@ -2,6 +2,11 @@ Created by PLY version 3.11 (http://www.dabeaz.com/ply)
 
 Unused terminals:
 
+    DST
+    LD_F
+    LD_O
+    PD_F
+    PD_O
     RANGE
 
 Grammar
@@ -259,6 +264,7 @@ DIV                  : 188
 DIV_ASSIGN           : 150
 DO                   : 130
 DOUBLE               : 30
+DST                  : 
 ELIPSIS              : 82
 ELSE                 : 127
 ENUM                 : 59 60 61
@@ -276,6 +282,8 @@ IF                   : 126 127
 INC_OP               : 193 210
 INT                  : 27
 INTEGER_CONSTANT     : 218
+LD_F                 : 
+LD_O                 : 
 LE                   : 176
 LEFT_ASSIGN          : 154
 LEFT_OP              : 181
@@ -290,6 +298,8 @@ OPENBRACKET          : 70 71 101 102 103 104 205
 OPENPAREN            : 69 72 73 74 100 105 106 107 108 126 127 128 129 130 131 132 133 134 135 136 137 138 191 197 206 207 215
 OR_ASSIGN            : 158
 OR_OP                : 163
+PD_F                 : 
+PD_O                 : 
 PERCENT              : 189
 PERIOD               : 208
 PIPE                 : 167

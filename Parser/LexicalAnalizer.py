@@ -2,7 +2,7 @@ import ply.lex as lex
 
 class LexicalAnalizer():
 
-    def __init__(self, SymbolTable, DebugSwitch = None, Output = None):
+    def __init__(self, SymbolTable, DebugSwitch = None, Output = None, Input = None):
         self.ST = SymbolTable
         self.DebugLex = False
         self.OutputFile = None
@@ -97,7 +97,13 @@ class LexicalAnalizer():
             'TILDE',
             'BANG',
             'QMARK',
-            'PERIOD'
+            'PERIOD',
+
+            'PD_O',   #parser debug on
+            'PD_F',   #parser debug off
+            'LD_O',   #lexer debug on
+            'LD_F',   #lexer debug off
+            'DST'   #dump symbol table
         )
         self.Reserved = {
             'if':'IF',
@@ -151,9 +157,6 @@ class LexicalAnalizer():
 
         #regular expression rules
         #see PLY DOC 4.3 for ordering problems
-
-
-
 
         # PTR_OP   = r''
         t_INC_OP   = r'\+\+'
@@ -228,15 +231,25 @@ class LexicalAnalizer():
         def t_IDENTIFIER(t):
             r'[a-zA-Z_][a-zA-Z0-9_]*' #yes all underscores is a valid name
             t.type = self.Reserved.get(t.value,'IDENTIFIER')
+
+            if t.type == 'IDENTIFIER':
+                contents = {}
+                contents["TokenLocation"] = (t.lineno, t.lexpos)
+                self.ST.InsertSymbol(t.value, contents)
+
+                print(t)
+
             return t
 
-
-        #rules
+        def t_DST(t):
+            r'\$!ST1'
+            self.ST.WriteSymbolTableToFile("SymbolTable.out")
 
         # Define a rule so we can track line numbers
         def t_newline(t):
             r'\n+'
             t.lexer.lineno += len(t.value)
+            # t.lexer.lexpos = 0
 
         # A string containing ignored characters (spaces and tabs)
         t_ignore  = ' \t'
@@ -246,4 +259,13 @@ class LexicalAnalizer():
             print("Illegal character '%s'" % t.value[0])
             t.lexer.skip(1)
 
+        #build Lexer
         self.Lexer = lex.lex()
+
+
+    # Compute column.
+    #     input is the input text string
+    #     token is a token instance
+    def find_column(input, token):
+        line_start = input.rfind('\n', 0, token.lexpos) + 1
+        return (token.lexpos - line_start) + 1

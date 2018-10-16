@@ -242,9 +242,6 @@ class LexicalAnalizer():
         #regular expression rules
         #see PLY DOC 4.3 for ordering problems
 
-
-
-
         # PTR_OP   = r''
         t_INC_OP   = r'\+\+'
         t_DEC_OP   = r'--'
@@ -321,8 +318,6 @@ class LexicalAnalizer():
             return t
 
 
-        #rules
-
         # Define a rule so we can track line numbers
         def t_newline(t):
             r'\n+'
@@ -330,6 +325,14 @@ class LexicalAnalizer():
 
         # A string containing ignored characters (spaces and tabs)
         t_ignore  = ' \t'
+
+        #Debug Switch Tokens
+
+        #Lexical Debugger
+
+        #Symbol Table Dump
+
+        #Production Debugger
 
         # Error handling rule
         def t_error(t):

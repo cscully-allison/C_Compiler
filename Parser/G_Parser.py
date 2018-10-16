@@ -15,7 +15,7 @@ log = logging.getLogger()
 
 class Parser():
 
-    def __init__(self):
+    def __init__(self, SourceFile = None):
         self.ST = SymbolTable()
         self.LA = LexicalAnalizer(self.ST)
         self.Parser = None

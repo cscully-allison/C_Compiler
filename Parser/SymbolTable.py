@@ -108,6 +108,10 @@ class SymbolTable():
                 print( "\tKey: \"{}\" | Content: {}\n".format(Key, Scope.get(Key)) )
         return
 
+    def ToggleDebugMode(self):
+        self.DebugMode = not self.DebugMode
+        return
+
     def ToggleReadMode(self):
         self.ReadMode = not self.ReadMode
         return

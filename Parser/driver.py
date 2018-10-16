@@ -2,19 +2,15 @@ from G_Parser import Parser
 
 
 def driver():
+    s = ""
     P = Parser()
     P.BuildParser()
 
+    with open("Source.c") as file:
+        s = file.read()
 
-    s = r'''
-            int y = 1;
-
-            int main(){
-                y = 2;
-            }
-
-         '''
     result = P.Parser.parse(s)
     print(result)
+
 
 driver()
