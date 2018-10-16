@@ -17,7 +17,8 @@ class Parser():
 
     def __init__(self, SourceFile = None):
         self.ST = SymbolTable()
-        self.LA = LexicalAnalizer(self.ST)
+        self.SourceFile = SourceFile
+        self.LA = LexicalAnalizer(self.ST, SourceFile=SourceFile)
         self.Parser = None
         self.DebugProd = True
 

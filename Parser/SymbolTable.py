@@ -17,8 +17,14 @@ class SymbolTable():
     #                       Attribute: some modifier on the symbol 'static' 'const' etc.,
     #                       TokenLocation: tuple(line, char) }
     def InsertSymbol(self, SymbolKey_str, Content_dict):
-        #perform deepcopy on passed in dictionary
-        self.TopScope.insert(SymbolKey_str, deepcopy(Content_dict) )
+
+        if self.ReadMode == False:
+            #perform deepcopy on passed in dictionary
+            self.TopScope.insert(SymbolKey_str, deepcopy(Content_dict) )
+        else:
+            # throw error: insert after declaration block
+            print("Error: Attempted insert after declaration block.")
+
         return
 
     #Function: FindSymbolInTable
@@ -82,9 +88,7 @@ class SymbolTable():
 
         try:
             if self.DebugMode == True:
-
                 with open(FileName_str, "w") as File:
-
                     File.write("\n**** Outputting Contents of Symbol Table **** \n\n")
 
                     while not self.TableIsEmpty():
@@ -114,6 +118,12 @@ class SymbolTable():
 
     def ToggleReadMode(self):
         self.ReadMode = not self.ReadMode
+
+        if self.ReadMode == False:
+            print("Insert Mode Toggled On")
+        elif self.ReadMode == True:
+            print("Insert Mode Toggled Off")
+
         return
 
     def TableIsEmpty(self):
