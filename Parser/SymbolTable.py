@@ -6,7 +6,7 @@ class SymbolTable():
     def __init__(self):
         self.Table = [] #declare table as a stack (list) containing an empty tree
         self.TopScope = FastRBTree() # a place where the current top scope is held
-        self.ReadMode = True #Read or lookup mode
+        self.ReadMode = False #Read or lookup mode
         self.DebugMode = False
 
     #Function: InsertSymbol

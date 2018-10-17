@@ -92,18 +92,12 @@ class Parser():
         def p_declaration_list_1(p):
             'declaration_list :  declaration'
 
-            if self.ST.ReadMode == True:
-                self.ST.ToggleReadMode()
-
             if self.DebugProd == True:
                 print("\tdeclaration_list -->  declaration")
             return
 
         def p_declaration_list_2(p):
             'declaration_list :  declaration_list declaration'
-
-            if self.ST.ReadMode == True:
-                self.ST.ToggleReadMode()
 
             if self.DebugProd == True:
                 print("\tdeclaration_list -->  declaration_list declaration")
@@ -429,6 +423,9 @@ class Parser():
 
         def p_declarator_1(p):
             'declarator :  direct_declarator'
+            # if self.ST.ReadMode == True:
+            #     self.ST.ToggleReadMode()
+
             if self.DebugProd == True:
                 print("\tdeclarator -->  direct_declarator")
             return
@@ -758,37 +755,31 @@ class Parser():
             return
 
         def p_compound_statement_2(p):
-            'compound_statement :  OPENBRACE statement_list CLOSEBRACE'
+            'compound_statement :  OPENBRACE read_mode_e statement_list insert_mode_e CLOSEBRACE'
             if self.DebugProd == True:
                 print("\tcompound_statement -->  OPENBRACE statement_list CLOSEBRACE")
             return
 
         def p_compound_statement_3(p):
-            'compound_statement :  OPENBRACE declaration_list CLOSEBRACE'
+            'compound_statement :  OPENBRACE insert_mode_e declaration_list read_mode_e CLOSEBRACE'
             if self.DebugProd == True:
-                print("\tcompound_statement -->  OPENBRACE declaration_list CLOSEBRACE")
+                print("\tcompound_statement -->  OPENBRACE  insert_mode_e declaration_list CLOSEBRACE")
             return
 
         def p_compound_statement_4(p):
-            'compound_statement :  OPENBRACE declaration_list statement_list CLOSEBRACE'
+            'compound_statement :  OPENBRACE insert_mode_e declaration_list read_mode_e statement_list insert_mode_e CLOSEBRACE'
             if self.DebugProd == True:
                 print("\tcompound_statement -->  OPENBRACE declaration_list statement_list CLOSEBRACE")
             return
 
         def p_statement_list_1(p):
             'statement_list :  statement'
-            if self.ST.ReadMode == False:
-                self.ST.ToggleReadMode()
-
             if self.DebugProd == True:
                 print("\tstatement_list -->  statement")
             return
 
         def p_statement_list_2(p):
             'statement_list :  statement_list statement'
-            if self.ST.ReadMode == False:
-                self.ST.ToggleReadMode()
-
             if self.DebugProd == True:
                 print("\tstatement_list -->  statement_list statement")
             return
@@ -1377,9 +1368,25 @@ class Parser():
 
         def p_identifier_1(p):
             'identifier :  IDENTIFIER'
-            print(p)
             if self.DebugProd == True:
                 print("\tidentifier -->  IDENTIFIER")
+            return
+
+        #empty productions
+        def p_empty_insertmode(p):
+            'insert_mode_e :'
+            if self.ST.ReadMode == True:
+                self.ST.ToggleReadMode()
+            if self.DebugProd == True:
+                print("insert_mode_e -->  ")
+            return
+
+        def p_empty_readmode(p):
+            'read_mode_e :'
+            if self.ST.ReadMode == False:
+                self.ST.ToggleReadMode()
+            if self.DebugProd == True:
+                print("read_mode_e -->  ")
             return
 
 

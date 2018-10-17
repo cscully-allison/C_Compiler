@@ -235,7 +235,11 @@ class LexicalAnalizer():
 
             if t.type == 'IDENTIFIER':
                 contents = {}
-                contents["TokenLocation"] = (t.lineno, t.lexpos)
+                if self.SourceFile is not None:
+                    with open(self.SourceFile) as file:
+                        source = file.read()
+                        Column = self.FindColumn(source, t)
+                contents["TokenLocation"] = (t.lineno, t.lexpos, Column)
                 self.ST.InsertSymbol(t.value, contents)
 
             return t
@@ -283,7 +287,6 @@ class LexicalAnalizer():
 
         #build Lexer
         self.Lexer = lex.lex()
-
 
     # Compute column.
     #     input is the input text string

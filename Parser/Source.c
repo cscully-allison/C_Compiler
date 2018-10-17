@@ -1,9 +1,8 @@
-int main(){
-    int y;
-    char f, s;
+int other(){ int x;}
 
+int main(){
+
+
+}
 
     $!ST1
-
-    y = 2;
-}
