@@ -2,8 +2,9 @@ import ply.lex as lex
 
 class LexicalAnalizer():
 
-    def __init__(self, SymbolTable, DebugSwitch = None, Output = None, Input = None):
+    def __init__(self, SymbolTable, DebugSwitch = None, Output = None, SourceFile = None):
         self.ST = SymbolTable
+        self.SourceFile = SourceFile
         self.DebugLex = False
         self.OutputFile = None
         self.Lexer = None
@@ -213,7 +214,7 @@ class LexicalAnalizer():
         t_PERIOD = r'\.'
 
         def t_FLOATING_CONSTANT(t):
-            r'[+-]?[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?'
+            r'[+-]?\d+((\.\d+){1}|([eE][+-]?\d+){1})'
             return t
 
         def t_INTEGER_CONSTANT(t):
@@ -245,38 +246,79 @@ class LexicalAnalizer():
 
             if t.type == 'IDENTIFIER':
                 contents = {}
-                contents["TokenLocation"] = (t.lineno, t.lexpos)
+                if self.SourceFile is not None:
+                    with open(self.SourceFile) as file:
+                        source = file.read()
+                        Column = self.FindColumn(source, t)
+                contents["TokenLocation"] = (t.lineno, t.lexpos, Column)
                 self.ST.InsertSymbol(t.value, contents)
-
-                print(t)
 
             return t
 
-        def t_DST(t):
-            r'\$!ST1'
-            self.ST.WriteSymbolTableToFile("SymbolTable.out")
 
         # Define a rule so we can track line numbers
         def t_newline(t):
             r'\n+'
             t.lexer.lineno += len(t.value)
-            # t.lexer.lexpos = 0
 
         # A string containing ignored characters (spaces and tabs)
         t_ignore  = ' \t'
 
         # Error handling rule
         def t_error(t):
-            print("Illegal character '%s'" % t.value[0])
+            source = ""
+            Column = 0
+
+            if self.SourceFile is not None:
+                with open(self.SourceFile) as file:
+                    source = file.read()
+                    Column = self.FindColumn(source, t)
+
+            self.PrettyErrorPrint(self.SourceFile, t.lineno, Column)
+
             t.lexer.skip(1)
+
+
+
+        #dbug Output tokens
+
+        def t_DST(t):
+            r'\$!ST1'
+            self.ST.ToggleDebugMode()
+            self.ST.WriteSymbolTableToFile("SymbolTable.out")
+            self.ST.ToggleDebugMode()
+
+        def t_PD_O(t):
+            r'\$!PD+'
+            return
+
+        def t_PD_F(t):
+            r'\$!PD-'
+            return
 
         #build Lexer
         self.Lexer = lex.lex()
 
-
     # Compute column.
     #     input is the input text string
     #     token is a token instance
-    def find_column(self, input, token):
+    def FindColumn(self, input, token):
         line_start = input.rfind('\n', 0, token.lexpos) + 1
         return (token.lexpos - line_start) + 1
+
+    def PrettyErrorPrint(self, Source, Lineno, Column):
+        arrow = ""
+
+        print("\nInvalid token on line {}\n".format(Lineno))
+        #print line
+        with open(self.SourceFile) as file:
+            for i in range(0,Lineno):
+                source = file.readline()
+        print(source)
+
+        #build arrow
+        for i in range(0,Column-1):
+            arrow += "-"
+        arrow += "^\n"
+
+        print(arrow)

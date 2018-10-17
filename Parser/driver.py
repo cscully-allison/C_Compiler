@@ -1,9 +1,9 @@
-from G_Parser import Parser
+from Parser_M import Parser
 
 
 def driver():
     s = ""
-    P = Parser()
+    P = Parser(SourceFile="Source.c")
     P.BuildParser()
 
     with open("Source.c") as file:

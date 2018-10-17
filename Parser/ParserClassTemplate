@@ -7,11 +7,12 @@ import ply.yacc as yacc
 
 class Parser():
 
-    def __init__(self):
+    def __init__(self, SourceFile = None):
         self.ST = SymbolTable()
         self.LA = LexicalAnalizer(self.ST)
         self.Parser = None
         self.DebugProd = True
+        self.InDeclarationBlock = False
 
     #PLY Documentation http://www.dabeaz.com/ply/ply.html
     #Starting at 5
