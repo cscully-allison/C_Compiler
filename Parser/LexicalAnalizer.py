@@ -36,6 +36,8 @@ class LexicalAnalizer():
             'AND_ASSIGN',
             'XOR_ASSIGN',
             'OR_ASSIGN',
+            'SINGLE_LINE_COMMENT',
+            'VARYING_COMMENT',
 
             'TYPEDEF_NAME',
             'TYPEDEF',
@@ -225,6 +227,15 @@ class LexicalAnalizer():
         def t_STRING_LITERAL(t):
             r'\"[\D\n\d]*\"'
             return t
+
+        def t_SINGLE_LINE_COMMENT(t):
+            r'(//.*)'
+            pass
+
+        def t_VARYING_COMMENT(t):
+            r'(/\*(.|\n)*?\*/)'
+            t.lexer.lineno += t.value.count('\n')
+            pass
 
         # t_ENUMERATION_CONSTANT   = r''
 
