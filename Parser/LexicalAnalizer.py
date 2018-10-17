@@ -240,7 +240,8 @@ class LexicalAnalizer():
                         source = file.read()
                         Column = self.FindColumn(source, t)
                 contents["TokenLocation"] = (t.lineno, t.lexpos, Column)
-                self.ST.InsertSymbol(t.value, contents)
+                t.value = {"lexeme": t.value, "additional": contents}
+                # self.ST.InsertSymbol(t.value, contents)
 
             return t
 
