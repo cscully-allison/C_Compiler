@@ -13,9 +13,9 @@ def test_tokenizing():
     LA = LexicalAnalizer(ST)
     LA.BuildLexer()
 
-    data = ''' var vary vars '''
+    data = '''int'''
 
     LA.Lexer.input(data)
 
     for Tok in LA.Lexer:
-        assert(Tok.type == 'IDENTIFIER')
+        assert(Tok.type == 'INT')

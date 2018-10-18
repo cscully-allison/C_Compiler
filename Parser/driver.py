@@ -8,9 +8,11 @@ def driver():
 
     with open("Source.c") as file:
         s = file.read()
-
-    result = P.Parser.parse(s)
-    print(result)
+    try:
+        result = P.Parser.parse(s)
+    except Exception as e:
+        print("[Compilation stopped]\nReason: {0}".format(e))
+        return
 
 
 driver()

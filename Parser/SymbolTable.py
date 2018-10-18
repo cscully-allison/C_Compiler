@@ -3,31 +3,45 @@ from copy import deepcopy
 
 class SymbolTable():
     #constructor
-    def __init__(self):
+    def __init__(self, SourceFile):
         self.Table = [] #declare table as a stack (list) containing an empty tree
         self.TopScope = FastRBTree()    # a place where the current top scope is held
         self.ReadMode = False           #Read or lookup mode
         self.DebugMode = False
+        self.SourceFile = SourceFile
 
     #Function: InsertSymbol
     #Desc: Insert a symbol into the current top of the symbol table
     # The symbol key string is a lexeme
     #Content_dict: At present this will contain
     #                       {Type: (the token adjacent to the SymbolKey i.e. >int< <SymbolKey>),
-    #                       Attribute: some modifier on the symbol 'static' 'const' etc.,
-    #                       TokenLocation: tuple(line, char) }
+    #                       Attribute: some modifier on the symbol 'static' 'const' etc.
+    #                       TokenLocation: tuple(line, char_in_file, char_in_line) }
     def InsertSymbol(self, SymbolKey_str, Content_dict):
+        try:
+            
+            if self.DebugMode == True:
+                print("Insert symbol is called: ", "In Read Mode?", self.ReadMode, SymbolKey_str ,Content_dict)
 
-        print("Insert symbol is called: ", "In Read Mode?", self.ReadMode, SymbolKey_str ,Content_dict)
-
-        if self.ReadMode == False:
-            #perform deepcopy on passed in dictionary
-            self.TopScope.insert(SymbolKey_str, deepcopy(Content_dict) )
-        else:
-            # throw error: insert after declaration block
-            print("Error: Attempted insert after declaration block.")
-
-        return
+            if self.ReadMode == False:
+                found = self.FindSymbolInCurrentScope(SymbolKey_str)
+                if not found:
+                    found = self.FindSymbolInTable(SymbolKey_str)
+                    if found:
+                        for item in found:
+                            for key in list(item.keys()):
+                                self.PrettyErrorPrint("Warning: {0} on line {3} is a shadowded variable. Previous declaration in scope level {1} at line {2}.".format(SymbolKey_str, abs(key-len(self.Table)), item[key]["TokenLocation"][0], Content_dict['TokenLocation'][0]), item[key]["TokenLocation"][0], item[key]["TokenLocation"][2] )
+                    #perform deepcopy on passed in dictionary
+                    self.TopScope.insert(SymbolKey_str, deepcopy(Content_dict) )
+                else:
+                    self.PrettyErrorPrint('''Error: Redeclaration of existing variable.\nPrior declaration is here at line {0}: \n'''.format(found["TokenLocation"][0]), found["TokenLocation"][0], found["TokenLocation"][2] )
+                    raise Exception('Redeclaration of exisitng variable in current scope.')
+            else:
+                # do nothing
+                pass
+        except Exception as e:
+            raise e
+        return True
 
     #Function: FindSymbolInTable
     #Desc: Search all scopes of the symbol table to find a specific symbol
@@ -122,12 +136,12 @@ class SymbolTable():
 
     def ReadModeOn(self):
         self.ReadMode = True
-        print("Insert Mode Toggled Off")
+        # print("Insert Mode Toggled Off")
         return
 
     def InsertMode(self):
         self.ReadMode = False
-        print("Insert Mode Toggled On")
+        # print("Insert Mode Toggled On")
         return
 
     def ToggleReadMode(self):
@@ -144,3 +158,21 @@ class SymbolTable():
         if self.TopScope is None:
             return True
         return False
+
+    def PrettyErrorPrint(self, Message, Lineno, Column):
+        arrow = ""
+
+        print(Message)
+
+        #print line
+        with open(self.SourceFile) as file:
+            for i in range(0,Lineno):
+                source = file.readline()
+        print(source)
+
+        #build arrow
+        for i in range(0,Column-1):
+            arrow += " "
+        arrow += "^\n"
+
+        print(arrow)

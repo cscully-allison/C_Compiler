@@ -15,19 +15,22 @@ import ply.yacc as yacc
 
 class Parser():
 
+    #Constructor for parser class
     def __init__(self, SourceFile = None):
-        self.ST = SymbolTable()
+        self.ST = SymbolTable(SourceFile)
         self.SourceFile = SourceFile
         self.LA = LexicalAnalizer(self.ST, SourceFile=SourceFile)
         self.Parser = None
-        self.DebugProd = True
+        self.DebugProd = False
         self.InDeclarationBlock = False
+
 
     def ToggleDebugMode(self):
         self.DebugProd = not self.DebugProd
 
     #PLY Documentation http://www.dabeaz.com/ply/ply.html
-    #Starting at 5
+    #Main function to build up the Parser
+    #Contains all the productions
     def BuildParser(self):
         def p_translation_unit_1(p):
             'translation_unit :  external_declaration'
@@ -85,9 +88,38 @@ class Parser():
 
         def p_declaration_2(p):
             'declaration :  declaration_specifiers init_declarator_list SEMI'
+
+            try:
+                #May adjust in future
+                for declarator in p[2]:
+                    self.ST.InsertSymbol(declarator['lexeme'], {'Type': p[1], 'TokenLocation': declarator['additional']['TokenLocation']})
+            except Exception as e:
+                raise e
+
+
+            if self.DebugProd == True:
+                print(p[1],p[2])
             if self.DebugProd == True:
                 print("\tdeclaration -->  declaration_specifiers init_declarator_list SEMI")
             return
+
+        ##### GRAMMAR EXSTENSIONS #######
+
+        def p_declaration_3(p):
+            'declaration :  PD_O'
+            self.DebugProd = True
+            if self.DebugProd == True:
+                print("\tdeclaration -->  PD_O")
+            return
+
+        def p_declaration_4(p):
+            'declaration :  PD_F'
+            self.DebugProd = False
+            if self.DebugProd == True:
+                print("\tdeclaration -->  PD_F")
+            return
+
+        ##### END GRAMMAR EXSTENSIONS #######
 
         def p_declaration_list_1(p):
             'declaration_list :  insert_mode_e declaration'
@@ -103,6 +135,7 @@ class Parser():
 
         def p_declaration_specifiers_1(p):
             'declaration_specifiers :  storage_class_specifier'
+            p[0] = p[1]
             if self.DebugProd == True:
                 print("\tdeclaration_specifiers -->  storage_class_specifier")
             return
@@ -115,6 +148,7 @@ class Parser():
 
         def p_declaration_specifiers_3(p):
             'declaration_specifiers :  type_specifier'
+            p[0] = p[1]
             if self.DebugProd == True:
                 print("\tdeclaration_specifiers -->  type_specifier")
             return
@@ -139,18 +173,21 @@ class Parser():
 
         def p_storage_class_specifier_1(p):
             'storage_class_specifier :  AUTO'
+            p[0] = p[1]
             if self.DebugProd == True:
                 print("\tstorage_class_specifier -->  AUTO")
             return
 
         def p_storage_class_specifier_2(p):
             'storage_class_specifier :  REGISTER'
+            p[0] = p[1]
             if self.DebugProd == True:
                 print("\tstorage_class_specifier -->  REGISTER")
             return
 
         def p_storage_class_specifier_3(p):
             'storage_class_specifier :  STATIC'
+            p[0] = p[1]
             if self.DebugProd == True:
                 print("\tstorage_class_specifier -->  STATIC")
             return
@@ -163,18 +200,23 @@ class Parser():
 
         def p_storage_class_specifier_5(p):
             'storage_class_specifier :  TYPEDEF'
+            p[0] = p[1]
             if self.DebugProd == True:
                 print("\tstorage_class_specifier -->  TYPEDEF")
             return
 
         def p_type_specifier_1(p):
             'type_specifier :  VOID'
+            p[0] = p[1]
+
             if self.DebugProd == True:
                 print("\ttype_specifier -->  VOID")
             return
 
         def p_type_specifier_2(p):
             'type_specifier :  CHAR'
+            p[0] = p[1]
+
             if self.DebugProd == True:
                 print("\ttype_specifier -->  CHAR")
             return
@@ -187,66 +229,88 @@ class Parser():
 
         def p_type_specifier_4(p):
             'type_specifier :  INT'
+            p[0] = p[1]
+
             if self.DebugProd == True:
                 print("\ttype_specifier -->  INT")
             return
 
         def p_type_specifier_5(p):
             'type_specifier :  LONG'
+            p[0] = p[1]
+
             if self.DebugProd == True:
                 print("\ttype_specifier -->  LONG")
             return
 
         def p_type_specifier_6(p):
             'type_specifier :  FLOAT'
+            p[0] = p[1]
+
             if self.DebugProd == True:
                 print("\ttype_specifier -->  FLOAT")
             return
 
         def p_type_specifier_7(p):
             'type_specifier :  DOUBLE'
+            p[0] = p[1]
+
             if self.DebugProd == True:
                 print("\ttype_specifier -->  DOUBLE")
             return
 
         def p_type_specifier_8(p):
             'type_specifier :  SIGNED'
+            p[0] = p[1]
+
             if self.DebugProd == True:
                 print("\ttype_specifier -->  SIGNED")
             return
 
         def p_type_specifier_9(p):
             'type_specifier :  UNSIGNED'
+            p[0] = p[1]
+
             if self.DebugProd == True:
                 print("\ttype_specifier -->  UNSIGNED")
             return
 
         def p_type_specifier_10(p):
             'type_specifier :  struct_or_union_specifier'
+            p[0] = p[1]
+
             if self.DebugProd == True:
                 print("\ttype_specifier -->  struct_or_union_specifier")
             return
 
         def p_type_specifier_11(p):
             'type_specifier :  enum_specifier'
+            p[0] = p[1]
+
             if self.DebugProd == True:
                 print("\ttype_specifier -->  enum_specifier")
             return
 
         def p_type_specifier_12(p):
             'type_specifier :  TYPEDEF_NAME'
+            p[0] = p[1]
+
             if self.DebugProd == True:
                 print("\ttype_specifier -->  TYPEDEF_NAME")
             return
 
         def p_type_qualifier_1(p):
             'type_qualifier :  CONST'
+            p[0] = p[1]
+
             if self.DebugProd == True:
                 print("\ttype_qualifier -->  CONST")
             return
 
         def p_type_qualifier_2(p):
             'type_qualifier :  VOLATILE'
+            p[0] = p[1]
+
             if self.DebugProd == True:
                 print("\ttype_qualifier -->  VOLATILE")
             return
@@ -295,18 +359,39 @@ class Parser():
 
         def p_init_declarator_list_1(p):
             'init_declarator_list :  init_declarator'
+            list = []
+            list.append(p[1])
+            p[0] = list
+
+            if self.DebugProd == True:
+                print(list)
+
             if self.DebugProd == True:
                 print("\tinit_declarator_list -->  init_declarator")
             return
 
         def p_init_declarator_list_2(p):
             'init_declarator_list :  init_declarator_list COMMA init_declarator'
+            if(p[1] is not None):
+                p[1].append(p[3])
+
+            p[0] = p[1]
+
+            if self.DebugProd == True:
+                print(p[1], p[3])
+
             if self.DebugProd == True:
                 print("\tinit_declarator_list -->  init_declarator_list COMMA init_declarator")
             return
 
+
         def p_init_declarator_1(p):
             'init_declarator :  declarator'
+            p[0] = p[1]
+
+            if self.DebugProd == True:
+                print(p[1])
+
             if self.DebugProd == True:
                 print("\tinit_declarator -->  declarator")
             return
@@ -421,36 +506,47 @@ class Parser():
 
         def p_declarator_1(p):
             'declarator : direct_declarator'
+
+            #pass up the identifier
+            p[0] = p[1]
             if self.DebugProd == True:
                 print("\tdeclarator -->  direct_declarator")
             return
 
         def p_declarator_2(p):
             'declarator : pointer direct_declarator'
+
             if self.DebugProd == True:
                 print("\tdeclarator -->  pointer direct_declarator")
             return
 
         def p_direct_declarator_1(p):
             'direct_declarator :  identifier'
+
+            #pass up the identifier
+            p[0] = p[1]
+
             if self.DebugProd == True:
                 print("\tdirect_declarator -->  identifier")
             return
 
         def p_direct_declarator_2(p):
             'direct_declarator :  OPENPAREN declarator CLOSEPAREN'
+            p[0] = p[2]
             if self.DebugProd == True:
                 print("\tdirect_declarator -->  OPENPAREN declarator CLOSEPAREN")
             return
 
         def p_direct_declarator_3(p):
             'direct_declarator :  direct_declarator OPENBRACKET CLOSEBRACKET'
+            p[0] = p[1]
             if self.DebugProd == True:
                 print("\tdirect_declarator -->  direct_declarator OPENBRACKET CLOSEBRACKET")
             return
 
         def p_direct_declarator_4(p):
             'direct_declarator :  direct_declarator OPENBRACKET constant_expression CLOSEBRACKET'
+
             if self.DebugProd == True:
                 print("\tdirect_declarator -->  direct_declarator OPENBRACKET constant_expression CLOSEBRACKET")
             return
@@ -463,6 +559,9 @@ class Parser():
 
         def p_direct_declarator_6(p):
             'direct_declarator :  direct_declarator OPENPAREN parameter_type_list CLOSEPAREN'
+            #this should assign some things as well
+            p[0] = p[1]
+
             if self.DebugProd == True:
                 print("\tdirect_declarator -->  direct_declarator OPENPAREN parameter_type_list CLOSEPAREN")
             return
@@ -713,6 +812,20 @@ class Parser():
                 print("\tstatement -->  jump_statement")
             return
 
+        def p_statement_7(p):
+            'statement : PD_O'
+            self.DebugProd = True
+            if self.DebugProd == True:
+                print("\tstatement -->  PD_O")
+            return
+
+        def p_statement_8(p):
+            'statement : PD_F'
+            self.DebugProd = False
+            if self.DebugProd == True:
+                print("\tstatement -->  PD_F")
+            return
+
         def p_labeled_statement_1(p):
             'labeled_statement :  identifier COLON statement'
             if self.DebugProd == True:
@@ -763,6 +876,7 @@ class Parser():
 
         def p_compound_statement_4(p):
             'compound_statement :  OPENBRACE push_scope_e declaration_list statement_list insert_mode_e pop_scope_e CLOSEBRACE'
+
             if self.DebugProd == True:
                 print("\tcompound_statement -->  OPENBRACE declaration_list statement_list CLOSEBRACE")
             return
@@ -1363,7 +1477,8 @@ class Parser():
 
         def p_identifier_1(p):
             'identifier :  IDENTIFIER'
-            self.ST.InsertSymbol(p[1]["lexeme"], p[1]["additional"])
+            #passing up the identifier
+            p[0] = p[1]
 
             if self.DebugProd == True:
                 print("\tidentifier -->  IDENTIFIER")
@@ -1403,7 +1518,7 @@ class Parser():
             return
 
 
-
+        #must be here to make parser build correctly
         tokens = self.LA.Tokens
 
 

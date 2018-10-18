@@ -2,12 +2,13 @@ import ply.lex as lex
 
 class LexicalAnalizer():
 
-    def __init__(self, SymbolTable, DebugSwitch = None, Output = None, SourceFile = None):
+    def __init__(self, SymbolTable, DebugSwitch = None, Output = None, SourceFile = None, ParserDebugPtr=None):
         self.ST = SymbolTable
         self.SourceFile = SourceFile
         self.DebugLex = False
         self.OutputFile = None
         self.Lexer = None
+        self.ParserDebugPtr = ParserDebugPtr
         self.Tokens = (
             'IDENTIFIER',
             'INTEGER_CONSTANT',
@@ -102,12 +103,15 @@ class LexicalAnalizer():
             'QMARK',
             'PERIOD',
 
-            'PD_O',   #parser debug on
-            'PD_F',   #parser debug off
-            'LD_O',   #lexer debug on
-            'LD_F',   #lexer debug off
-            'DST'   #dump symbol table
+            'PD_O',     #parser debug on
+            'PD_F',     #parser debug off
+            'LD_O',     #lexer debug on
+            'LD_F',     #lexer debug off
+            'ST2_O',    #symbol table debug on
+            'ST2_F',    #symbol table debug off
+            'DST'       #dump symbol table
         )
+
         self.Reserved = {
             'if':'IF',
             'auto': 'AUTO',
@@ -161,7 +165,7 @@ class LexicalAnalizer():
         #regular expression rules
         #see PLY DOC 4.3 for ordering problems
 
-        # PTR_OP   = r''
+        PTR_OP   = r'->'
         t_INC_OP   = r'\+\+'
         t_DEC_OP   = r'--'
         t_LEFT_OP   = r'<<'
@@ -282,6 +286,14 @@ class LexicalAnalizer():
 
 
         #dbug Output tokens
+        def t_ST2_O(t):
+            r'\$!ST2O'
+            self.ST.ToggleDebugMode()
+
+        def t_ST2_F(t):
+            r'\$!ST2F'
+            self.ST.ToggleDebugMode()
+
 
         def t_DST(t):
             r'\$!ST1'
@@ -290,12 +302,12 @@ class LexicalAnalizer():
             self.ST.ToggleDebugMode()
 
         def t_PD_O(t):
-            r'\$!PD+'
-            return
+            r'\$!PDO'
+            return t
 
         def t_PD_F(t):
-            r'\$!PD-'
-            return
+            r'\$!PDF'
+            return t
 
         #build Lexer
         self.Lexer = lex.lex()

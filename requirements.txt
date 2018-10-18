@@ -1,3 +1,4 @@
 bintrees
 pytest
 ply
+graphviz

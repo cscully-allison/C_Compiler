@@ -1,7 +1,13 @@
 
+$!PDO
+int a, b;
 
 int main(int a, char b){
-  int a, b;
+
+$!PDF
+
+  int a, c, d;
+
 
 if (2>5)
 {
@@ -13,8 +19,14 @@ if (2>5)
 }
 
   for(i = 0; i < 3; i++){
-    float c, d;
-          $!ST1
+
+    float a;
+
+    a = b + c;
+    b += 9;
+
+    $!ST1
+
   }
 
 }
