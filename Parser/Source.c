@@ -1,12 +1,23 @@
 
+$!PDO
+int a, b;
+
 int main(int a, char b){
-  int a, b;
-  $!PDO
+
+$!PDF
+
+  int a, c, d;
+
 
   for(i = 0; i < 3; i++){
-    $!PDF
-    static const float a;
+
+    float a;
+
+    a = b + c;
+    b += 9;
+
     $!ST1
+
   }
 
 }
