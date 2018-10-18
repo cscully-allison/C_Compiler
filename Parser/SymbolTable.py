@@ -5,8 +5,8 @@ class SymbolTable():
     #constructor
     def __init__(self):
         self.Table = [] #declare table as a stack (list) containing an empty tree
-        self.TopScope = FastRBTree() # a place where the current top scope is held
-        self.ReadMode = False #Read or lookup mode
+        self.TopScope = FastRBTree()    # a place where the current top scope is held
+        self.ReadMode = False           #Read or lookup mode
         self.DebugMode = False
 
     #Function: InsertSymbol
@@ -17,6 +17,8 @@ class SymbolTable():
     #                       Attribute: some modifier on the symbol 'static' 'const' etc.,
     #                       TokenLocation: tuple(line, char) }
     def InsertSymbol(self, SymbolKey_str, Content_dict):
+
+        print("Insert symbol is called: ", "In Read Mode?", self.ReadMode, SymbolKey_str ,Content_dict)
 
         if self.ReadMode == False:
             #perform deepcopy on passed in dictionary
@@ -114,6 +116,16 @@ class SymbolTable():
 
     def ToggleDebugMode(self):
         self.DebugMode = not self.DebugMode
+        return
+
+    def ReadModeOn(self):
+        self.ReadMode = True
+        print("Insert Mode Toggled Off")
+        return
+
+    def InsertMode(self):
+        self.ReadMode = False
+        print("Insert Mode Toggled On")
         return
 
     def ToggleReadMode(self):

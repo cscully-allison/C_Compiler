@@ -90,15 +90,13 @@ class Parser():
             return
 
         def p_declaration_list_1(p):
-            'declaration_list :  declaration'
-
+            'declaration_list :  insert_mode_e declaration'
             if self.DebugProd == True:
                 print("\tdeclaration_list -->  declaration")
             return
 
         def p_declaration_list_2(p):
-            'declaration_list :  declaration_list declaration'
-
+            'declaration_list :  declaration_list insert_mode_e declaration'
             if self.DebugProd == True:
                 print("\tdeclaration_list -->  declaration_list declaration")
             return
@@ -422,16 +420,13 @@ class Parser():
             return
 
         def p_declarator_1(p):
-            'declarator :  direct_declarator'
-            # if self.ST.ReadMode == True:
-            #     self.ST.ToggleReadMode()
-
+            'declarator : direct_declarator'
             if self.DebugProd == True:
                 print("\tdeclarator -->  direct_declarator")
             return
 
         def p_declarator_2(p):
-            'declarator :  pointer direct_declarator'
+            'declarator : pointer direct_declarator'
             if self.DebugProd == True:
                 print("\tdeclarator -->  pointer direct_declarator")
             return
@@ -755,31 +750,31 @@ class Parser():
             return
 
         def p_compound_statement_2(p):
-            'compound_statement :  OPENBRACE read_mode_e statement_list insert_mode_e CLOSEBRACE'
+            'compound_statement :  OPENBRACE push_scope_e statement_list pop_scope_e CLOSEBRACE'
             if self.DebugProd == True:
                 print("\tcompound_statement -->  OPENBRACE statement_list CLOSEBRACE")
             return
 
         def p_compound_statement_3(p):
-            'compound_statement :  OPENBRACE insert_mode_e declaration_list read_mode_e CLOSEBRACE'
+            'compound_statement :  OPENBRACE push_scope_e declaration_list pop_scope_e CLOSEBRACE'
             if self.DebugProd == True:
-                print("\tcompound_statement -->  OPENBRACE  insert_mode_e declaration_list CLOSEBRACE")
+                print("\tcompound_statement -->  OPENBRACE declaration_list CLOSEBRACE")
             return
 
         def p_compound_statement_4(p):
-            'compound_statement :  OPENBRACE insert_mode_e declaration_list read_mode_e statement_list insert_mode_e CLOSEBRACE'
+            'compound_statement :  OPENBRACE push_scope_e declaration_list statement_list insert_mode_e pop_scope_e CLOSEBRACE'
             if self.DebugProd == True:
                 print("\tcompound_statement -->  OPENBRACE declaration_list statement_list CLOSEBRACE")
             return
 
         def p_statement_list_1(p):
-            'statement_list :  statement'
+            'statement_list : read_mode_e statement'
             if self.DebugProd == True:
                 print("\tstatement_list -->  statement")
             return
 
         def p_statement_list_2(p):
-            'statement_list :  statement_list statement'
+            'statement_list :  statement_list read_mode_e statement'
             if self.DebugProd == True:
                 print("\tstatement_list -->  statement_list statement")
             return
@@ -1368,6 +1363,8 @@ class Parser():
 
         def p_identifier_1(p):
             'identifier :  IDENTIFIER'
+            self.ST.InsertSymbol(p[1]["lexeme"], p[1]["additional"])
+
             if self.DebugProd == True:
                 print("\tidentifier -->  IDENTIFIER")
             return
@@ -1375,19 +1372,36 @@ class Parser():
         #empty productions
         def p_empty_insertmode(p):
             'insert_mode_e :'
-            if self.ST.ReadMode == True:
-                self.ST.ToggleReadMode()
+
+            self.ST.InsertMode()
+
             if self.DebugProd == True:
                 print("insert_mode_e -->  ")
+
             return
 
         def p_empty_readmode(p):
             'read_mode_e :'
-            if self.ST.ReadMode == False:
-                self.ST.ToggleReadMode()
+
+            self.ST.ReadModeOn()
+
             if self.DebugProd == True:
                 print("read_mode_e -->  ")
+
             return
+
+        def p_empty_push_scope(p):
+            'push_scope_e :'
+
+            self.ST.PushNewScope()
+            return
+
+        def p_empty_pop_scope(p):
+            'pop_scope_e :'
+
+            self.ST.PopScope()
+            return
+
 
 
         tokens = self.LA.Tokens
