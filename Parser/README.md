@@ -1,25 +1,11 @@
 ## CS 660
-## Symbol Table
+## Parser
 
 ## Connor Scully-Allison
 ## Kurt Andersen
 # October 19, 2018
 
-## Table of Contents
-[Links to other README's](## Links to other README's)
-[Language Features of the Compiler](## Language Features of the Compiler)
-[Implementation](## Implementation of the symbol table, lexical analyzer, and parser)
-[Assumptions Made](## Assumptions made)
-[Dependencies](## Dependency Installation Instructions)
-[Restrictions](## Restrictions)
-[Misc Notes](## Misc Notes)
-
-## Links to other README's
-[Symbol Table README](./SymbolTable/README.md)
-[Lexical Analyzer README](./LexicalAnalizer/README.md)
-[Parser README](./Parser/README.md)
-
-## Language Features of the Compiler
+## Language Features of the compiler
 Python 3.6 is used for our compiler
 
 ## Implementation of the symbol table, lexical analyzer, and parser
@@ -29,6 +15,8 @@ but is a derivation for python.
 
 ## Assumptions made
 ?????
+
+## Dependencies
 
 ## Dependency Installation Instructions
 Python version 3.6 is used.
@@ -47,9 +35,7 @@ pip install requirements.txt
 ```
 
 ## Restrictions
-As of right now, we allow all errors to continue.  Error location is denoted, but parser and lexical analyzer
-continue to run for information purposes.
 
-## Misc Notes
+# Misc Notes
 
 
