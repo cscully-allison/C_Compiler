@@ -20,7 +20,7 @@ class Parser():
         self.SourceFile = SourceFile
         self.LA = LexicalAnalizer(self.ST, SourceFile=SourceFile)
         self.Parser = None
-        self.DebugProd = True
+        self.DebugProd = False
         self.InDeclarationBlock = False
 
     def ToggleDebugMode(self):
@@ -88,6 +88,24 @@ class Parser():
             if self.DebugProd == True:
                 print("\tdeclaration -->  declaration_specifiers init_declarator_list SEMI")
             return
+
+        ##### GRAMMAR EXSTENSIONS #######
+
+        def p_declaration_3(p):
+            'declaration :  PD_O'
+            self.DebugProd = True
+            if self.DebugProd == True:
+                print("\tdeclaration -->  PD_O")
+            return
+
+        def p_declaration_4(p):
+            'declaration :  PD_F'
+            self.DebugProd = False
+            if self.DebugProd == True:
+                print("\tdeclaration -->  PD_F")
+            return
+
+        ##### END GRAMMAR EXSTENSIONS #######
 
         def p_declaration_list_1(p):
             'declaration_list :  insert_mode_e declaration'
@@ -763,6 +781,7 @@ class Parser():
 
         def p_compound_statement_4(p):
             'compound_statement :  OPENBRACE push_scope_e declaration_list statement_list insert_mode_e pop_scope_e CLOSEBRACE'
+
             if self.DebugProd == True:
                 print("\tcompound_statement -->  OPENBRACE declaration_list statement_list CLOSEBRACE")
             return

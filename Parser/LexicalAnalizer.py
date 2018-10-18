@@ -2,12 +2,13 @@ import ply.lex as lex
 
 class LexicalAnalizer():
 
-    def __init__(self, SymbolTable, DebugSwitch = None, Output = None, SourceFile = None):
+    def __init__(self, SymbolTable, DebugSwitch = None, Output = None, SourceFile = None, ParserDebugPtr=None):
         self.ST = SymbolTable
         self.SourceFile = SourceFile
         self.DebugLex = False
         self.OutputFile = None
         self.Lexer = None
+        self.ParserDebugPtr = ParserDebugPtr
         self.Tokens = (
             'IDENTIFIER',
             'INTEGER_CONSTANT',
@@ -279,12 +280,13 @@ class LexicalAnalizer():
             self.ST.ToggleDebugMode()
 
         def t_PD_O(t):
-            r'\$!PD+'
-            return
+            r'\$!PDO'
+            return t
+
 
         def t_PD_F(t):
-            r'\$!PD-'
-            return
+            r'\$!PDF'
+            return t
 
         #build Lexer
         self.Lexer = lex.lex()

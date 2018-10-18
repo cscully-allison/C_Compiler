@@ -14,8 +14,8 @@ class SymbolTable():
     # The symbol key string is a lexeme
     #Content_dict: At present this will contain
     #                       {Type: (the token adjacent to the SymbolKey i.e. >int< <SymbolKey>),
-    #                       Attribute: some modifier on the symbol 'static' 'const' etc.,
-    #                       TokenLocation: tuple(line, char) }
+    #                       Attribute: some modifier on the symbol 'static' 'const' etc.
+    #                       TokenLocation: tuple(line, char_in_file, char_in_line) }
     def InsertSymbol(self, SymbolKey_str, Content_dict):
 
         print("Insert symbol is called: ", "In Read Mode?", self.ReadMode, SymbolKey_str ,Content_dict)
