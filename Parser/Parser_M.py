@@ -462,7 +462,7 @@ class Parser():
             return
 
         def p_direct_declarator_6(p):
-            'direct_declarator :  direct_declarator OPENPAREN push_scope_e parameter_type_list CLOSEPAREN'
+            'direct_declarator :  direct_declarator OPENPAREN parameter_type_list CLOSEPAREN'
             if self.DebugProd == True:
                 print("\tdirect_declarator -->  direct_declarator OPENPAREN parameter_type_list CLOSEPAREN")
             return
