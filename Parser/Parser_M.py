@@ -462,7 +462,7 @@ class Parser():
             return
 
         def p_direct_declarator_6(p):
-            'direct_declarator :  direct_declarator OPENPAREN parameter_type_list CLOSEPAREN'
+            'direct_declarator :  direct_declarator OPENPAREN push_scope_e parameter_type_list CLOSEPAREN'
             if self.DebugProd == True:
                 print("\tdirect_declarator -->  direct_declarator OPENPAREN parameter_type_list CLOSEPAREN")
             return
@@ -750,19 +750,19 @@ class Parser():
             return
 
         def p_compound_statement_2(p):
-            'compound_statement :  OPENBRACE statement_list CLOSEBRACE'
+            'compound_statement :  OPENBRACE push_scope_e statement_list pop_scope_e CLOSEBRACE'
             if self.DebugProd == True:
                 print("\tcompound_statement -->  OPENBRACE statement_list CLOSEBRACE")
             return
 
         def p_compound_statement_3(p):
-            'compound_statement :  OPENBRACE declaration_list CLOSEBRACE'
+            'compound_statement :  OPENBRACE push_scope_e declaration_list pop_scope_e CLOSEBRACE'
             if self.DebugProd == True:
                 print("\tcompound_statement -->  OPENBRACE declaration_list CLOSEBRACE")
             return
 
         def p_compound_statement_4(p):
-            'compound_statement :  OPENBRACE declaration_list statement_list insert_mode_e CLOSEBRACE'
+            'compound_statement :  OPENBRACE push_scope_e declaration_list statement_list insert_mode_e pop_scope_e CLOSEBRACE'
             if self.DebugProd == True:
                 print("\tcompound_statement -->  OPENBRACE declaration_list statement_list CLOSEBRACE")
             return
@@ -1389,6 +1389,19 @@ class Parser():
                 print("read_mode_e -->  ")
 
             return
+
+        def p_empty_push_scope(p):
+            'push_scope_e :'
+
+            self.ST.PushNewScope()
+            return
+
+        def p_empty_pop_scope(p):
+            'pop_scope_e :'
+
+            self.ST.PopScope()
+            return
+
 
 
         tokens = self.LA.Tokens
