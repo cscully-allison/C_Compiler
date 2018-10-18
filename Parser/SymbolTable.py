@@ -68,6 +68,7 @@ class SymbolTable():
     #Function: PushScope
     #Desc: Insert symbol tree (RBTree) onto our table
     def PushScope(self, SymbolTree):
+        print "************scope pushed*************"
         self.Table.append(self.TopScope)
         self.TopScope = SymbolTree
         return
@@ -75,6 +76,7 @@ class SymbolTable():
     #Function: PopScope
     #Desc: Remove and return scope (RBtree) from the symbol table
     def PopScope(self):
+        print "**************scope popped***************"
         TScope = self.TopScope
         if len(self.Table) > 0:
             self.TopScope = self.Table.pop()
