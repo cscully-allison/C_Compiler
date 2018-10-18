@@ -20,7 +20,7 @@ class Parser():
         self.SourceFile = SourceFile
         self.LA = LexicalAnalizer(self.ST, SourceFile=SourceFile)
         self.Parser = None
-        self.DebugProd = True
+        self.DebugProd = False
         self.InDeclarationBlock = False
 
     def ToggleDebugMode(self):

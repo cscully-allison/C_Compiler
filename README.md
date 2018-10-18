@@ -16,7 +16,9 @@
 
 ## Links to other README's
 [Symbol Table README](./SymbolTable/README.md)
+
 [Lexical Analyzer README](./LexicalAnalizer/README.md)
+
 [Parser README](./Parser/README.md)
 
 ## Language Features of the Compiler
