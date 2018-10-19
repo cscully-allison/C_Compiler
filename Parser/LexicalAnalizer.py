@@ -240,6 +240,8 @@ class LexicalAnalizer():
         def t_VARYING_COMMENT(t):
             r'(/\*(.|\n)*?\*/)'
             t.lexer.lineno += t.value.count('\n')
+            if self.DebugLex == True:
+                print(t)
             pass
 
         # t_ENUMERATION_CONSTANT   = r''
@@ -257,6 +259,9 @@ class LexicalAnalizer():
                 contents["TokenLocation"] = (t.lineno, t.lexpos, Column)
                 t.value = {"lexeme": t.value, "additional": contents}
                 # self.ST.InsertSymbol(t.value, contents)
+
+            if self.DebugLex == True:
+                print(t)
 
             return t
 
