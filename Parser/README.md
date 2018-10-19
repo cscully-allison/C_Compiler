@@ -24,3 +24,4 @@ Lexical Analyzer: [LexicalAnalizer.py](LexicalAnalizer.py)<br>
 Symbol Table: [SymbolTable.py](SymbolTable.py)<br>
 Main driver: [driver.py](driver.py)<br>
 Source Code to Parse: [Source.c](Source.c)<br>
+Symbol Talbe Output: [SymbolTable.out](SymbolTable.out)<br>
