@@ -1,4 +1,3 @@
-
 $!PDO
 int a, b;
 
@@ -7,10 +6,9 @@ int main(int a, char b){
 
   int a, c, d;
 $!PDF
-
   if (2>5)
   {
-    $!LDO
+$!LDO
   	int a;
   	int q;
   	char c;
@@ -19,21 +17,21 @@ $!PDF
 
   if (2>5)
   {
-  $!LDF
+$!LDF
   	int a;
   	int q;
+$!ST2O
   	char c;
 
   	q = c+a;
 
       for(i = 0; i < 3; i++){
-
         float a;
-
+$!ST2F
         a = b + c;
         b += 9;
 
-        $!ST1
+$!ST1
 
       }
   }

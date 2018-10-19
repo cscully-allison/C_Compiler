@@ -2,15 +2,15 @@
 **** Outputting Contents of Symbol Table **** 
 
 Items in Tree at Level 0: 
-	Key: "a" | Content: {'Type': 'float', 'TokenLocation': (31, 253, 15)}
+	Key: "a" | Content: {'Type': 'float', 'TokenLocation': (29, 251, 15)}
 Items in Tree at Level 1: 
-	Key: "a" | Content: {'Type': 'int', 'TokenLocation': (23, 170, 8)}
-	Key: "c" | Content: {'Type': 'char', 'TokenLocation': (25, 191, 9)}
-	Key: "q" | Content: {'Type': 'int', 'TokenLocation': (24, 180, 8)}
+	Key: "a" | Content: {'Type': 'int', 'TokenLocation': (21, 162, 8)}
+	Key: "c" | Content: {'Type': 'char', 'TokenLocation': (24, 190, 9)}
+	Key: "q" | Content: {'Type': 'int', 'TokenLocation': (22, 172, 8)}
 Items in Tree at Level 2: 
-	Key: "a" | Content: {'Type': 'int', 'TokenLocation': (8, 51, 7)}
-	Key: "c" | Content: {'Type': 'int', 'TokenLocation': (8, 54, 10)}
-	Key: "d" | Content: {'Type': 'int', 'TokenLocation': (8, 57, 13)}
+	Key: "a" | Content: {'Type': 'int', 'TokenLocation': (7, 50, 7)}
+	Key: "c" | Content: {'Type': 'int', 'TokenLocation': (7, 53, 10)}
+	Key: "d" | Content: {'Type': 'int', 'TokenLocation': (7, 56, 13)}
 Items in Tree at Level 3: 
-	Key: "a" | Content: {'Type': 'int', 'TokenLocation': (3, 11, 5)}
-	Key: "b" | Content: {'Type': 'int', 'TokenLocation': (3, 14, 8)}
+	Key: "a" | Content: {'Type': 'int', 'TokenLocation': (2, 10, 5)}
+	Key: "b" | Content: {'Type': 'int', 'TokenLocation': (2, 13, 8)}
