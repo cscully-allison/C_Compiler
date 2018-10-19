@@ -31,6 +31,7 @@
 Python 3.6 is used for our compiler
 
 <a name="implementation"/>
+
 ## Implementation of the symbol table, lexical analyzer, and parser
 
 The symbol table uses a red-black tree to keep the tree balanced. (Grad student requirement)
@@ -38,11 +39,13 @@ The lexical analyzer and parser use the PLY library.  It is similar to the yacc/
 but is a derivation for python.
 
 <a name="assumptions"/>
+
 ## Assumptions made
 
 ?????
 
 <a name="dependencies"/>
+
 ## Dependency Installation Instructions
 
 Python version 3.6 is used.
@@ -61,12 +64,14 @@ pip install requirements.txt
 ```
 
 <a name="restrictions"/>
+
 ## Restrictions
 
 As of right now, we allow all errors to continue.  Error location is denoted, but parser and lexical analyzer
 continue to run for information purposes.
 
 <a name="misc"/>
+
 ## Misc Notes
 
 
