@@ -262,7 +262,7 @@ class LexicalAnalizer():
                 Column = 0
 
                 if len(str(t.value)) > 31:
-                    print "Warning: Identifier exceeds maximum length"
+                    print("Warning: Identifier exceeds maximum length")
 
                 contents = {}
                 if self.SourceFile is not None:
