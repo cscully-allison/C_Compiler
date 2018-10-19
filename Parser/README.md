@@ -4,7 +4,7 @@
 # Connor Scully-Allison and Kurt Andersen
 ### October 19, 2018
 
-##Navigation <br>
+## Navigation
 [Main Project Page](https://github.com/cscully-allison/C_Compilier)<br>
 [Project Wiki](https://github.com/cscully-allison/C_Compilier/wiki/CS-660:-Connor-Scully-Allison-and-Kurt-Andersen)<br>
 [Symbol Table](../SymbolTable)<br>
