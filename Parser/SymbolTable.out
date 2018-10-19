@@ -2,10 +2,10 @@
 **** Outputting Contents of Symbol Table **** 
 
 Items in Tree at Level 0: 
-	Key: "d" | Content: {'Type': 'float', 'TokenLocation': (29, 251, 15)}
+	Key: "d" | Content: {'Type': 'float', 'TokenLocation': (30, 252, 15)}
 Items in Tree at Level 1: 
 	Key: "a" | Content: {'Type': 'int', 'TokenLocation': (21, 162, 8)}
-	Key: "c" | Content: {'Type': 'char', 'TokenLocation': (24, 190, 9)}
+	Key: "c" | Content: {'Type': 'char', 'TokenLocation': (25, 191, 9)}
 	Key: "f" | Content: {'Type': 'int', 'TokenLocation': (22, 172, 8)}
 Items in Tree at Level 2: 
 	Key: "c" | Content: {'Type': 'int', 'TokenLocation': (7, 53, 10)}

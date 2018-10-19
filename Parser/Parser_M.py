@@ -1526,6 +1526,9 @@ class Parser():
                 print("pop_scope_e -->  ")
             return
 
+        def p_error(p):
+            raise Exception("Parsing error found.")
+
 
         #must be here to make parser build correctly
         tokens = self.LA.Tokens

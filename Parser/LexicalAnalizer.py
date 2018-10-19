@@ -297,6 +297,8 @@ class LexicalAnalizer():
 
             self.PrettyErrorPrint(self.SourceFile, t.lineno, Column)
 
+            raise Exception("Invalid token found.")
+
             t.lexer.skip(1)
 
 

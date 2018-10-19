@@ -20,6 +20,7 @@ $!LDO
 $!LDF
   	int a;
   	int f;
+
 $!ST2O
   	char c;
 

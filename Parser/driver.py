@@ -4,11 +4,22 @@ import sys
 def driver():
 
     s = ""
-    P = Parser(SourceFile="Source.c", DebugArgs = sys.argv)
+    SourceCodeFile = ""
+
+    #find input file
+    for i, arg in enumerate(sys.argv):
+        if arg == "-i":
+            SourceCodeFile = sys.argv[i+1]
+
+
+    # Construct parser
+    P = Parser(SourceFile=SourceCodeFile, DebugArgs = sys.argv)
     P.BuildParser()
 
+    #Run parser in try except block to enable compliation
+    # terminiation under various circumstances
     try:
-        with open("Source.c") as file:
+        with open(SourceCodeFile) as file:
             s = file.read()
         result = P.Parser.parse(s)
 

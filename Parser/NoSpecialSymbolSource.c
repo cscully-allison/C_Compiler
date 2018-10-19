@@ -8,5 +8,5 @@ int main(int a, char b){
 
     int e;
 
-    g = d + c;
+    g = d + c; $
 }
