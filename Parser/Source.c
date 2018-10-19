@@ -4,14 +4,14 @@ int a, b;
 int main(int a, char b){
 
 
-  int a, c, d;
+  int l, c, d;
 $!PDF
   if (2>5)
   {
 $!LDO
   	int a;
   	int q;
-  	char c;
+  	char m;
   	q = c+a;
   }
 
@@ -19,14 +19,14 @@ $!LDO
   {
 $!LDF
   	int a;
-  	int q;
+  	int f;
 $!ST2O
   	char c;
 
   	q = c+a;
 
       for(i = 0; i < 3; i++){
-        float a;
+        float d;
 $!ST2F
         a = b + c;
         b += 9;

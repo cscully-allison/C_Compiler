@@ -3,12 +3,12 @@ from bintrees import FastRBTree
 from copy import deepcopy
 
 def test_creation():
-    ST = SymbolTable()
+    ST = SymbolTable("")
     assert( type(ST.Table) == type([]) )
     assert( type(ST.TopScope) == type(FastRBTree()) )
 
 def test_add_symbol():
-    ST = SymbolTable()
+    ST = SymbolTable("")
     T = FastRBTree()
 
     Content = {'Type': "int" , 'Attribute': None , 'TokenLocation': (10,2) }
@@ -35,8 +35,8 @@ def test_add_symbol():
 
 
 def test_push_new_scope():
-    ST = SymbolTable()
-    ST2 = SymbolTable()
+    ST = SymbolTable("")
+    ST2 = SymbolTable("")
 
     ST.PushNewScope()
     ST.PushNewScope()
@@ -47,7 +47,7 @@ def test_push_new_scope():
 
 
 def test_push_scope():
-    ST = SymbolTable()
+    ST = SymbolTable("")
     T = FastRBTree()
     T2 = FastRBTree()
 
@@ -61,7 +61,7 @@ def test_push_scope():
 
 
 def test_find_in_current_scope():
-    ST = SymbolTable()
+    ST = SymbolTable("")
 
     Content = {'Type': "int" , 'Attribute': None , 'TokenLocation': (10,2) }
     ST.InsertSymbol("age", Content)
@@ -86,7 +86,7 @@ def test_find_in_current_scope():
 
 
 def test_find_in_table():
-    ST = SymbolTable()
+    ST = SymbolTable("")
 
     Content1 = {'Type': "int" , 'Attribute': 'static' , 'TokenLocation': (10,2) }
     ST.InsertSymbol("age", Content1)
@@ -112,25 +112,25 @@ def test_find_in_table():
     return
 
 def test_toggle_read_mode():
-    ST = SymbolTable()
+    ST = SymbolTable("")
     ST.ToggleReadMode()
-    assert(ST.ReadMode == False)
+    assert(ST.ReadMode == True)
     return
 
 def test_write_symbol_table():
-        ST = SymbolTable()
-        ST.DebugMode = True
+    ST = SymbolTable("")
+    ST.DebugMode = True
 
-        Content1 = {'Type': "int" , 'Attribute': 'static' , 'TokenLocation': (10,2) }
-        ST.InsertSymbol("age", Content1)
-        ST.PushNewScope();
-        Content2 = {'Type': "float" , 'Attribute': None , 'TokenLocation': (11,2) }
-        ST.InsertSymbol("temperature", Content2)
-        Content2 = {'Type': "float" , 'Attribute': 'static' , 'TokenLocation': (12,2) }
-        ST.InsertSymbol("t2", Content2)
-        ST.PushNewScope();
-        Content3 = {'Type': "char" , 'Attribute': None , 'TokenLocation': (13,2) }
-        ST.InsertSymbol("letter", Content3)
-        ST.PushNewScope();
+    Content1 = {'Type': "int" , 'Attribute': 'static' , 'TokenLocation': (10,2) }
+    ST.InsertSymbol("age", Content1)
+    ST.PushNewScope();
+    Content2 = {'Type': "float" , 'Attribute': None , 'TokenLocation': (11,2) }
+    ST.InsertSymbol("temperature", Content2)
+    Content2 = {'Type': "float" , 'Attribute': 'static' , 'TokenLocation': (12,2) }
+    ST.InsertSymbol("t2", Content2)
+    ST.PushNewScope();
+    Content3 = {'Type': "char" , 'Attribute': None , 'TokenLocation': (13,2) }
+    ST.InsertSymbol("letter", Content3)
+    ST.PushNewScope();
 
-        ST.WriteSymbolTableToFile("Debug.out")
+    ST.WriteSymbolTableToFile("Debug.out")

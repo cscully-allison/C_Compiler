@@ -67,7 +67,7 @@ def test_literals():
 
     for Tok in LA.Lexer:
         assert(Tok.type == 'ASSIGN')
-    
+
     data = '''>='''
 
     LA.Lexer.input(data)
@@ -107,18 +107,38 @@ def test_constants():
     LA.Lexer.input(data)
 
     for Tok in LA.Lexer:
-        assert(Tok.type == 'SINGLE_LINE_COMMENT')   
+        assert(Tok.type == 'SINGLE_LINE_COMMENT')
 
     data = '''-456.89'''
 
     LA.Lexer.input(data)
 
     for Tok in LA.Lexer:
-        assert(Tok.type == 'FLOATING_CONSTANT')   
+        assert(Tok.type == 'FLOATING_CONSTANT')
 
     data = '''\"this is string\"'''
 
     LA.Lexer.input(data)
 
     for Tok in LA.Lexer:
-        assert(Tok.type == 'STRING_LITERAL')       
+        assert(Tok.type == 'STRING_LITERAL')
+
+def test_indentifiers():
+    #basic token test for constants
+    ST = SymbolTable(None)
+    LA = LexicalAnalizer(ST)
+    LA.BuildLexer()
+
+    data = '''variable main age person'''
+
+    LA.Lexer.input(data)
+
+    for Tok in LA.Lexer:
+        assert(Tok.type == 'IDENTIFIER')
+
+    data = '''$'''
+
+    LA.Lexer.input(data)
+
+    for Tok in LA.Lexer:
+        assert(Tok.type == 'ERROR')

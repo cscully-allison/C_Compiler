@@ -161,7 +161,7 @@ class LexicalAnalizer():
             'while': 'WHILE'
          }
 
-        
+
 
 
     #niave implementation, we may move this around a bit
@@ -259,16 +259,20 @@ class LexicalAnalizer():
             r'[a-zA-Z_][a-zA-Z0-9_]*' #yes all underscores is a valid name
             t.type = self.Reserved.get(t.value,'IDENTIFIER')
             if t.type == 'IDENTIFIER':
+                Column = 0
+
                 if len(str(t.value)) > 31:
                     print "Warning: Identifier exceeds maximum length"
+
                 contents = {}
                 if self.SourceFile is not None:
                     with open(self.SourceFile) as file:
                         source = file.read()
                         Column = self.FindColumn(source, t)
                 contents["TokenLocation"] = (t.lineno, t.lexpos, Column)
+
                 t.value = {"lexeme": t.value, "additional": contents}
-                # self.ST.InsertSymbol(t.value, contents)
+
 
             if self.DebugLex == True:
                 print(t)
@@ -293,6 +297,9 @@ class LexicalAnalizer():
                 with open(self.SourceFile) as file:
                     source = file.read()
                     Column = self.FindColumn(source, t)
+            else:
+                source = t.lexer.lexdata
+                Column = self.FindColumn(source, t)
 
             self.PrettyErrorPrint(self.SourceFile, t.lineno, Column)
 
@@ -344,15 +351,17 @@ class LexicalAnalizer():
         arrow = ""
 
         print("\nInvalid token on line {}\n".format(Lineno))
-        #print line
-        with open(self.SourceFile) as file:
-            for i in range(0,Lineno):
-                source = file.readline()
-        print(source)
 
-        #build arrow
-        for i in range(0,Column-1):
-            arrow += "-"
-        arrow += "^\n"
+        if self.SourceFile is not None:
+            #print line
+            with open(self.SourceFile) as file:
+                for i in range(0,Lineno):
+                    source = file.readline()
+            print(source)
 
-        print(arrow)
+            #build arrow
+            for i in range(0,Column-1):
+                arrow += "-"
+            arrow += "^\n"
+
+            print(arrow)
