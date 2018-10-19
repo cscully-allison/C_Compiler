@@ -1509,12 +1509,16 @@ class Parser():
             'push_scope_e :'
 
             self.ST.PushNewScope()
+            if self.DebugProd == True:
+                print("push_scope_e -->  ")
             return
 
         def p_empty_pop_scope(p):
             'pop_scope_e :'
 
             self.ST.PopScope()
+            if self.DebugProd == True:
+                print("pop_scope_e -->  ")
             return
 
 

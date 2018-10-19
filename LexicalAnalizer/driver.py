@@ -42,15 +42,14 @@ def driver():
     void
     volatile
     while
-    {}()[]!?/*^%$&~
+    {}()[]!?/*^%&~$
     var 4382
     vary vars 42.26
+    ___ ____
     43E-25 43e+25
     '\t' 'a' '\n' '\0' abl '"' '\'' '8'
-    "Kurt is dumb 12345 ' ' \" \' and some other thing \0 \n \t"
-
-    =
-
+    "In a little hole in the ground there lived a hobbit. 12345 ' ' \" \' and some other thing \0 \n \t"
+    t'challa
     '''
 
     LA.Lexer.input(data)
