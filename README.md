@@ -64,7 +64,7 @@ sudo apt-get install python3.6
 ```
 Once python is installed(it includes pip), to ensure all other dependencies are installed run the following:
 ```
-pip install requirements.txt
+pip install -r requirements.txt
 ```
 
 <a name="restrictions"/>
