@@ -1,0 +1,27 @@
+import sys
+sys.path.append("LexicalAnalizer/")
+sys.path.append("../LexicalAnalizer/")
+from LexicalAnalizer import LexicalAnalizer
+from SymbolTable import SymbolTable
+import ply.yacc as yacc
+
+class Parser():
+
+    def __init__(self, SourceFile = None):
+        self.ST = SymbolTable()
+        self.LA = LexicalAnalizer(self.ST)
+        self.Parser = None
+        self.DebugProd = True
+        self.InDeclarationBlock = False
+
+    #PLY Documentation http://www.dabeaz.com/ply/ply.html
+    #Starting at 5
+    def BuildParser(self):
+{0}
+        tokens = self.LA.Tokens
+
+
+        #at some point we will use the following code:
+        #(See PLY Documentation 6.12)
+        self.LA.BuildLexer()
+        self.Parser = yacc.yacc()
