@@ -1,9 +1,10 @@
 from Parser_M import Parser
-
+import sys
 
 def driver():
+    
     s = ""
-    P = Parser(SourceFile="Source.c")
+    P = Parser(SourceFile="Source.c", DebugArgs = sys.argv)
     P.BuildParser()
 
     with open("Source.c") as file:
