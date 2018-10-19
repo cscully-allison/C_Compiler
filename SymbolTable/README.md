@@ -1,5 +1,5 @@
 ## CS 660
-## PA 5, 6, 7: Symbol Table, Lexical Analyzer, Parser
+## Symbol Table
 
 ## Connor Scully-Allison
 ## Kurt Andersen

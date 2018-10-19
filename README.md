@@ -1,9 +1,8 @@
-## CS 660
-## Symbol Table
+# CS 660
+# PA 5, 6, 7: Symbol Table, Lexical Analyzer, Parser
 
-## Connor Scully-Allison
-## Kurt Andersen
-# October 19, 2018
+# Connor Scully-Allison and Kurt Andersen
+### October 19, 2018
 
 ## Table of Contents
 [Links to other README's](#links) <br>
@@ -19,9 +18,9 @@
 ## Links to Wiki and other README's
 
 [Project Wiki](https://www.github.com/cscully-allison/C_Compilier/wiki/CS-660:-Connor-Scully-Allison-and-Kurt-Andersen) <br>
-[Symbol Table README](./SymbolTable/README.md) <br>
-[Lexical Analyzer README](./LexicalAnalizer/README.md) <br>
-[Parser README](./Parser/README.md) <br>
+[Symbol Table README](./SymbolTable/) <br>
+[Lexical Analyzer README](./LexicalAnalizer/) <br>
+[Parser README](./Parser/) <br>
 
 <a name="language"/>
 
