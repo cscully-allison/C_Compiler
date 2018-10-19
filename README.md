@@ -15,6 +15,7 @@
 [Misc Notes](#misc) <br>
 
 <a name="links"/>
+
 ## Links to other README's
 
 [Symbol Table README](./SymbolTable/README.md)
@@ -24,6 +25,7 @@
 [Parser README](./Parser/README.md)
 
 <a name="language"/>
+
 ## Language Features of the Compiler
 
 Python 3.6 is used for our compiler
