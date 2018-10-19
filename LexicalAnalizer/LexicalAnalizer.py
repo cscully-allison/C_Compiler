@@ -9,19 +9,19 @@ class LexicalAnalizer():
         for args in DebugArgs:
             if args == '-l':
                 self.DebugLex = True
-                print "lex debug on"
+                print("lex debug on")
         self.OutputFile = None
         self.Lexer = None
         self.ST.DebugMode = False
         for args in DebugArgs:
             if args == '-s':
                 self.ST.DebugMode = True
-                print "symbol table debug on"
+                print("symbol table debug on")
 
         for args in DebugArgs:
             if args == '-o':
                 self.OutputFile = Output
-                print "output flag on"
+                print("output flag on")
 
         self.Tokens = (
             'IDENTIFIER',
