@@ -2,7 +2,7 @@ import ply.lex as lex
 
 class LexicalAnalizer():
 
-    def __init__(self, SymbolTable, DebugSwitch = None, Output = None, SourceFile = None, DebugArgs = None):
+    def __init__(self, SymbolTable, DebugSwitch = None, Output = None, SourceFile = None, DebugArgs = []):
         self.ST = SymbolTable
         self.SourceFile = SourceFile
         self.DebugLex = False
