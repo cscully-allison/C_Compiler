@@ -6,7 +6,7 @@
 # October 19, 2018
 
 ## Table of Contents
-[Links to other README's](# Links to other README's)
+[Links to other README's](#links)
 [Language Features of the Compiler](# Language Features of the Compiler)
 [Implementation](# Implementation of the symbol table, lexical analyzer, and parser)
 [Assumptions Made](# Assumptions made)
@@ -14,6 +14,7 @@
 [Restrictions](# Restrictions)
 [Misc Notes](# Misc Notes)
 
+<a name="links"/>
 ## Links to other README's
 [Symbol Table README](./SymbolTable/README.md)
 
