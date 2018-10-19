@@ -25,7 +25,7 @@ class Parser():
         for args in DebugArgs:
             if args == '-d':
                 self.DebugProd = True
-                print "parser debug on"
+                print("parser debug on")
         self.InDeclarationBlock = False
 
 

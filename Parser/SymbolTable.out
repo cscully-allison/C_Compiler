@@ -2,24 +2,15 @@
 **** Outputting Contents of Symbol Table **** 
 
 Items in Tree at Level 0: 
-<<<<<<< HEAD
-	Key: "a" | Content: {'Type': 'float', 'TokenLocation': (31, 208, 11)}
+	Key: "a" | Content: {'Type': 'float', 'TokenLocation': (31, 253, 15)}
 Items in Tree at Level 1: 
-	Key: "a" | Content: {'Type': 'int', 'TokenLocation': (23, 139, 6)}
-	Key: "c" | Content: {'Type': 'char', 'TokenLocation': (25, 156, 7)}
-	Key: "q" | Content: {'Type': 'int', 'TokenLocation': (24, 147, 6)}
+	Key: "a" | Content: {'Type': 'int', 'TokenLocation': (23, 170, 8)}
+	Key: "c" | Content: {'Type': 'char', 'TokenLocation': (25, 191, 9)}
+	Key: "q" | Content: {'Type': 'int', 'TokenLocation': (24, 180, 8)}
 Items in Tree at Level 2: 
-	Key: "a" | Content: {'Type': 'int', 'TokenLocation': (9, 57, 7)}
-	Key: "c" | Content: {'Type': 'int', 'TokenLocation': (9, 60, 10)}
-	Key: "d" | Content: {'Type': 'int', 'TokenLocation': (9, 63, 13)}
+	Key: "a" | Content: {'Type': 'int', 'TokenLocation': (8, 51, 7)}
+	Key: "c" | Content: {'Type': 'int', 'TokenLocation': (8, 54, 10)}
+	Key: "d" | Content: {'Type': 'int', 'TokenLocation': (8, 57, 13)}
 Items in Tree at Level 3: 
-=======
-	Key: "a" | Content: {'Type': 'float', 'TokenLocation': (32, 205, 11)}
-Items in Tree at Level 1: 
-	Key: "a" | Content: {'Type': 'int', 'TokenLocation': (9, 57, 7)}
-	Key: "c" | Content: {'Type': 'int', 'TokenLocation': (9, 60, 10)}
-	Key: "d" | Content: {'Type': 'int', 'TokenLocation': (9, 63, 13)}
-Items in Tree at Level 2: 
->>>>>>> kurt
 	Key: "a" | Content: {'Type': 'int', 'TokenLocation': (3, 11, 5)}
 	Key: "b" | Content: {'Type': 'int', 'TokenLocation': (3, 14, 8)}

@@ -1,14 +1,16 @@
 
+$!PDO
 int a, b;
 
 int main(int a, char b){
 
 
   int a, c, d;
-
+$!PDF
 
   if (2>5)
   {
+    $!LDO
   	int a;
   	int q;
   	char c;
@@ -17,6 +19,7 @@ int main(int a, char b){
 
   if (2>5)
   {
+  $!LDF
   	int a;
   	int q;
   	char c;
@@ -30,6 +33,7 @@ int main(int a, char b){
         a = b + c;
         b += 9;
 
+        $!ST1
 
       }
   }

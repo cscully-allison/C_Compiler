@@ -9,19 +9,19 @@ class LexicalAnalizer():
         for args in DebugArgs:
             if args == '-l':
                 self.DebugLex = True
-                print "lex debug on"
+                print("lex debug on")
         self.OutputFile = None
         self.Lexer = None
         self.ST.DebugMode = False
         for args in DebugArgs:
             if args == '-s':
                 self.ST.DebugMode = True
-                print "symbol table debug on"
+                print("symbol table debug on")
 
         for args in DebugArgs:
             if args == '-o':
                 self.OutputFile = Output
-                print "output flag on"
+                print("output flag on")
 
         self.Tokens = (
             'IDENTIFIER',
@@ -161,7 +161,7 @@ class LexicalAnalizer():
             'while': 'WHILE'
          }
 
-        
+
 
 
     #niave implementation, we may move this around a bit
@@ -258,9 +258,10 @@ class LexicalAnalizer():
         def t_IDENTIFIER(t):
             r'[a-zA-Z_][a-zA-Z0-9_]*' #yes all underscores is a valid name
             t.type = self.Reserved.get(t.value,'IDENTIFIER')
+
             if t.type == 'IDENTIFIER':
                 if len(str(t.value)) > 31:
-                    print "Warning: Identifier exceeds maximum length"
+                    print("Warning: Identifier exceeds maximum length")
                 contents = {}
                 if self.SourceFile is not None:
                     with open(self.SourceFile) as file:
