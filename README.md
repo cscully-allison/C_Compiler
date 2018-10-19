@@ -18,7 +18,7 @@
 
 ## Links to Wiki and other README's
 
-[Project Wiki](https://www.github.com/cscully-allison/C_Compiler/wiki)
+[Project Wiki](https://www.github.com/cscully-allison/C_Compilier/wiki)
 
 [Symbol Table README](./SymbolTable/README.md)
 
