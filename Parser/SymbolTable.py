@@ -19,7 +19,7 @@ class SymbolTable():
     #                       TokenLocation: tuple(line, char_in_file, char_in_line) }
     def InsertSymbol(self, SymbolKey_str, Content_dict):
         try:
-            
+
             if self.DebugMode == True:
                 print("Insert symbol is called: ", "In Read Mode?", self.ReadMode, SymbolKey_str ,Content_dict)
 
@@ -103,19 +103,17 @@ class SymbolTable():
         i = 0
 
         try:
-            if self.DebugMode == True:
-                with open(FileName_str, "w") as File:
-                    File.write("\n**** Outputting Contents of Symbol Table **** \n\n")
+            with open(FileName_str, "w") as File:
+                File.write("\n**** Outputting Contents of Symbol Table **** \n\n")
 
-                    while not self.TableIsEmpty():
-                        File.write( "Items in Tree at Level {}: \n".format(i) )
-                        self.PrettyPrintScope(self.TopScope, FilePtr=File)
-                        T_Stack.append( self.PopScope() )
-                        i += 1
+                while not self.TableIsEmpty():
+                    File.write( "Items in Tree at Level {}: \n".format(i) )
+                    self.PrettyPrintScope(self.TopScope, FilePtr=File)
+                    T_Stack.append( self.PopScope() )
+                    i += 1
 
-                while len(T_Stack) > 0:
-                    self.PushScope(T_Stack.pop())
-            pass
+            while len(T_Stack) > 0:
+                self.PushScope(T_Stack.pop())
 
         except Exception as e:
             raise

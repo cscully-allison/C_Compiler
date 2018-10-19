@@ -283,12 +283,18 @@ class LexicalAnalizer():
             r'\$!ST2F'
             self.ST.ToggleDebugMode()
 
+        def t_LD_O(t):
+            r'\$!LDO'
+            self.DebugLex = True
+
+        def t_LD_F(t):
+            r'\$!LDF'
+            self.DebugLex = False
+
 
         def t_DST(t):
             r'\$!ST1'
-            self.ST.ToggleDebugMode()
             self.ST.WriteSymbolTableToFile("SymbolTable.out")
-            self.ST.ToggleDebugMode()
 
         def t_PD_O(t):
             r'\$!PDO'
