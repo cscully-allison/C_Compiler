@@ -2,13 +2,27 @@ import ply.lex as lex
 
 class LexicalAnalizer():
 
-    def __init__(self, SymbolTable, DebugSwitch = None, Output = None, SourceFile = None, ParserDebugPtr=None):
+    def __init__(self, SymbolTable, DebugSwitch = None, Output = None, SourceFile = None, DebugArgs = None):
         self.ST = SymbolTable
         self.SourceFile = SourceFile
         self.DebugLex = False
+        for args in DebugArgs:
+            if args == '-l':
+                self.DebugLex = True
+                print "lex debug on"
         self.OutputFile = None
         self.Lexer = None
-        self.ParserDebugPtr = ParserDebugPtr
+        self.ST.DebugMode = False
+        for args in DebugArgs:
+            if args == '-s':
+                self.ST.DebugMode = True
+                print "symbol table debug on"
+
+        for args in DebugArgs:
+            if args == '-o':
+                self.OutputFile = Output
+                print "output flag on"
+
         self.Tokens = (
             'IDENTIFIER',
             'INTEGER_CONSTANT',
@@ -147,13 +161,8 @@ class LexicalAnalizer():
             'while': 'WHILE'
          }
 
-        if DebugSwitch and "l" in DebugSwitch:
-            self.DebugLex = True
-        if DebugSwitch and "s" in DebugSwitch:
-            self.ST.DebugMode = True
+        
 
-        if Output:
-            self.OutputFile = Output
 
     #niave implementation, we may move this around a bit
     #(see PLY documentation 4.15)
@@ -249,8 +258,9 @@ class LexicalAnalizer():
         def t_IDENTIFIER(t):
             r'[a-zA-Z_][a-zA-Z0-9_]*' #yes all underscores is a valid name
             t.type = self.Reserved.get(t.value,'IDENTIFIER')
-
             if t.type == 'IDENTIFIER':
+                if len(str(t.value)) > 31:
+                    print "Warning: Identifier exceeds maximum length"
                 contents = {}
                 if self.SourceFile is not None:
                     with open(self.SourceFile) as file:

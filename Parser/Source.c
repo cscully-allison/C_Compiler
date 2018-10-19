@@ -1,10 +1,8 @@
 
-$!PDO
 int a, b;
 
 int main(int a, char b){
 
-$!PDF
 
   int a, c, d;
 
@@ -32,7 +30,6 @@ if (2>5)
     a = b + c;
     b += 9;
 
-    $!ST1
 
   }
 }

@@ -16,12 +16,16 @@ import ply.yacc as yacc
 class Parser():
 
     #Constructor for parser class
-    def __init__(self, SourceFile = None):
+    def __init__(self, SourceFile = None, DebugArgs = None):
         self.ST = SymbolTable(SourceFile)
         self.SourceFile = SourceFile
-        self.LA = LexicalAnalizer(self.ST, SourceFile=SourceFile)
+        self.LA = LexicalAnalizer(self.ST, SourceFile=SourceFile, DebugArgs = DebugArgs)
         self.Parser = None
         self.DebugProd = False
+        for args in DebugArgs:
+            if args == '-d':
+                self.DebugProd = True
+                print "parser debug on"
         self.InDeclarationBlock = False
 
 
