@@ -6,13 +6,13 @@
 # October 19, 2018
 
 ## Table of Contents
-[Links to other README's](#links)
-[Language Features of the Compiler](#language)
-[Implementation](#implementation)
-[Assumptions Made](#assumptions)
-[Dependencies](#dependenciies)
-[Restrictions](#restrictions)
-[Misc Notes](#misc)
+[Links to other README's](#links) <br>
+[Language Features of the Compiler](#language) <br>
+[Implementation](#implementation) <br>
+[Assumptions Made](#assumptions) <br>
+[Dependencies](#dependenciies) <br>
+[Restrictions](#restrictions) <br>
+[Misc Notes](#misc) <br>
 
 <a name="links"/>
 ## Links to other README's
