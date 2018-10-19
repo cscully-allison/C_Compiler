@@ -18,13 +18,10 @@
 
 ## Links to Wiki and other README's
 
-[Project Wiki](https://www.github.com/cscully-allison/C_Compilier/wiki)
-
-[Symbol Table README](./SymbolTable/README.md)
-
-[Lexical Analyzer README](./LexicalAnalizer/README.md)
-
-[Parser README](./Parser/README.md)
+[Project Wiki](https://www.github.com/cscully-allison/C_Compilier/wiki/CS-660:-Connor-Scully-Allison-and-Kurt-Andersen) <br>
+[Symbol Table README](./SymbolTable/README.md) <br>
+[Lexical Analyzer README](./LexicalAnalizer/README.md) <br>
+[Parser README](./Parser/README.md) <br>
 
 <a name="language"/>
 
