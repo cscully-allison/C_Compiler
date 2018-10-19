@@ -22,6 +22,7 @@ class Parser():
         self.LA = LexicalAnalizer(self.ST, SourceFile=SourceFile, DebugArgs = DebugArgs)
         self.Parser = None
         self.DebugProd = False
+        self.DebugProdL = [False, False]    #for multiple levels of debug
         for args in DebugArgs:
             if args == '-d':
                 self.DebugProd = True
@@ -101,7 +102,7 @@ class Parser():
                 raise e
 
 
-            if self.DebugProd == True:
+            if self.DebugProdL[1] == True:
                 print(p[1],p[2])
             if self.DebugProd == True:
                 print("\tdeclaration -->  declaration_specifiers init_declarator_list SEMI")
@@ -367,7 +368,7 @@ class Parser():
             list.append(p[1])
             p[0] = list
 
-            if self.DebugProd == True:
+            if self.DebugProdL[1] == True:
                 print(list)
 
             if self.DebugProd == True:
@@ -381,7 +382,7 @@ class Parser():
 
             p[0] = p[1]
 
-            if self.DebugProd == True:
+            if self.DebugProdL[1] == True:
                 print(p[1], p[3])
 
             if self.DebugProd == True:
@@ -393,7 +394,7 @@ class Parser():
             'init_declarator :  declarator'
             p[0] = p[1]
 
-            if self.DebugProd == True:
+            if self.DebugProdL[1] == True:
                 print(p[1])
 
             if self.DebugProd == True:
@@ -1534,4 +1535,3 @@ class Parser():
         #(See PLY Documentation 6.12)
         self.LA.BuildLexer()
         self.Parser = yacc.yacc()
-        # self.Parser = yacc.yacc(errorlog=log)
