@@ -37,6 +37,8 @@ The symbol table uses a red-black tree to keep the tree balanced. (Grad student 
 The lexical analyzer and parser use the PLY library.  It is similar to the yacc/bison library,
 but is a derivation for python.
 
+NOTE: No external token file is used or reuired by PLY. Instead tokens are defined as a tuple of strings which can be found in [LexicalAnalizer.py](./Parser/LexicalAnalizer.py)
+
 <a name="assumptions"/>
 
 ## Assumptions made
