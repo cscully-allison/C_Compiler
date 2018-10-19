@@ -18,6 +18,15 @@ if (2>5)
 	q = c+a;
 }
 
+if (2>5)
+{
+	int a;
+	int q;
+	char c;
+
+	q = c+a;
+}
+
   for(i = 0; i < 3; i++){
 
     float a;
