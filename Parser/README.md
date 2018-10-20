@@ -13,10 +13,10 @@
 
 
 ## Dependencies
-Please refer to the installation section of the [User Manual](https://github.com/cscully-allison/C_Compilier/wiki/User-Manual) for installation instructions.
+Please refer to the installation section of the [User Manual](https://github.com/cscully-allison/C_Compilier/wiki/User-Manual#build) for installation instructions.
 
 ## Test Cases
-In order to run the tests please refer to the Parser and Linked Test Cases of the [User Manual](https://github.com/cscully-allison/C_Compilier/wiki/User-Manual).
+In order to run the tests please refer to the Parser and Linked Test Cases of the [User Manual](https://github.com/cscully-allison/C_Compilier/wiki/User-Manual#parser).
 
 ## Important Code Files
 Grammar Rules: [parser_m.py](Parser_M.py)<br>
@@ -24,4 +24,5 @@ Lexical Analyzer: [LexicalAnalizer.py](LexicalAnalizer.py)<br>
 Symbol Table: [SymbolTable.py](SymbolTable.py)<br>
 Main driver: [driver.py](driver.py)<br>
 Source Code to Parse: [Source.c](Source.c)<br>
+Basic Source Code to Parse: [BasicSource.c](BasicSource.c)<br>
 Symbol Talbe Output: [SymbolTable.out](SymbolTable.out)<br>
