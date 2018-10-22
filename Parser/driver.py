@@ -10,7 +10,7 @@ def driver():
     try:
         with open("Source.c") as file:
             s = file.read()
-        result = P.Parser.parse(s)
+        result = P.Parser.parse(s, debug=0)
 
     except Exception as e:
         print("[Compilation stopped]\nReason: {0}".format(e))

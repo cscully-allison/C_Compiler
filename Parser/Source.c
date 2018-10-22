@@ -1,7 +1,7 @@
 $!PDO
 int a, b;
 
-int main(int a, char b){
+int main(int c, char d){
 
 
   int l, c, d;
