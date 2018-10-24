@@ -1,8 +1,7 @@
+int d;
 
-int a, b;
-
-int main(int a, char b){
-    char c;
-
-    c = 1 + 1.2;
+int main(){
+    char c, e, f;
+    $!ST1
+    d = 1;
 }

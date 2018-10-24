@@ -3,6 +3,7 @@ sys.path.append("LexicalAnalizer/")
 sys.path.append("../LexicalAnalizer/")
 from LexicalAnalizer import LexicalAnalizer
 from SymbolTable import SymbolTable
+from ASTBuilder import Identifier
 import ply.yacc as yacc
 # import logging
 # logging.basicConfig(
@@ -1502,9 +1503,11 @@ class Parser():
         def p_identifier_1(p):
             'identifier :  IDENTIFIER'
             #passing up the identifier
-            p[0] = p[1]
+            # p[0] = p[1]
 
             self.ST.InsertSymbol(p[1]['lexeme'], {'TokenLocation': p[1]['additional']['TokenLocation']})
+
+            p[0] = Identifier(p[1]['lexeme'], p[1]['additional']['TokenLocation'], self.ST)
 
             if self.DebugProd == True:
                 self.DebugPrint("identifier -->  IDENTIFIER", p)
