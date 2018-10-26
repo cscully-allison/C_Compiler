@@ -1,7 +1,6 @@
-int d;
-
 int main(){
-    char c, e, f;
+    char a;
+    a = 1;
+
     $!ST1
-    d = 1;
 }
