@@ -14,10 +14,10 @@
 
 
 ## Dependencies
-Please refer to the installation section of the [User Manual](https://github.com/cscully-allison/C_Compilier/wiki/User-Manual) for installation instructions.
+Please refer to the Installation section of the [User Manual](https://github.com/cscully-allison/C_Compilier/wiki/User-Manual#build) for installation instructions.
 
 ## Test Cases
-In order to run the tests please refer to the Lexical Analyzer section of the [User Manual](https://github.com/cscully-allison/C_Compilier/wiki/User-Manual).
+In order to run the tests please refer to the Lexical Analyzer section of the [User Manual](https://github.com/cscully-allison/C_Compilier/wiki/User-Manual#lex).
 
 ## Important Code Files
 Lexical Analyzer: [LexicalAnalizer.py](LexicalAnalizer.py)<br>

@@ -3,6 +3,7 @@ sys.path.append("LexicalAnalizer/")
 sys.path.append("../LexicalAnalizer/")
 from LexicalAnalizer import LexicalAnalizer
 from SymbolTable import SymbolTable
+from ASTBuilder import Identifier, PrimaryExpression
 import ply.yacc as yacc
 # import logging
 # logging.basicConfig(
@@ -22,6 +23,7 @@ class Parser():
         self.LA = LexicalAnalizer(self.ST, SourceFile=SourceFile, DebugArgs = DebugArgs)
         self.Parser = None
         self.DebugProd = False
+        self.DebugProdL = [False, False]    #for multiple levels of debug
         for args in DebugArgs:
             if args == '-d':
                 self.DebugProd = True
@@ -120,7 +122,7 @@ class Parser():
                 raise e
 
 
-            if self.DebugProd == True:
+            if self.DebugProdL[1] == True:
                 print(p[1],p[2])
             if self.DebugProd == True:
                 self.DebugPrint("declaration -->  declaration_specifiers init_declarator_list SEMI", p)
@@ -386,7 +388,7 @@ class Parser():
             list.append(p[1])
             p[0] = list
 
-            if self.DebugProd == True:
+            if self.DebugProdL[1] == True:
                 print(list)
 
             if self.DebugProd == True:
@@ -400,7 +402,7 @@ class Parser():
 
             p[0] = p[1]
 
-            if self.DebugProd == True:
+            if self.DebugProdL[1] == True:
                 print(p[1], p[3])
 
             if self.DebugProd == True:
@@ -412,7 +414,7 @@ class Parser():
             'init_declarator :  declarator'
             p[0] = p[1]
 
-            if self.DebugProd == True:
+            if self.DebugProdL[1] == True:
                 print(p[1])
 
             if self.DebugProd == True:
@@ -1048,38 +1050,46 @@ class Parser():
                 self.DebugPrint("assignment_expression -->  unary_expression assignment_operator assignment_expression", p)
             return
 
+        #Assignment operators are only leaves that need to be passed up
+        #The corresponding assignment operator can be treated as a leaf
         def p_assignment_operator_1(p):
             'assignment_operator :  ASSIGN'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("assignment_operator -->  ASSIGN", p)
             return
 
         def p_assignment_operator_2(p):
             'assignment_operator :  MUL_ASSIGN'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("assignment_operator -->  MUL_ASSIGN", p)
             return
 
         def p_assignment_operator_3(p):
             'assignment_operator :  DIV_ASSIGN'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("assignment_operator -->  DIV_ASSIGN", p)
             return
 
         def p_assignment_operator_4(p):
             'assignment_operator :  MOD_ASSIGN'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("assignment_operator -->  MOD_ASSIGN", p)
             return
 
         def p_assignment_operator_5(p):
             'assignment_operator :  ADD_ASSIGN'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("assignment_operator -->  ADD_ASSIGN", p)
             return
 
         def p_assignment_operator_6(p):
             'assignment_operator :  SUB_ASSIGN'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("assignment_operator -->  SUB_ASSIGN", p)
             return
@@ -1092,24 +1102,28 @@ class Parser():
 
         def p_assignment_operator_8(p):
             'assignment_operator :  RIGHT_ASSIGN'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("assignment_operator -->  RIGHT_ASSIGN", p)
             return
 
         def p_assignment_operator_9(p):
             'assignment_operator :  AND_ASSIGN'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("assignment_operator -->  AND_ASSIGN", p)
             return
 
         def p_assignment_operator_10(p):
             'assignment_operator :  XOR_ASSIGN'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("assignment_operator -->  XOR_ASSIGN", p)
             return
 
         def p_assignment_operator_11(p):
             'assignment_operator :  OR_ASSIGN'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("assignment_operator -->  OR_ASSIGN", p)
             return
@@ -1278,12 +1292,15 @@ class Parser():
 
         def p_multiplicative_expression_1(p):
             'multiplicative_expression :  cast_expression'
+            p[0] = p[1]
+
             if self.DebugProd == True:
                 self.DebugPrint("multiplicative_expression -->  cast_expression", p)
             return
 
         def p_multiplicative_expression_2(p):
             'multiplicative_expression :  multiplicative_expression ASTERISK cast_expression'
+
             if self.DebugProd == True:
                 self.DebugPrint("multiplicative_expression -->  multiplicative_expression ASTERISK cast_expression", p)
             return
@@ -1296,12 +1313,14 @@ class Parser():
 
         def p_multiplicative_expression_4(p):
             'multiplicative_expression :  multiplicative_expression PERCENT cast_expression'
+
             if self.DebugProd == True:
                 self.DebugPrint("multiplicative_expression -->  multiplicative_expression PERCENT cast_expression", p)
             return
 
         def p_cast_expression_1(p):
             'cast_expression :  unary_expression'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("cast_expression -->  unary_expression", p)
             return
@@ -1312,80 +1331,105 @@ class Parser():
                 self.DebugPrint("cast_expression -->  OPENPAREN type_name CLOSEPAREN cast_expression", p)
             return
 
+
         def p_unary_expression_1(p):
             'unary_expression :  postfix_expression'
+            p[0] = p[1]
+
             if self.DebugProd == True:
                 self.DebugPrint("unary_expression -->  postfix_expression", p)
             return
 
         def p_unary_expression_2(p):
             'unary_expression :  INC_OP unary_expression'
+
             if self.DebugProd == True:
                 self.DebugPrint("unary_expression -->  INC_OP unary_expression", p)
             return
 
         def p_unary_expression_3(p):
             'unary_expression :  DEC_OP unary_expression'
+
             if self.DebugProd == True:
                 self.DebugPrint("unary_expression -->  DEC_OP unary_expression", p)
             return
 
         def p_unary_expression_4(p):
             'unary_expression :  unary_operator cast_expression'
+
             if self.DebugProd == True:
                 self.DebugPrint("unary_expression -->  unary_operator cast_expression", p)
             return
 
         def p_unary_expression_5(p):
             'unary_expression :  SIZEOF unary_expression'
+
             if self.DebugProd == True:
                 self.DebugPrint("unary_expression -->  SIZEOF unary_expression", p)
             return
 
         def p_unary_expression_6(p):
             'unary_expression :  SIZEOF OPENPAREN type_name CLOSEPAREN'
+
             if self.DebugProd == True:
                 self.DebugPrint("unary_expression -->  SIZEOF OPENPAREN type_name CLOSEPAREN", p)
             return
 
+
+        #Unary Operators need only to be passed up. No need to create a node yet
         def p_unary_operator_1(p):
             'unary_operator :  AMPERSAND'
+            p[0] = p[1]
+
             if self.DebugProd == True:
                 self.DebugPrint("unary_operator -->  AMPERSAND", p)
             return
 
         def p_unary_operator_2(p):
             'unary_operator :  ASTERISK'
+            p[0] = p[1]
+
             if self.DebugProd == True:
                 self.DebugPrint("unary_operator -->  ASTERISK", p)
             return
 
         def p_unary_operator_3(p):
             'unary_operator :  PLUS'
+            p[0] = p[1]
+
             if self.DebugProd == True:
                 self.DebugPrint("unary_operator -->  PLUS", p)
             return
 
         def p_unary_operator_4(p):
             'unary_operator :  MINUS'
+            p[0] = p[1]
+
             if self.DebugProd == True:
                 self.DebugPrint("unary_operator -->  MINUS", p)
             return
 
         def p_unary_operator_5(p):
             'unary_operator :  TILDE'
+            p[0] = p[1]
+
             if self.DebugProd == True:
                 self.DebugPrint("unary_operator -->  TILDE", p)
             return
 
         def p_unary_operator_6(p):
             'unary_operator :  BANG'
+            p[0] = p[1]
+
             if self.DebugProd == True:
                 self.DebugPrint("unary_operator -->  BANG", p)
             return
 
+        # a very basic instance of a postfix_expression
+        #may have to make modifications in the future
         def p_postfix_expression_1(p):
             'postfix_expression :  primary_expression'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("postfix_expression -->  primary_expression", p)
             return
@@ -1422,36 +1466,48 @@ class Parser():
 
         def p_postfix_expression_7(p):
             'postfix_expression :  postfix_expression INC_OP'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("postfix_expression -->  postfix_expression INC_OP", p)
             return
 
         def p_postfix_expression_8(p):
             'postfix_expression :  postfix_expression DEC_OP'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("postfix_expression -->  postfix_expression DEC_OP", p)
             return
 
+        #primary expressions are used by many operations
         def p_primary_expression_1(p):
             'primary_expression :  identifier'
+
+            p[0] = PrimaryExpression('identifier', p[1])
+
             if self.DebugProd == True:
                 self.DebugPrint("primary_expression -->  identifier", p)
             return
 
         def p_primary_expression_2(p):
             'primary_expression :  constant'
+            p[0] = PrimaryExpression('constant', p[1])
+
             if self.DebugProd == True:
                 self.DebugPrint("primary_expression -->  constant", p)
             return
 
         def p_primary_expression_3(p):
             'primary_expression :  string'
+            p[0] = PrimaryExpression('string', P[1])
+
             if self.DebugProd == True:
                 self.DebugPrint("primary_expression -->  string", p)
             return
 
         def p_primary_expression_4(p):
             'primary_expression :  OPENPAREN expression CLOSEPAREN'
+            p[0] = PrimaryExpression('expression', P[2])
+
             if self.DebugProd == True:
                 self.DebugPrint("primary_expression -->  OPENPAREN expression CLOSEPAREN", p)
             return
@@ -1470,30 +1526,35 @@ class Parser():
 
         def p_constant_1(p):
             'constant :  INTEGER_CONSTANT'
+            p[0]=p[1]
             if self.DebugProd == True:
                 self.DebugPrint("constant -->  INTEGER_CONSTANT", p)
             return
 
         def p_constant_2(p):
             'constant :  CHARACTER_CONSTANT'
+            p[0]=p[1]
             if self.DebugProd == True:
                 self.DebugPrint("constant -->  CHARACTER_CONSTANT", p)
             return
 
         def p_constant_3(p):
             'constant :  FLOATING_CONSTANT'
+            p[0]=p[1]
             if self.DebugProd == True:
                 self.DebugPrint("constant -->  FLOATING_CONSTANT", p)
             return
 
         def p_constant_4(p):
             'constant :  ENUMERATION_CONSTANT'
+            p[0]=p[1]
             if self.DebugProd == True:
                 self.DebugPrint("constant -->  ENUMERATION_CONSTANT", p)
             return
 
         def p_string_1(p):
             'string :  STRING_LITERAL'
+            p[0]=p[1]
             if self.DebugProd == True:
                 self.DebugPrint("string -->  STRING_LITERAL", p)
             return
@@ -1501,9 +1562,11 @@ class Parser():
         def p_identifier_1(p):
             'identifier :  IDENTIFIER'
             #passing up the identifier
-            p[0] = p[1]
+            # p[0] = p[1]
 
             self.ST.InsertSymbol(p[1]['lexeme'], {'TokenLocation': p[1]['additional']['TokenLocation']})
+
+            p[0] = Identifier(p[1]['lexeme'], p[1]['additional']['TokenLocation'], self.ST)
 
             if self.DebugProd == True:
                 self.DebugPrint("identifier -->  IDENTIFIER", p)
@@ -1546,6 +1609,9 @@ class Parser():
                 print("pop_scope_e -->  ", p)
             return
 
+        def p_error(p):
+            raise Exception("Parsing error found.")
+
 
         #must be here to make parser build correctly
         tokens = self.LA.Tokens
@@ -1555,4 +1621,3 @@ class Parser():
         #(See PLY Documentation 6.12)
         self.LA.BuildLexer()
         self.Parser = yacc.yacc()
-        # self.Parser = yacc.yacc(errorlog=log)
