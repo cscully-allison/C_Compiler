@@ -41,7 +41,8 @@ class SymbolTable():
                 pass
         except Exception as e:
             raise e
-        return True
+
+        return self.FindSymbolInCurrentScope(SymbolKey_str)
 
     #Function: FindSymbolInTable
     #Desc: Search all scopes of the symbol table to find a specific symbol
@@ -154,6 +155,7 @@ class SymbolTable():
         if self.TopScope is None:
             return True
         return False
+
 
     def PrettyErrorPrint(self, Message, Lineno, Column):
         arrow = ""

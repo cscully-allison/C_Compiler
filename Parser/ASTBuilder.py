@@ -1,3 +1,5 @@
+
+
 class Node(object):
     '''Abstract base class for nodes'''
     def GetChildren(self):
@@ -19,12 +21,79 @@ class Node(object):
 #type...modfier things like CONST or whatever
 #arrays
 
+class PostfixExpression(Node):
+    def __init__(self, Loc=None):
+        pass
+
+    def GetChildren(self):
+        Children = []
+        return Children
+
+    #we cannot increment a constant
+    def RunSemanticAnalysis(self):
+        pass
+
+    def BuildTreeOutput(self):
+        pass
+
+
+
+class FunctionDefintion(Node):
+    ''' Declaration List is a Subtree
+        Statement is a Subtree
+        Decl List can be null
+    '''
+    def __init__(self, ReturnDeclarator = None, Id = None, DeclarationList = None, Statement = None, Loc=None):
+        self.ReturnDeclarator = ReturnDeclarator
+        self.Id = Id
+        self.Statement = Statement
+        self.DeclarationList = DeclarationList
+        pass
+
+    def GetChildren(self):
+        Children = []
+        if self.DeclarationList is not None: Children.append(self.DeclarationList)
+        Children.append(self.Statement)
+        return Children
+
+    #we cannot increment a constant
+    def RunSemanticAnalysis(self):
+        # return type None then default to int
+        # and throw warning, not error
+        pass
+
+    def BuildTreeOutput(self):
+        pass
+
+class Declaration(Node):
+    '''Left: Declaration Specificers
+       Right: Declarator List
+       This node has the side affect of updating the symbol table
+       with type and type specifier information.
+    '''
+    def __init__(self, Left, Right, Loc=None):
+        self.Left = Left
+        self.Right = Right
+        self.Loc = Loc
+        pass
+
+    def GetChildren(self):
+        Children = []
+        return Children
+
+    #we cannot increment a constant
+    def RunSemanticAnalysis(self):
+        pass
+
+    def BuildTreeOutput(self):
+        pass
 
 
 class Identifier(Node):
-    def __init__(self, Name, Loc, ST):
+    def __init__(self, Name, STPtr, Loc, ST):
         self.Name = Name
         self.Loc = Loc
+        self.STPtr = STPtr
 
         self.RunSemanticAnalysis(ST)
 
@@ -37,6 +106,29 @@ class Identifier(Node):
         if not ST.FindSymbolInTable(self.Name) and ST.ReadMode:
             #need a pretty error printing class
             raise Exception("Row:{1} Col:{2} Variable \"{3}\" accessed before declaration.".format('{0}', self.Loc[0], self.Loc[2], self.Name))
+
+    def BuildTreeOutput(self):
+        pass
+
+
+class Constant(Node):
+    def __init__(self, DataType, Child, Loc=None):
+        self.DataType = DataType
+        self.Child = Child
+        pass
+
+    def GetChildren(self):
+        Children = []
+        Children.append(self.Child)
+        return Children
+
+    #we cannot increment a constant
+    def RunSemanticAnalysis(self):
+        pass
+
+    def BuildTreeOutput(self):
+        pass
+
 
 
 class PrimaryExpression(Node):
@@ -53,18 +145,61 @@ class PrimaryExpression(Node):
     def RunSemanticAnalysis(self):
         pass
 
-
-class PostfixExpression(Node):
-    def __init__(self, Loc=None):
+    def BuildTreeOutput(self):
         pass
+
+class UnaryExpression(Node):
+    def __init__(self, Op, Child, Loc=None):
+        self.Loc = Loc
+        self.Op = Op
+        self.Child = Child
+
+        self.RunSemanticAnalysis()
 
     def GetChildren(self):
         Children = []
+        Children.append(Child)
+        return Children
+
+    def RunSemanticAnalysis(self):
+        print(self.Op, self.Child.Type)
+        if (self.Child.Type == 'constant' or
+        self.Child.Type == 'string') and (self.Op == "++" or
+        self.Op == "--" ):
+                raise Exception("Row:{1} Col:{2} Attempted increment of constant.".format('{0}', self.Loc[0], self.Loc[1]))
+        pass
+
+    def BuildTreeOutput(self):
+        pass
+
+class assignment_expression(Node):
+    def __init__(self, Op, Left, Right, Loc=None):
+        self.Op = Op
+        self.Loc = Loc
+        self.Left = Left
+        self.Right = Right
+
+        self.RunSemanticAnalysis()
+
+
+    def GetChildren(self):
+        Children = []
+        if self.Left is not None: Children.append(Left)
+        if self.Right is not None: Children.append(Right)
         return Children
 
     #we cannot increment a constant
     def RunSemanticAnalysis(self):
         pass
+
+    def AddImplicitCast(self):
+        pass
+
+    def BuildTreeOutput(self):
+        pass
+
+
+
 
 
 
@@ -91,3 +226,6 @@ class BinOp(Node):
             #if const, get the lexeme
             #if zero, throw div by zero error
             pass
+
+    def BuildTreeOutput(self):
+        pass

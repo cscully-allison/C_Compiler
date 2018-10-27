@@ -1,5 +1,7 @@
+
 int main(){
-    char a;
+    char a, b;
+
     a = 1;
 
     $!ST1

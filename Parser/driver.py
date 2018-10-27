@@ -19,13 +19,12 @@ def driver():
     #Run parser in try except block to enable compliation
     # terminiation under various circumstances
     try:
-        with open(SourceCodeFile) as file:
-            s = file.read()
-        result = P.Parser.parse(s, debug=0)
-
+        AST = P.RunParser()
     except Exception as e:
         print("[Compilation stopped]\nReason: {0}".format(e))
         return
+
+    print(AST)
 
 
 driver()

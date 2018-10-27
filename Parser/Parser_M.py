@@ -3,7 +3,7 @@ sys.path.append("LexicalAnalizer/")
 sys.path.append("../LexicalAnalizer/")
 from LexicalAnalizer import LexicalAnalizer
 from SymbolTable import SymbolTable
-from ASTBuilder import Identifier, PrimaryExpression
+from ASTBuilder import Identifier, PrimaryExpression, UnaryExpression, Constant, FunctionDefintion
 import ply.yacc as yacc
 # import logging
 # logging.basicConfig(
@@ -29,6 +29,7 @@ class Parser():
                 self.DebugProd = True
                 print("parser debug on")
         self.InDeclarationBlock = False
+        self.AST = None
 
     def DebugPrint(self, Reduction, ParseObjs = None):
 
@@ -45,8 +46,15 @@ class Parser():
 
         return
 
+    def RunParser(self):
+        try:
+            with open(self.SourceFile) as file:
+                s = file.read()
+            self.Parser.parse(s, debug=0)
+        except Exception as e:
+            raise e
 
-
+        return self.AST
 
     def ToggleDebugMode(self):
         self.DebugProd = not self.DebugProd
@@ -57,6 +65,7 @@ class Parser():
     def BuildParser(self):
         def p_translation_unit_1(p):
             'translation_unit :  external_declaration'
+            self.AST = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("translation_unit -->  external_declaration", p)
             return
@@ -69,6 +78,7 @@ class Parser():
 
         def p_external_declaration_1(p):
             'external_declaration :  function_definition'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("external_declaration -->  function_definition", p)
             return
@@ -81,24 +91,30 @@ class Parser():
 
         def p_function_definition_1(p):
             'function_definition :  declarator compound_statement'
+            p[0] = FunctionDefintion(Id = p[1], Statement = p[2])
             if self.DebugProd == True:
                 self.DebugPrint("function_definition -->  declarator compound_statement", p)
             return
 
         def p_function_definition_2(p):
             'function_definition :  declarator declaration_list compound_statement'
+            p[0] = FunctionDefintion(Id = p[1], DeclarationList = p[2], Statement = p[3])
+
             if self.DebugProd == True:
                 self.DebugPrint("function_definition -->  declarator declaration_list compound_statement", p)
             return
 
         def p_function_definition_3(p):
             'function_definition :  declaration_specifiers declarator compound_statement'
+            p[0] = FunctionDefintion(ReturnDeclarator = p[1], Id = p[2], Statement = p[3])
             if self.DebugProd == True:
                 self.DebugPrint("function_definition -->  declaration_specifiers declarator compound_statement", p)
             return
 
         def p_function_definition_4(p):
             'function_definition :  declaration_specifiers declarator declaration_list compound_statement'
+            p[0] = FunctionDefintion(ReturnDeclarator = p[1], Id = p[2], DeclarationList = p[3], Statement = p[4])
+
             if self.DebugProd == True:
                 self.DebugPrint("function_definition -->  declaration_specifiers declarator declaration_list compound_statement", p)
             return
@@ -578,6 +594,7 @@ class Parser():
 
         def p_direct_declarator_5(p):
             'direct_declarator :  direct_declarator OPENPAREN CLOSEPAREN'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("direct_declarator -->  direct_declarator OPENPAREN CLOSEPAREN", p)
             return
@@ -1040,6 +1057,7 @@ class Parser():
 
         def p_assignment_expression_1(p):
             'assignment_expression :  conditional_expression'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("assignment_expression -->  conditional_expression", p)
             return
@@ -1130,6 +1148,7 @@ class Parser():
 
         def p_conditional_expression_1(p):
             'conditional_expression :  logical_or_expression'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("conditional_expression -->  logical_or_expression", p)
             return
@@ -1148,6 +1167,7 @@ class Parser():
 
         def p_logical_or_expression_1(p):
             'logical_or_expression :  logical_and_expression'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("logical_or_expression -->  logical_and_expression", p)
             return
@@ -1160,6 +1180,7 @@ class Parser():
 
         def p_logical_and_expression_1(p):
             'logical_and_expression :  inclusive_or_expression'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("logical_and_expression -->  inclusive_or_expression", p)
             return
@@ -1172,6 +1193,7 @@ class Parser():
 
         def p_inclusive_or_expression_1(p):
             'inclusive_or_expression :  exclusive_or_expression'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("inclusive_or_expression -->  exclusive_or_expression", p)
             return
@@ -1184,6 +1206,7 @@ class Parser():
 
         def p_exclusive_or_expression_1(p):
             'exclusive_or_expression :  and_expression'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("exclusive_or_expression -->  and_expression", p)
             return
@@ -1196,6 +1219,7 @@ class Parser():
 
         def p_and_expression_1(p):
             'and_expression :  equality_expression'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("and_expression -->  equality_expression", p)
             return
@@ -1208,6 +1232,7 @@ class Parser():
 
         def p_equality_expression_1(p):
             'equality_expression :  relational_expression'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("equality_expression -->  relational_expression", p)
             return
@@ -1226,6 +1251,7 @@ class Parser():
 
         def p_relational_expression_1(p):
             'relational_expression :  shift_expression'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("relational_expression -->  shift_expression", p)
             return
@@ -1256,6 +1282,7 @@ class Parser():
 
         def p_shift_expression_1(p):
             'shift_expression :  additive_expression'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("shift_expression -->  additive_expression", p)
             return
@@ -1274,6 +1301,7 @@ class Parser():
 
         def p_additive_expression_1(p):
             'additive_expression :  multiplicative_expression'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("additive_expression -->  multiplicative_expression", p)
             return
@@ -1343,12 +1371,15 @@ class Parser():
         def p_unary_expression_2(p):
             'unary_expression :  INC_OP unary_expression'
 
+            p[0] = UnaryExpression(p[1], p[2], Loc=(p.lexer.lineno, p.lexer.lexpos))
+
             if self.DebugProd == True:
                 self.DebugPrint("unary_expression -->  INC_OP unary_expression", p)
             return
 
         def p_unary_expression_3(p):
             'unary_expression :  DEC_OP unary_expression'
+            p[0] = UnaryExpression(p[1], p[2], Loc=(p.lexer.lineno, p.lexer.lexpos))
 
             if self.DebugProd == True:
                 self.DebugPrint("unary_expression -->  DEC_OP unary_expression", p)
@@ -1526,35 +1557,35 @@ class Parser():
 
         def p_constant_1(p):
             'constant :  INTEGER_CONSTANT'
-            p[0]=p[1]
+            p[0]=Constant('int', p[1])
             if self.DebugProd == True:
                 self.DebugPrint("constant -->  INTEGER_CONSTANT", p)
             return
 
         def p_constant_2(p):
             'constant :  CHARACTER_CONSTANT'
-            p[0]=p[1]
+            p[0]=Constant('char', p[1])
             if self.DebugProd == True:
                 self.DebugPrint("constant -->  CHARACTER_CONSTANT", p)
             return
 
         def p_constant_3(p):
             'constant :  FLOATING_CONSTANT'
-            p[0]=p[1]
+            p[0]=Constant('float', p[1])
             if self.DebugProd == True:
                 self.DebugPrint("constant -->  FLOATING_CONSTANT", p)
             return
 
         def p_constant_4(p):
             'constant :  ENUMERATION_CONSTANT'
-            p[0]=p[1]
+            p[0]=Constant('enum', p[1])
             if self.DebugProd == True:
                 self.DebugPrint("constant -->  ENUMERATION_CONSTANT", p)
             return
 
         def p_string_1(p):
             'string :  STRING_LITERAL'
-            p[0]=p[1]
+            p[0]=Constant('char*', p[1])
             if self.DebugProd == True:
                 self.DebugPrint("string -->  STRING_LITERAL", p)
             return
@@ -1564,9 +1595,9 @@ class Parser():
             #passing up the identifier
             # p[0] = p[1]
 
-            self.ST.InsertSymbol(p[1]['lexeme'], {'TokenLocation': p[1]['additional']['TokenLocation']})
+            IdPtr = self.ST.InsertSymbol(p[1]['lexeme'], {'TokenLocation': p[1]['additional']['TokenLocation']})
 
-            p[0] = Identifier(p[1]['lexeme'], p[1]['additional']['TokenLocation'], self.ST)
+            p[0] = Identifier(p[1]['lexeme'], IdPtr, p[1]['additional']['TokenLocation'], self.ST)
 
             if self.DebugProd == True:
                 self.DebugPrint("identifier -->  IDENTIFIER", p)
