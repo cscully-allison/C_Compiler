@@ -147,7 +147,7 @@ class Declaration(Node):
     '''Left: Declaration Specificers
        Right: Declarator List
        This node has the side affect of updating the symbol table
-       with type and type specifier information.
+       with type, type qualifier and storage class specifier information.
     '''
     def __init__(self, Left=None, Right=None, Loc=None):
         self.Left = Left
@@ -160,7 +160,7 @@ class Declaration(Node):
         self.SCSLib = ['auto', 'register', 'static', 'extern', 'typedef']
 
         #gets and formats the declaration specifiers
-        self.DeclSpecs = self.BuildDeclSpecsDict(self.FetchDeclSpecs(self.Left))
+        self.DeclSpecs = self.BuildDeclSpecsDict( self.FetchDeclSpecs(self.Left) )
 
         #updates the symbol table
         self.UpdateSymbolTable(Right)
@@ -172,6 +172,8 @@ class Declaration(Node):
         return Children
 
     def BuildDeclSpecsDict(self, DeclSpecsList):
+        ''' Converts declaration spcifier list to a queryable dictionary
+        '''
         Dict = {}
         for Spec in DeclSpecsList:
             if Spec in self.TSLib:
@@ -192,9 +194,9 @@ class Declaration(Node):
         return Dict
 
 
-
-
     def FetchDeclSpecs(self, DeclSpecs):
+        ''' Builds up a list of the declaration specifiers recursively
+        '''
         # past a leaf node case
         if DeclSpecs is None:
             return []
@@ -212,8 +214,6 @@ class Declaration(Node):
             return DeclSpecsList
 
 
-    # Designed for the BASIC CASE
-    #  Must be improved with many possible left specificers
     def UpdateSymbolTable(self, DeclList):
         if DeclList is not None:
             for Child in DeclList.GetChildren():
@@ -227,9 +227,9 @@ class Declaration(Node):
             return
 
     def RunSemanticAnalysis(self):
+        # check that only one Type exists
+        # check that only one Storage Class Specifier Exists
         pass
-
-
 
 
 class Identifier(Node):
