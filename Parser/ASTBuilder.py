@@ -106,6 +106,12 @@ class DeclList(Node):
         pass
 
 
+class DeclarationSpecifiers(Node):
+    ''' This class represents the static const int etc part of
+        a variable declaration. Needs to store the type_specifier
+        and be able to walk down the storage class specifiers
+    '''
+
 
 class InitDeclList(Node):
     ''' Decl is the declarator at this point in our tree

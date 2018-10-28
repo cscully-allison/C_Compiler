@@ -1,5 +1,5 @@
 int main(int g){
-    char a, b, c;
+    static const char a, b, c;
     int d;
 
     a = 1;
