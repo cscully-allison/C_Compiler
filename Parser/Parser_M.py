@@ -3,7 +3,7 @@ sys.path.append("LexicalAnalizer/")
 sys.path.append("../LexicalAnalizer/")
 from LexicalAnalizer import LexicalAnalizer
 from SymbolTable import SymbolTable
-from ASTBuilder import Identifier, Declaration, PrimaryExpression, UnaryExpression, Constant, FunctionDefintion, CompoundStatement, AssignmentExpression, InitDeclList
+from ASTBuilder import Identifier, DeclList, Declaration, PrimaryExpression, UnaryExpression, Constant, FunctionDefintion, CompoundStatement, AssignmentExpression, InitDeclList
 import ply.yacc as yacc
 # import logging
 # logging.basicConfig(
@@ -91,14 +91,14 @@ class Parser():
 
         def p_function_definition_1(p):
             'function_definition :  declarator compound_statement'
-            p[0] = FunctionDefintion(Id = p[1], Statement = p[2])
+            p[0] = FunctionDefintion(Declarator = p[1], Statement = p[2])
             if self.DebugProd == True:
                 self.DebugPrint("function_definition -->  declarator compound_statement", p)
             return
 
         def p_function_definition_2(p):
             'function_definition :  declarator declaration_list compound_statement'
-            p[0] = FunctionDefintion(Id = p[1], DeclarationList = p[2], Statement = p[3])
+            p[0] = FunctionDefintion(Declarator = p[1], DeclarationList = p[2], Statement = p[3])
 
             if self.DebugProd == True:
                 self.DebugPrint("function_definition -->  declarator declaration_list compound_statement", p)
@@ -106,14 +106,14 @@ class Parser():
 
         def p_function_definition_3(p):
             'function_definition :  declaration_specifiers declarator compound_statement'
-            p[0] = FunctionDefintion(ReturnDeclarator = p[1], Id = p[2], Statement = p[3])
+            p[0] = FunctionDefintion(ReturnDeclarator = p[1], Declarator = p[2], Statement = p[3])
             if self.DebugProd == True:
                 self.DebugPrint("function_definition -->  declaration_specifiers declarator compound_statement", p)
             return
 
         def p_function_definition_4(p):
             'function_definition :  declaration_specifiers declarator declaration_list compound_statement'
-            p[0] = FunctionDefintion(ReturnDeclarator = p[1], Id = p[2], DeclarationList = p[3], Statement = p[4])
+            p[0] = FunctionDefintion(ReturnDeclarator = p[1], Declarator = p[2], DeclarationList = p[3], Statement = p[4])
 
             if self.DebugProd == True:
                 self.DebugPrint("function_definition -->  declaration_specifiers declarator declaration_list compound_statement", p)
@@ -121,13 +121,14 @@ class Parser():
 
         def p_declaration_1(p):
             'declaration :  declaration_specifiers SEMI'
+            p[0] = Declaration(Left=p[1])
             if self.DebugProd == True:
                 self.DebugPrint("declaration -->  declaration_specifiers SEMI", p)
             return
 
         def p_declaration_2(p):
             'declaration :  declaration_specifiers init_declarator_list SEMI'
-            p[0] = Declaration(p[1], p[2])
+            p[0] = Declaration(Left=p[1], Right=p[2])
 
             if self.DebugProd == True:
                 self.DebugPrint("declaration -->  declaration_specifiers init_declarator_list SEMI", p)
@@ -153,12 +154,14 @@ class Parser():
 
         def p_declaration_list_1(p):
             'declaration_list :  insert_mode_e declaration'
+            p[0] = DeclList(Decl=p[2])
             if self.DebugProd == True:
                 self.DebugPrint("declaration_list -->  declaration", p)
             return
 
         def p_declaration_list_2(p):
             'declaration_list :  declaration_list insert_mode_e declaration'
+            p[0] = DeclList(DeclList=p[1], Decl=p[3])
             if self.DebugProd == True:
                 self.DebugPrint("declaration_list -->  declaration_list declaration", p)
             return
@@ -224,6 +227,7 @@ class Parser():
 
         def p_storage_class_specifier_4(p):
             'storage_class_specifier :  EXTERN'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("storage_class_specifier -->  EXTERN", p)
             return
@@ -553,6 +557,7 @@ class Parser():
         def p_direct_declarator_2(p):
             'direct_declarator :  OPENPAREN declarator CLOSEPAREN'
             p[0] = p[2]
+
             if self.DebugProd == True:
                 self.DebugPrint("direct_declarator -->  OPENPAREN declarator CLOSEPAREN", p)
             return

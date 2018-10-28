@@ -23,14 +23,16 @@ class ASTWalker(object):
         else:
             return
 
-        self.TreeGraphOutPtr.write('''for pre, fill, node in RenderTree({}): print("%s%s" % (pre, node.name))'''.format(Root.__class__.__name__))
+        self.TreeGraphOutPtr.write('''for pre, fill, node in RenderTree({}): print("%s%s" % (pre, node.name))'''.format(Root.__class__.__name__ + str(id(Root))))
 
     def PrintAST(self, Parent, Child):
+
         if Child is not None and self.IsNode(Child):
-            self.TreeGraphOutPtr.write(Child.BuildTreeOutput(Parent.__class__.__name__) + '\n')
+            self.TreeGraphOutPtr.write(Child.BuildTreeOutput(Parent.__class__.__name__ + str(id(Parent))) + '\n')
 
             if Child.GetChildren() is not None:
                 for SubTree in Child.GetChildren():
                     self.PrintAST(Child, SubTree)
         else:
+
             return

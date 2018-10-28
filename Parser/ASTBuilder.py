@@ -11,6 +11,21 @@ class Node(object):
         pass
 
 
+    def BuildTreeOutput(self, Parent):
+        ''' Default tree output function. Inherited by all nodes.
+            Overwritten in defined in a specific class.
+        '''
+        output = '{} = Node(\"{}\"{})'
+
+        if Parent is None:
+            output = output.format(self.__class__.__name__ + str(id(self)), self.__class__.__name__, "")
+        else:
+            output = output.format(self.__class__.__name__ + str(id(self)), self.__class__.__name__, ", parent="+Parent)
+
+        return output
+
+
+
 #We need to make nodes for the following Items
 #Constants
 #STRING_LITERALs
@@ -51,36 +66,46 @@ class FunctionDefintion(Node):
         Statement is a Subtree
         Decl List can be null
     '''
-    def __init__(self, ReturnDeclarator = None, Id = None, DeclarationList = None, Statement = None, Loc=None):
+    def __init__(self, ReturnDeclarator = None, Declarator = None, DeclarationList = None, Statement = None, Loc=None):
         self.ReturnDeclarator = ReturnDeclarator
-        self.Id = Id
+        self.Declarator = Declarator
         self.Statement = Statement
         self.DeclarationList = DeclarationList
+        #there will likely be other fancy things here
         pass
 
     def GetChildren(self):
         Children = []
         if self.DeclarationList is not None: Children.append(self.DeclarationList)
         Children.append(self.ReturnDeclarator)
-        Children.append(self.Id)
+        Children.append(self.Declarator)
         Children.append(self.Statement)
         return Children
 
     #we cannot increment a constant
     def RunSemanticAnalysis(self):
-        # return type None then default to int
+        # if return type None then default to int
         # and throw warning, not error
         pass
 
-    def BuildTreeOutput(self, Parent):
-        output = '{} = Node(\"{}\"{})'
+class DeclList(Node):
+    '''Self refrencing production like init decl list.
+    '''
+    def __init__(self, DeclList=None, Decl=None, Loc=None):
+        self.DeclList = DeclList
+        self.Decl = Decl
 
-        if Parent is None:
-            output = output.format(self.__class__.__name__, self.__class__.__name__, "")
-        else:
-            output = output.format(self.__class__.__name__, self.__class__.__name__, ", parent="+Parent)
+    def GetChildren(self):
+        Children = []
+        if self.DeclList is not None: Children.append(self.DeclList)
+        if self.Decl is not None: Children.append(self.Decl)
+        return Children
 
-        return output
+    #we cannot increment a constant
+    def RunSemanticAnalysis(self):
+        pass
+
+
 
 class InitDeclList(Node):
     ''' Decl is the declarator at this point in our tree
@@ -101,15 +126,6 @@ class InitDeclList(Node):
     def RunSemanticAnalysis(self):
         pass
 
-    def BuildTreeOutput(self, Parent):
-        output = '{} = Node(\"{}\"{})'
-
-        if Parent is None:
-            output = output.format(self.__class__.__name__, self.__class__.__name__, "")
-        else:
-            output = output.format(self.__class__.__name__, self.__class__.__name__, ", parent="+Parent)
-
-        return output
 
 
 class Declaration(Node):
@@ -118,7 +134,7 @@ class Declaration(Node):
        This node has the side affect of updating the symbol table
        with type and type specifier information.
     '''
-    def __init__(self, Left, Right, Loc=None):
+    def __init__(self, Left=None, Right=None, Loc=None):
         self.Left = Left
         self.Right = Right
         self.Loc = Loc
@@ -149,15 +165,6 @@ class Declaration(Node):
     def RunSemanticAnalysis(self):
         pass
 
-    def BuildTreeOutput(self, Parent):
-        output = '{} = Node(\"{}\"{})'
-
-        if Parent is None:
-            output = output.format(self.__class__.__name__, self.__class__.__name__, "")
-        else:
-            output = output.format(self.__class__.__name__, self.__class__.__name__, ", parent="+Parent)
-
-        return output
 
 
 
@@ -179,15 +186,15 @@ class Identifier(Node):
             #need a pretty error printing class
             raise Exception("Row:{1} Col:{2} Variable \"{3}\" accessed before declaration.".format('{0}', self.Loc[0], self.Loc[2], self.Name))
 
-    def BuildTreeOutput(self, Parent):
-        output = '{} = Node(\"{}\"{})'
-
-        if Parent is None:
-            output = output.format(self.__class__.__name__, self.__class__.__name__, "")
-        else:
-            output = output.format(self.__class__.__name__, self.__class__.__name__, ", parent="+Parent)
-
-        return output
+    # def BuildTreeOutput(self, Parent):
+    #     output = '{} = Node(\"{}\"{})'
+    #
+    #     if Parent is None:
+    #         output = output.format(self.__class__.__name__, self.__class__.__name__, "")
+    #     else:
+    #         output = output.format(self.__class__.__name__, self.__class__.__name__, ", parent="+Parent)
+    #
+    #     return output
 
 
 class Constant(Node):
@@ -205,15 +212,6 @@ class Constant(Node):
     def RunSemanticAnalysis(self):
         pass
 
-    def BuildTreeOutput(self, Parent):
-        output = '{} = Node(\"{}\"{})'
-
-        if Parent is None:
-            output = output.format(self.__class__.__name__, self.__class__.__name__, "")
-        else:
-            output = output.format(self.__class__.__name__, self.__class__.__name__, ", parent="+Parent)
-
-        return output
 
 
 
@@ -232,15 +230,6 @@ class PrimaryExpression(Node):
     def RunSemanticAnalysis(self):
         pass
 
-    def BuildTreeOutput(self, Parent):
-        output = '{} = Node(\"{}\"{})'
-
-        if Parent is None:
-            output = output.format(self.__class__.__name__, self.__class__.__name__, "")
-        else:
-            output = output.format(self.__class__.__name__, self.__class__.__name__, ", parent="+Parent)
-
-        return output
 
 
 class UnaryExpression(Node):
@@ -264,16 +253,6 @@ class UnaryExpression(Node):
                 raise Exception("Row:{1} Col:{2} Attempted increment of constant.".format('{0}', self.Loc[0], self.Loc[1]))
         pass
 
-    def BuildTreeOutput(self, Parent):
-        output = '{} = Node(\"{}\"{})'
-
-        if Parent is None:
-            output = output.format(self.__class__.__name__, self.__class__.__name__, "")
-        else:
-            output = output.format(self.__class__.__name__, self.__class__.__name__, ", parent="+Parent)
-
-        return output
-
 class CompoundStatement(Node):
     def __init__(self, DecList = None, StmtList = None, Loc=None):
         self.DecList = DecList
@@ -289,16 +268,6 @@ class CompoundStatement(Node):
     #we cannot increment a constant
     def RunSemanticAnalysis(self):
         pass
-
-    def BuildTreeOutput(self, Parent):
-        output = '{} = Node(\"{}\"{})'
-
-        if Parent is None:
-            output = output.format(self.__class__.__name__, self.__class__.__name__, "")
-        else:
-            output = output.format(self.__class__.__name__, self.__class__.__name__, ", parent="+Parent)
-
-        return output
 
 class AssignmentExpression(Node):
     def __init__(self, Op, Left, Right, Loc=None):
@@ -322,17 +291,6 @@ class AssignmentExpression(Node):
 
     def AddImplicitCast(self):
         pass
-
-    def BuildTreeOutput(self, Parent):
-        output = '{} = Node(\"{}\"{})'
-
-        if Parent is None:
-            output = output.format(self.__class__.__name__, self.__class__.__name__, "")
-        else:
-            output = output.format(self.__class__.__name__, self.__class__.__name__, ", parent="+Parent)
-
-        return output
-
 
 
 class BinOp(Node):
@@ -358,13 +316,3 @@ class BinOp(Node):
             #if const, get the lexeme
             #if zero, throw div by zero error
             pass
-
-    def BuildTreeOutput(self, Parent):
-        output = '{} = Node(\"{}\"{})'
-
-        if Parent is None:
-            output = output.format(self.__class__.__name__, self.__class__.__name__, "")
-        else:
-            output = output.format(self.__class__.__name__, self.__class__.__name__, ", parent="+Parent)
-
-        return output

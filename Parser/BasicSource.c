@@ -1,8 +1,6 @@
-
 int main(int g){
-    $!PDO
     char a, b, c;
-    $!PDF
+    int d;
 
     a = 1;
 
