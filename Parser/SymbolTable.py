@@ -15,7 +15,8 @@ class SymbolTable():
     # The symbol key string is a lexeme
     #Content_dict: At present this will contain
     #                       {Type: (the token adjacent to the SymbolKey i.e. >int< <SymbolKey>),
-    #                       Attribute: some modifier on the symbol 'static' 'const' etc.
+    #                       Type Qualifier: qualifies the type specificer 'const', 'volatile' can be a list
+    #                       Storage Class Specifier: defines how the symbol is stored
     #                       TokenLocation: tuple(line, char_in_file, char_in_line) }
     def InsertSymbol(self, SymbolKey_str, Content_dict):
         try:

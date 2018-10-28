@@ -3,7 +3,7 @@ sys.path.append("LexicalAnalizer/")
 sys.path.append("../LexicalAnalizer/")
 from LexicalAnalizer import LexicalAnalizer
 from SymbolTable import SymbolTable
-from ASTBuilder import Identifier, DeclList, Declaration, PrimaryExpression, UnaryExpression, Constant, FunctionDefintion, CompoundStatement, AssignmentExpression, InitDeclList
+from ASTBuilder import Identifier, DeclarationSpecifiers, DeclList, Declaration, PrimaryExpression, UnaryExpression, Constant, FunctionDefintion, CompoundStatement, AssignmentExpression, InitDeclList
 import ply.yacc as yacc
 # import logging
 # logging.basicConfig(
@@ -168,38 +168,42 @@ class Parser():
 
         def p_declaration_specifiers_1(p):
             'declaration_specifiers :  storage_class_specifier'
-            p[0] = p[1]
+            p[0] = DeclarationSpecifiers(SCSpec=p[1])
             if self.DebugProd == True:
                 self.DebugPrint("declaration_specifiers -->  storage_class_specifier", p)
             return
 
         def p_declaration_specifiers_2(p):
             'declaration_specifiers :  storage_class_specifier declaration_specifiers'
+            p[0] = DeclarationSpecifiers(SCSpec=p[1], DeclSpec=p[2])
             if self.DebugProd == True:
                 self.DebugPrint("declaration_specifiers -->  storage_class_specifier declaration_specifiers", p)
             return
 
         def p_declaration_specifiers_3(p):
             'declaration_specifiers :  type_specifier'
-            p[0] = p[1]
+            p[0] = DeclarationSpecifiers(TSpec=p[1])
             if self.DebugProd == True:
                 self.DebugPrint("declaration_specifiers -->  type_specifier", p)
             return
 
         def p_declaration_specifiers_4(p):
             'declaration_specifiers :  type_specifier declaration_specifiers'
+            p[0] = DeclarationSpecifiers(TSpec=p[1], DeclSpec=p[2])
             if self.DebugProd == True:
                 self.DebugPrint("declaration_specifiers -->  type_specifier declaration_specifiers", p)
             return
 
         def p_declaration_specifiers_5(p):
             'declaration_specifiers :  type_qualifier'
+            p[0] = DeclarationSpecifiers(TQual=p[1])
             if self.DebugProd == True:
                 self.DebugPrint("declaration_specifiers -->  type_qualifier", p)
             return
 
         def p_declaration_specifiers_6(p):
             'declaration_specifiers :  type_qualifier declaration_specifiers'
+            p[0] = DeclarationSpecifiers(TQual=p[1], DeclSpec=p[2])
             if self.DebugProd == True:
                 self.DebugPrint("declaration_specifiers -->  type_qualifier declaration_specifiers", p)
             return

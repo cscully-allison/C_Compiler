@@ -48,15 +48,6 @@ class PostfixExpression(Node):
     def RunSemanticAnalysis(self):
         pass
 
-    def BuildTreeOutput(self, Parent):
-        output = '{} = Node(\"{}\"{})'
-
-        if Parent is None:
-            output = output.format(self.__class__.__name__, self.__class__.__name__, "")
-        else:
-            output = output.format(self.__class__.__name__, self.__class__.__name__, ", parent="+Parent)
-
-        return output
 
 
 
@@ -111,6 +102,24 @@ class DeclarationSpecifiers(Node):
         a variable declaration. Needs to store the type_specifier
         and be able to walk down the storage class specifiers
     '''
+    def __init__(self, SCSpec=None, TSpec=None, TQual=None, DeclSpec=None,  Loc=None):
+        self.SCSpec = SCSpec
+        self.TSpec = TSpec
+        self.TQual = TQual
+        self.DeclSpec = DeclSpec
+
+    def GetChildren(self):
+        Children = []
+        if self.SCSpec is not None: Children.append(self.SCSpec)
+        if self.TSpec is not None: Children.append(self.TSpec)
+        if self.TQual is not None: Children.append(self.TQual)
+        if self.DeclSpec is not None: Children.append(self.DeclSpec)
+        return Children
+
+
+    #we cannot increment a constant
+    def RunSemanticAnalysis(self):
+        pass
 
 
 class InitDeclList(Node):
@@ -144,6 +153,16 @@ class Declaration(Node):
         self.Left = Left
         self.Right = Right
         self.Loc = Loc
+
+        #needed for checking the specific subtype of the returned declaration specifier
+        self.TSLib = ['void', 'char', 'int', 'float', 'long', 'double', 'short', 'signed', 'unsigned', 'struct', 'union']
+        self.TQLib = ['const', 'volatile']
+        self.SCSLib = ['auto', 'register', 'static', 'extern', 'typedef']
+
+        #gets and formats the declaration specifiers
+        self.DeclSpecs = self.BuildDeclSpecsDict(self.FetchDeclSpecs(self.Left))
+
+        #updates the symbol table
         self.UpdateSymbolTable(Right)
 
     def GetChildren(self):
@@ -152,9 +171,46 @@ class Declaration(Node):
         if self.Right is not None: Children.append(self.Right)
         return Children
 
+    def BuildDeclSpecsDict(self, DeclSpecsList):
+        Dict = {}
+        for Spec in DeclSpecsList:
+            if Spec in self.TSLib:
+                if 'Type' in Dict:
+                    Dict['Type'].append(Spec)
+                else:
+                    Dict['Type'] = [Spec]
+            elif Spec in self.TQLib:
+                if 'Type Qualifier' in Dict:
+                    Dict['Type Qualifier'].append(Spec)
+                else:
+                    Dict['Type Qualifier'] = [Spec]
+            elif Spec in self.SCSLib:
+                if 'Storage Class Specifier' in Dict:
+                    Dict['Storage Class Specifier'].append(Spec)
+                else:
+                    Dict['Storage Class Specifier'] = [Spec]
+        return Dict
 
-    def UpdateSymbolTableHelper(self):
-        self.UpdateSymbolTable(self.Right)
+
+
+
+    def FetchDeclSpecs(self, DeclSpecs):
+        # past a leaf node case
+        if DeclSpecs is None:
+            return []
+        # at a node case
+        else:
+            DeclSpecsList = []
+            for Child in DeclSpecs.GetChildren():
+                # more nodes beneath us
+                if Child.__class__.__name__ == 'DeclarationSpecifiers':
+                    DeclSpecsList.extend(self.FetchDeclSpecs(Child))
+                # at a leaf node
+                else:
+                    DeclSpecsList = [Child]
+            # return after loop
+            return DeclSpecsList
+
 
     # Designed for the BASIC CASE
     #  Must be improved with many possible left specificers
@@ -162,7 +218,9 @@ class Declaration(Node):
         if DeclList is not None:
             for Child in DeclList.GetChildren():
                 if Child.__class__.__name__ == 'Identifier':
-                    Child.STPtr['Type'] = self.Left
+                    Child.STPtr['Type'] = self.DeclSpecs['Type'][0]
+                    if 'Type Qualifier' in self.DeclSpecs: Child.STPtr['Type Qualifier'] = self.DeclSpecs['Type Qualifier']
+                    if 'Storage Class Specifier' in self.DeclSpecs: Child.STPtr['Storage Class Specifier'] = self.DeclSpecs['Storage Class Specifier'][0]
                 if Child.__class__.__name__ == 'InitDeclList':
                     self.UpdateSymbolTable(Child)
         else:
@@ -177,13 +235,15 @@ class Declaration(Node):
 class Identifier(Node):
     def __init__(self, Name, STPtr, Loc, ST):
         self.Name = Name
-        self.Loc = Loc
         self.STPtr = STPtr
+        self.Loc = Loc
 
         self.RunSemanticAnalysis(ST)
 
     def GetChildren(self):
-        Children = None
+        Children = []
+        if self.Name is not None: Children.append(self.Name)
+        if self.STPtr is not None: Children.append(self.STPtr)
         return Children
 
     def RunSemanticAnalysis(self, ST):
@@ -191,16 +251,6 @@ class Identifier(Node):
         if not ST.FindSymbolInTable(self.Name) and ST.ReadMode:
             #need a pretty error printing class
             raise Exception("Row:{1} Col:{2} Variable \"{3}\" accessed before declaration.".format('{0}', self.Loc[0], self.Loc[2], self.Name))
-
-    # def BuildTreeOutput(self, Parent):
-    #     output = '{} = Node(\"{}\"{})'
-    #
-    #     if Parent is None:
-    #         output = output.format(self.__class__.__name__, self.__class__.__name__, "")
-    #     else:
-    #         output = output.format(self.__class__.__name__, self.__class__.__name__, ", parent="+Parent)
-    #
-    #     return output
 
 
 class Constant(Node):
