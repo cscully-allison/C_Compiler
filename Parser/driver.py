@@ -1,4 +1,5 @@
 from Parser_M import Parser
+from ASTWalker import ASTWalker
 import sys
 
 def driver():
@@ -24,7 +25,8 @@ def driver():
         print("[Compilation stopped]\nReason: {0}".format(e))
         return
 
-    print(AST)
+    AW = ASTWalker(AST)
+    AW.PrintASTHelper(AW.AST)
 
 
 driver()

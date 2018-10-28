@@ -2,3 +2,4 @@ bintrees
 pytest
 ply
 graphviz
+anytree

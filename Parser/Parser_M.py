@@ -3,7 +3,7 @@ sys.path.append("LexicalAnalizer/")
 sys.path.append("../LexicalAnalizer/")
 from LexicalAnalizer import LexicalAnalizer
 from SymbolTable import SymbolTable
-from ASTBuilder import Identifier, PrimaryExpression, UnaryExpression, Constant, FunctionDefintion
+from ASTBuilder import Identifier, PrimaryExpression, UnaryExpression, Constant, FunctionDefintion, CompoundStatement, AssignmentExpression
 import ply.yacc as yacc
 # import logging
 # logging.basicConfig(
@@ -832,6 +832,7 @@ class Parser():
 
         def p_statement_3(p):
             'statement :  expression_statement'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("statement -->  expression_statement", p)
             return
@@ -894,37 +895,42 @@ class Parser():
 
         def p_expression_statement_2(p):
             'expression_statement :  expression SEMI'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("expression_statement -->  expression SEMI", p)
             return
 
         def p_compound_statement_1(p):
             'compound_statement :  OPENBRACE CLOSEBRACE'
+            p[0] = CompoundStatement()
             if self.DebugProd == True:
                 self.DebugPrint("compound_statement -->  OPENBRACE CLOSEBRACE", p)
             return
 
         def p_compound_statement_2(p):
             'compound_statement :  OPENBRACE push_scope_e statement_list pop_scope_e CLOSEBRACE'
+            p[0] = CompoundStatement(StmtList=p[3])
             if self.DebugProd == True:
                 self.DebugPrint("compound_statement -->  OPENBRACE statement_list CLOSEBRACE", p)
             return
 
         def p_compound_statement_3(p):
             'compound_statement :  OPENBRACE push_scope_e declaration_list pop_scope_e CLOSEBRACE'
+            p[0] = CompoundStatement(DecList=p[3])
             if self.DebugProd == True:
                 self.DebugPrint("compound_statement -->  OPENBRACE declaration_list CLOSEBRACE", p)
             return
 
         def p_compound_statement_4(p):
             'compound_statement :  OPENBRACE push_scope_e declaration_list statement_list insert_mode_e pop_scope_e CLOSEBRACE'
-
+            p[0] = CompoundStatement(DecList=p[3], StmtList=p[4])
             if self.DebugProd == True:
                 self.DebugPrint("compound_statement -->  OPENBRACE declaration_list statement_list CLOSEBRACE", p)
             return
 
         def p_statement_list_1(p):
             'statement_list : read_mode_e statement'
+            p[0] = p[2]
             if self.DebugProd == True:
                 self.DebugPrint("statement_list -->  statement", p)
             return
@@ -1045,6 +1051,7 @@ class Parser():
 
         def p_expression_1(p):
             'expression :  assignment_expression'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("expression -->  assignment_expression", p)
             return
@@ -1064,6 +1071,7 @@ class Parser():
 
         def p_assignment_expression_2(p):
             'assignment_expression :  unary_expression assignment_operator assignment_expression'
+            p[0] = AssignmentExpression(p[2], p[1], p[3])
             if self.DebugProd == True:
                 self.DebugPrint("assignment_expression -->  unary_expression assignment_operator assignment_expression", p)
             return

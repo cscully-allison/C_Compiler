@@ -33,8 +33,16 @@ class PostfixExpression(Node):
     def RunSemanticAnalysis(self):
         pass
 
-    def BuildTreeOutput(self):
-        pass
+    def BuildTreeOutput(self, Parent):
+        output = '{} = Node(\"{}\"{})'
+
+        if Parent is None:
+            output = output.format(self.__class__.__name__, self.__class__.__name__, "")
+        else:
+            output = output.format(self.__class__.__name__, self.__class__.__name__, ", parent="+Parent)
+
+        return output
+
 
 
 
@@ -53,6 +61,8 @@ class FunctionDefintion(Node):
     def GetChildren(self):
         Children = []
         if self.DeclarationList is not None: Children.append(self.DeclarationList)
+        Children.append(self.ReturnDeclarator)
+        Children.append(self.Id)
         Children.append(self.Statement)
         return Children
 
@@ -62,8 +72,15 @@ class FunctionDefintion(Node):
         # and throw warning, not error
         pass
 
-    def BuildTreeOutput(self):
-        pass
+    def BuildTreeOutput(self, Parent):
+        output = '{} = Node(\"{}\"{})'
+
+        if Parent is None:
+            output = output.format(self.__class__.__name__, self.__class__.__name__, "")
+        else:
+            output = output.format(self.__class__.__name__, self.__class__.__name__, ", parent="+Parent)
+
+        return output
 
 class Declaration(Node):
     '''Left: Declaration Specificers
@@ -85,8 +102,16 @@ class Declaration(Node):
     def RunSemanticAnalysis(self):
         pass
 
-    def BuildTreeOutput(self):
-        pass
+    def BuildTreeOutput(self, Parent):
+        output = '{} = Node(\"{}\"{})'
+
+        if Parent is None:
+            output = output.format(self.__class__.__name__, self.__class__.__name__, "")
+        else:
+            output = output.format(self.__class__.__name__, self.__class__.__name__, ", parent="+Parent)
+
+        return output
+
 
 
 class Identifier(Node):
@@ -107,8 +132,15 @@ class Identifier(Node):
             #need a pretty error printing class
             raise Exception("Row:{1} Col:{2} Variable \"{3}\" accessed before declaration.".format('{0}', self.Loc[0], self.Loc[2], self.Name))
 
-    def BuildTreeOutput(self):
-        pass
+    def BuildTreeOutput(self, Parent):
+        output = '{} = Node(\"{}\"{})'
+
+        if Parent is None:
+            output = output.format(self.__class__.__name__, self.__class__.__name__, "")
+        else:
+            output = output.format(self.__class__.__name__, self.__class__.__name__, ", parent="+Parent)
+
+        return output
 
 
 class Constant(Node):
@@ -126,8 +158,16 @@ class Constant(Node):
     def RunSemanticAnalysis(self):
         pass
 
-    def BuildTreeOutput(self):
-        pass
+    def BuildTreeOutput(self, Parent):
+        output = '{} = Node(\"{}\"{})'
+
+        if Parent is None:
+            output = output.format(self.__class__.__name__, self.__class__.__name__, "")
+        else:
+            output = output.format(self.__class__.__name__, self.__class__.__name__, ", parent="+Parent)
+
+        return output
+
 
 
 
@@ -139,14 +179,22 @@ class PrimaryExpression(Node):
 
     def GetChildren(self):
         Children = []
-        Children.append(Child)
+        Children.append(self.Child)
         return Children
 
     def RunSemanticAnalysis(self):
         pass
 
-    def BuildTreeOutput(self):
-        pass
+    def BuildTreeOutput(self, Parent):
+        output = '{} = Node(\"{}\"{})'
+
+        if Parent is None:
+            output = output.format(self.__class__.__name__, self.__class__.__name__, "")
+        else:
+            output = output.format(self.__class__.__name__, self.__class__.__name__, ", parent="+Parent)
+
+        return output
+
 
 class UnaryExpression(Node):
     def __init__(self, Op, Child, Loc=None):
@@ -158,7 +206,7 @@ class UnaryExpression(Node):
 
     def GetChildren(self):
         Children = []
-        Children.append(Child)
+        Children.append(self.Child)
         return Children
 
     def RunSemanticAnalysis(self):
@@ -169,10 +217,43 @@ class UnaryExpression(Node):
                 raise Exception("Row:{1} Col:{2} Attempted increment of constant.".format('{0}', self.Loc[0], self.Loc[1]))
         pass
 
-    def BuildTreeOutput(self):
+    def BuildTreeOutput(self, Parent):
+        output = '{} = Node(\"{}\"{})'
+
+        if Parent is None:
+            output = output.format(self.__class__.__name__, self.__class__.__name__, "")
+        else:
+            output = output.format(self.__class__.__name__, self.__class__.__name__, ", parent="+Parent)
+
+        return output
+
+class CompoundStatement(Node):
+    def __init__(self, DecList = None, StmtList = None, Loc=None):
+        self.DecList = DecList
+        self.StmtList = StmtList
+        self.Loc = Loc
+
+    def GetChildren(self):
+        Children = []
+        if self.DecList is not None: Children.append(self.DecList)
+        if self.StmtList is not None: Children.append(self.StmtList)
+        return Children
+
+    #we cannot increment a constant
+    def RunSemanticAnalysis(self):
         pass
 
-class assignment_expression(Node):
+    def BuildTreeOutput(self, Parent):
+        output = '{} = Node(\"{}\"{})'
+
+        if Parent is None:
+            output = output.format(self.__class__.__name__, self.__class__.__name__, "")
+        else:
+            output = output.format(self.__class__.__name__, self.__class__.__name__, ", parent="+Parent)
+
+        return output
+
+class AssignmentExpression(Node):
     def __init__(self, Op, Left, Right, Loc=None):
         self.Op = Op
         self.Loc = Loc
@@ -184,8 +265,8 @@ class assignment_expression(Node):
 
     def GetChildren(self):
         Children = []
-        if self.Left is not None: Children.append(Left)
-        if self.Right is not None: Children.append(Right)
+        if self.Left is not None: Children.append(self.Left)
+        if self.Right is not None: Children.append(self.Right)
         return Children
 
     #we cannot increment a constant
@@ -195,11 +276,15 @@ class assignment_expression(Node):
     def AddImplicitCast(self):
         pass
 
-    def BuildTreeOutput(self):
-        pass
+    def BuildTreeOutput(self, Parent):
+        output = '{} = Node(\"{}\"{})'
 
+        if Parent is None:
+            output = output.format(self.__class__.__name__, self.__class__.__name__, "")
+        else:
+            output = output.format(self.__class__.__name__, self.__class__.__name__, ", parent="+Parent)
 
-
+        return output
 
 
 
@@ -227,5 +312,12 @@ class BinOp(Node):
             #if zero, throw div by zero error
             pass
 
-    def BuildTreeOutput(self):
-        pass
+    def BuildTreeOutput(self, Parent):
+        output = '{} = Node(\"{}\"{})'
+
+        if Parent is None:
+            output = output.format(self.__class__.__name__, self.__class__.__name__, "")
+        else:
+            output = output.format(self.__class__.__name__, self.__class__.__name__, ", parent="+Parent)
+
+        return output
