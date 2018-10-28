@@ -82,6 +82,36 @@ class FunctionDefintion(Node):
 
         return output
 
+class InitDeclList(Node):
+    ''' Decl is the declarator at this point in our tree
+        DeclList is the subtree where we got our Decls from
+    '''
+    def __init__(self, DeclList=None, Decl=None, Loc=None):
+        self.DeclList = DeclList
+        self.Decl = Decl
+
+
+    def GetChildren(self):
+        Children = []
+        if self.DeclList is not None: Children.append(self.DeclList)
+        if self.Decl is not None: Children.append(self.Decl)
+        return Children
+
+    #we cannot increment a constant
+    def RunSemanticAnalysis(self):
+        pass
+
+    def BuildTreeOutput(self, Parent):
+        output = '{} = Node(\"{}\"{})'
+
+        if Parent is None:
+            output = output.format(self.__class__.__name__, self.__class__.__name__, "")
+        else:
+            output = output.format(self.__class__.__name__, self.__class__.__name__, ", parent="+Parent)
+
+        return output
+
+
 class Declaration(Node):
     '''Left: Declaration Specificers
        Right: Declarator List
@@ -92,13 +122,30 @@ class Declaration(Node):
         self.Left = Left
         self.Right = Right
         self.Loc = Loc
-        pass
+        self.UpdateSymbolTable(Right)
 
     def GetChildren(self):
         Children = []
+        if self.Left is not None: Children.append(self.Left)
+        if self.Right is not None: Children.append(self.Right)
         return Children
 
-    #we cannot increment a constant
+
+    def UpdateSymbolTableHelper(self):
+        self.UpdateSymbolTable(self.Right)
+
+    # Designed for the BASIC CASE
+    #  Must be improved with many possible left specificers
+    def UpdateSymbolTable(self, DeclList):
+        if DeclList is not None:
+            for Child in DeclList.GetChildren():
+                if Child.__class__.__name__ == 'Identifier':
+                    Child.STPtr['Type'] = self.Left
+                if Child.__class__.__name__ == 'InitDeclList':
+                    self.UpdateSymbolTable(Child)
+        else:
+            return
+
     def RunSemanticAnalysis(self):
         pass
 

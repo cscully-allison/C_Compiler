@@ -3,7 +3,7 @@ sys.path.append("LexicalAnalizer/")
 sys.path.append("../LexicalAnalizer/")
 from LexicalAnalizer import LexicalAnalizer
 from SymbolTable import SymbolTable
-from ASTBuilder import Identifier, PrimaryExpression, UnaryExpression, Constant, FunctionDefintion, CompoundStatement, AssignmentExpression
+from ASTBuilder import Identifier, Declaration, PrimaryExpression, UnaryExpression, Constant, FunctionDefintion, CompoundStatement, AssignmentExpression, InitDeclList
 import ply.yacc as yacc
 # import logging
 # logging.basicConfig(
@@ -127,19 +127,8 @@ class Parser():
 
         def p_declaration_2(p):
             'declaration :  declaration_specifiers init_declarator_list SEMI'
+            p[0] = Declaration(p[1], p[2])
 
-            try:
-                #May adjust in future
-                for declarator in p[2]:
-                    #lookup and store type
-                    pass
-                    # self.ST.InsertSymbol(declarator['lexeme'], {'Type': p[1], 'TokenLocation': declarator['additional']['TokenLocation']})
-            except Exception as e:
-                raise e
-
-
-            if self.DebugProdL[1] == True:
-                print(p[1],p[2])
             if self.DebugProd == True:
                 self.DebugPrint("declaration -->  declaration_specifiers init_declarator_list SEMI", p)
             return
@@ -400,12 +389,7 @@ class Parser():
 
         def p_init_declarator_list_1(p):
             'init_declarator_list :  init_declarator'
-            list = []
-            list.append(p[1])
-            p[0] = list
-
-            if self.DebugProdL[1] == True:
-                print(list)
+            p[0] = InitDeclList(Decl=p[1])
 
             if self.DebugProd == True:
                 self.DebugPrint("init_declarator_list -->  init_declarator", p)
@@ -413,13 +397,8 @@ class Parser():
 
         def p_init_declarator_list_2(p):
             'init_declarator_list :  init_declarator_list COMMA init_declarator'
-            if(p[1] is not None):
-                p[1].append(p[3])
+            p[0] = InitDeclList(DeclList=p[1], Decl=p[3])
 
-            p[0] = p[1]
-
-            if self.DebugProdL[1] == True:
-                print(p[1], p[3])
 
             if self.DebugProd == True:
                 self.DebugPrint("init_declarator_list -->  init_declarator_list COMMA init_declarator", p)
