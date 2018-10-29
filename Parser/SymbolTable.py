@@ -15,7 +15,8 @@ class SymbolTable():
     # The symbol key string is a lexeme
     #Content_dict: At present this will contain
     #                       {Type: (the token adjacent to the SymbolKey i.e. >int< <SymbolKey>),
-    #                       Attribute: some modifier on the symbol 'static' 'const' etc.
+    #                       Type Qualifier: qualifies the type specificer 'const', 'volatile' can be a list
+    #                       Storage Class Specifier: defines how the symbol is stored
     #                       TokenLocation: tuple(line, char_in_file, char_in_line) }
     def InsertSymbol(self, SymbolKey_str, Content_dict):
         try:
@@ -41,7 +42,8 @@ class SymbolTable():
                 pass
         except Exception as e:
             raise e
-        return True
+
+        return self.FindSymbolInCurrentScope(SymbolKey_str)
 
     #Function: FindSymbolInTable
     #Desc: Search all scopes of the symbol table to find a specific symbol
@@ -58,7 +60,7 @@ class SymbolTable():
         #iterate over all trees
         #add found isntances of symbols to list if present
         for Tree in reversed(self.Table): #reversed so appended items are at the front
-            if Tree.__contains__(SymbolKey_str):
+            if Tree is not None and Tree.__contains__(SymbolKey_str):
                 T_list.append( {Level_int: Tree.get(SymbolKey_str)} )
             Level_int += 1
 
@@ -76,12 +78,7 @@ class SymbolTable():
     #Function:PushNewScope
     #Desc: Create a new scope and push it onto the table
     def PushNewScope(self):
-<<<<<<< HEAD
-        self.Table.append(self.TopScope)
-        self.TopScope = FastRBTree()
-=======
         self.PushScope(FastRBTree())
->>>>>>> e10bae67968267382b335864552173d84446cbaa
         return
 
     #Function: PushScope
@@ -94,19 +91,11 @@ class SymbolTable():
     #Function: PopScope
     #Desc: Remove and return scope (RBtree) from the symbol table
     def PopScope(self):
-<<<<<<< HEAD
-        if self.TopScope is not None:
-            TScope = self.TopScope
-            #if list is empty
-            # we do not pop and instead set topscope to None
-            self.TopScope = self.Table.pop()
-=======
         TScope = self.TopScope
         if len(self.Table) > 0:
             self.TopScope = self.Table.pop()
         else:
             self.TopScope = None
->>>>>>> e10bae67968267382b335864552173d84446cbaa
         return TScope
 
     #Function: WriteSymbolTableToFile
@@ -167,6 +156,7 @@ class SymbolTable():
         if self.TopScope is None:
             return True
         return False
+
 
     def PrettyErrorPrint(self, Message, Lineno, Column):
         arrow = ""

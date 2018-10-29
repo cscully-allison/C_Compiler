@@ -4,18 +4,141 @@ from SymbolTable import SymbolTable
 from LexicalAnalizer import LexicalAnalizer
 
 def test_constructor():
-    ST = SymbolTable()
+    ST = SymbolTable("")
     LA = LexicalAnalizer(ST)
 
-def test_tokenizing():
+def test_reservedWords():
     #basic token test for identifier
-    ST = SymbolTable()
+    ST = SymbolTable("")
     LA = LexicalAnalizer(ST)
     LA.BuildLexer()
 
-    data = ''' var vary vars '''
+    data = '''int'''
+
+    LA.Lexer.input(data)
+
+    for Tok in LA.Lexer:
+        assert(Tok.type == 'INT')
+
+    data = '''goto'''
+
+    LA.Lexer.input(data)
+
+    for Tok in LA.Lexer:
+        assert(Tok.type == 'GOTO')
+
+    data = '''continue'''
+
+    LA.Lexer.input(data)
+
+    for Tok in LA.Lexer:
+        assert(Tok.type == 'CONTINUE')
+
+    data = '''struct'''
+
+    LA.Lexer.input(data)
+
+    for Tok in LA.Lexer:
+        assert(Tok.type == 'STRUCT')
+
+    data = '''volatile'''
+
+    LA.Lexer.input(data)
+
+    for Tok in LA.Lexer:
+        assert(Tok.type == 'VOLATILE')
+
+    data = '''typedef'''
+
+    LA.Lexer.input(data)
+
+    for Tok in LA.Lexer:
+        assert(Tok.type == 'TYPEDEF')
+
+def test_literals():
+    #basic token test for character literals
+    ST = SymbolTable("")
+    LA = LexicalAnalizer(ST)
+    LA.BuildLexer()
+
+    data = '''='''
+
+    LA.Lexer.input(data)
+
+    for Tok in LA.Lexer:
+        assert(Tok.type == 'ASSIGN')
+
+    data = '''>='''
+
+    LA.Lexer.input(data)
+
+    for Tok in LA.Lexer:
+        assert(Tok.type == 'GE_OP')
+
+    data = '''*'''
+
+    LA.Lexer.input(data)
+
+    for Tok in LA.Lexer:
+        assert(Tok.type == 'ASTERISK')
+
+    data = '''!'''
+
+    LA.Lexer.input(data)
+
+    for Tok in LA.Lexer:
+        assert(Tok.type == 'BANG')
+
+def test_constants():
+    #basic token test for constants
+    ST = SymbolTable("")
+    LA = LexicalAnalizer(ST)
+    LA.BuildLexer()
+
+    data = '''\'a\''''
+
+    LA.Lexer.input(data)
+
+    for Tok in LA.Lexer:
+        assert(Tok.type == 'CHARACTER_CONSTANT')
+
+    data = '''//words'''
+
+    LA.Lexer.input(data)
+
+    for Tok in LA.Lexer:
+        assert(Tok.type == 'SINGLE_LINE_COMMENT')
+
+    data = '''-456.89'''
+
+    LA.Lexer.input(data)
+
+    for Tok in LA.Lexer:
+        assert(Tok.type == 'FLOATING_CONSTANT')
+
+    data = '''\"this is string\"'''
+
+    LA.Lexer.input(data)
+
+    for Tok in LA.Lexer:
+        assert(Tok.type == 'STRING_LITERAL')
+
+def test_indentifiers():
+    #basic token test for constants
+    ST = SymbolTable(None)
+    LA = LexicalAnalizer(ST)
+    LA.BuildLexer()
+
+    data = '''variable main age person'''
 
     LA.Lexer.input(data)
 
     for Tok in LA.Lexer:
         assert(Tok.type == 'IDENTIFIER')
+
+    data = '''$'''
+
+    LA.Lexer.input(data)
+
+    for Tok in LA.Lexer:
+        assert(Tok.type == 'ERROR')
