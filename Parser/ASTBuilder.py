@@ -27,14 +27,30 @@ class Node(object):
 
 
 #We need to make nodes for the following Items
-#Constants
-#STRING_LITERALs
-#Functions
-#if statement
-#declaration lists
-#type specifiers
-#type...modfier things like CONST or whatever
-#arrays
+
+class PassUpNode(Node):
+    '''
+        Children: Must be passed in as a list of nodes when constructor is called
+    '''
+    def __init__(self, ProductionName, Children):
+        self.ProductionName = ProductionName
+        self.Children = Children
+
+    def GetChildren(self):
+        return self.Children
+
+    def BuildTreeOutput(self, Parent):
+        ''' Default tree output function. Inherited by all nodes.
+            Overwritten in defined in a specific class.
+        '''
+        output = '{} = Node(\"{}\"{})'
+
+        if Parent is None:
+            output = output.format(self.__class__.__name__ + str(id(self)), self.ProductionName, "")
+        else:
+            output = output.format(self.__class__.__name__ + str(id(self)), self.ProductionName, ", parent="+Parent)
+
+        return output
 
 class PostfixExpression(Node):
     def __init__(self, Loc=None):
@@ -47,8 +63,6 @@ class PostfixExpression(Node):
     #we cannot increment a constant
     def RunSemanticAnalysis(self):
         pass
-
-
 
 
 
@@ -221,7 +235,8 @@ class Declaration(Node):
                     Child.STPtr['Type'] = self.DeclSpecs['Type'][0]
                     if 'Type Qualifier' in self.DeclSpecs: Child.STPtr['Type Qualifier'] = self.DeclSpecs['Type Qualifier']
                     if 'Storage Class Specifier' in self.DeclSpecs: Child.STPtr['Storage Class Specifier'] = self.DeclSpecs['Storage Class Specifier'][0]
-                if Child.__class__.__name__ == 'InitDeclList':
+
+                else:
                     self.UpdateSymbolTable(Child)
         else:
             return
@@ -368,7 +383,4 @@ class BinOp(Node):
         return Children
 
     def RunSemanticAnalysis(self, ST):
-        if self.op == 'DIV':
-            #if const, get the lexeme
-            #if zero, throw div by zero error
             pass
