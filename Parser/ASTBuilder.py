@@ -1,5 +1,4 @@
 
-
 class Node(object):
     '''Abstract base class for nodes'''
     def GetChildren(self):
@@ -15,12 +14,12 @@ class Node(object):
         ''' Default tree output function. Inherited by all nodes.
             Overwritten in defined in a specific class.
         '''
-        output = '{} = Node(\"{}\"{})'
+        output = '{} = Node(\'{}\'{})'
 
         if Parent is None:
-            output = output.format(self.__class__.__name__ + str(id(self)), self.__class__.__name__, "")
+            output = output.format(self.__class__.__name__ + str(id(self)), self.__class__.__name__ +"_"+ str(id(self))[-4:], "")
         else:
-            output = output.format(self.__class__.__name__ + str(id(self)), self.__class__.__name__, ", parent="+Parent)
+            output = output.format(self.__class__.__name__ + str(id(self)), self.__class__.__name__ +"_"+ str(id(self))[-4:], ", parent="+Parent)
 
         return output
 
@@ -43,12 +42,12 @@ class PassUpNode(Node):
         ''' Default tree output function. Inherited by all nodes.
             Overwritten in defined in a specific class.
         '''
-        output = '{} = Node(\"{}\"{})'
+        output = '{} = Node(\'{}\'{})'
 
         if Parent is None:
-            output = output.format(self.__class__.__name__ + str(id(self)), self.ProductionName, "")
+            output = output.format(self.__class__.__name__ + str(id(self)), self.ProductionName+"_"+ str(id(self))[-4:], "")
         else:
-            output = output.format(self.__class__.__name__ + str(id(self)), self.ProductionName, ", parent="+Parent)
+            output = output.format(self.__class__.__name__ + str(id(self)), self.ProductionName+"_"+ str(id(self))[-4:], ", parent="+Parent)
 
         return output
 
@@ -265,7 +264,7 @@ class Identifier(Node):
         #check for access before declaration
         if not ST.FindSymbolInTable(self.Name) and ST.ReadMode:
             #need a pretty error printing class
-            raise Exception("Row:{1} Col:{2} Variable \"{3}\" accessed before declaration.".format('{0}', self.Loc[0], self.Loc[2], self.Name))
+            raise Exception("Row:{1} Col:{2} Variable \'{3}\' accessed before declaration.".format('{0}', self.Loc[0], self.Loc[2], self.Name))
 
 
 class Constant(Node):
@@ -349,7 +348,6 @@ class AssignmentExpression(Node):
 
         self.RunSemanticAnalysis()
 
-
     def GetChildren(self):
         Children = []
         if self.Left is not None: Children.append(self.Left)
@@ -365,7 +363,7 @@ class AssignmentExpression(Node):
 
 
 class BinOp(Node):
-    def __init__(self, Op, Left, Right, Loc):
+    def __init__(self, Op, Left, Right, Loc = None):
         self.Left = Left
         self.Right = Right
         self.Op = Op

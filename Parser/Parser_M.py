@@ -1069,7 +1069,7 @@ class Parser():
 
         def p_assignment_expression_1(p):
             'assignment_expression :  conditional_expression'
-            p[0] = PassUpNode("AssignmentExpression", [p[1],p[3]])
+            p[0] = PassUpNode("AssignmentExpression", [p[1]])
             if self.DebugProd == True:
                 self.DebugPrint("assignment_expression -->  conditional_expression", p)
             return

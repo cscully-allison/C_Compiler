@@ -5,6 +5,7 @@ int main(int g){
 
 
     a = 1;
+    c *= 3;
 
     $!ST1
 }
