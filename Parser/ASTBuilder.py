@@ -383,13 +383,15 @@ class BinOp(Node):
         self.Op = Op
         self.Loc = Loc
 
-        self.RunSemanticAnalysis()
+        self.RunSemanticAnalysis(None)
 
     def GetChildren(self):
         Children = []
 
         if self.Left is not None:
             Children.append(self.Left)
+        if self.Op is not None:
+            Children.append(self.Op)
         if self.Right is not None:
             Children.append(self.Right)
 
