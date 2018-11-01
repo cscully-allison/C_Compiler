@@ -1,3 +1,4 @@
+from Utils import PrettyErrorPrint
 
 class TicketCounter(object):
     def __init__(self, Type):
@@ -261,10 +262,11 @@ class Declaration(Node):
 
 
 class Identifier(Node):
-    def __init__(self, Name, STPtr, Loc, ST):
+    def __init__(self, Name, STPtr, Loc, ST, P):
         self.Name = Name
         self.STPtr = STPtr
         self.Loc = Loc
+        self.Production = P
 
         self.RunSemanticAnalysis(ST)
 
@@ -278,8 +280,8 @@ class Identifier(Node):
         #check for access before declaration
         if not ST.FindSymbolInTable(self.Name) and ST.ReadMode:
             #need a pretty error printing class
-            raise Exception("Row:{1} Col:{2} Variable \'{3}\' accessed before declaration.".format('{0}', self.Loc[0], self.Loc[2], self.Name))
-
+            # raise Exception("Row:{1} Col:{2} Variable \"{3}\" accessed before declaration.".format('{0}', self.Loc[0], self.Loc[2], self.Name))
+            raise Exception(PrettyErrorPrint("Variable \"{0}\" accessed before declaration.".format(self.Name), self.Loc[0], self.Loc[2], self.Production.lexer.lexdata ) )
 
 class Constant(Node):
     def __init__(self, DataType, Child, Loc=None):

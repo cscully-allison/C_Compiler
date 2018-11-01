@@ -1624,7 +1624,7 @@ class Parser():
 
             IdPtr = self.ST.InsertSymbol(p[1]['lexeme'], {'TokenLocation': p[1]['additional']['TokenLocation']})
 
-            p[0] = Identifier(p[1]['lexeme'], IdPtr, p[1]['additional']['TokenLocation'], self.ST)
+            p[0] = Identifier(p[1]['lexeme'], IdPtr, p[1]['additional']['TokenLocation'], self.ST, p)
 
             if self.DebugProd == True:
                 self.DebugPrint("identifier -->  IDENTIFIER", p)
