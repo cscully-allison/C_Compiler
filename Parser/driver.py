@@ -22,9 +22,13 @@ def driver():
     # terminiation under various circumstances
     try:
         AST = P.RunParser()
+        if ErrManager.HasErrors():
+            raise Exception()
     except Exception as e:
-        print("[Compilation stopped]\nReason: {0}".format(e))
-        # return
+        print(e)
+        print("\n[Compliation Stopped]\nThe Following Errors Were Found:\n")
+        ErrManager.PrintErrors()
+        return
 
     AW = ASTWalker(AST)
     AW.PrintASTHelper(AW.AST)

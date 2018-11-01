@@ -1,6 +1,8 @@
 import sys
 sys.path.append("LexicalAnalizer/")
 sys.path.append("../LexicalAnalizer/")
+from Globals import ErrManager
+from Utils import PrettyErrorPrint, FindColumn
 from LexicalAnalizer import LexicalAnalizer
 from SymbolTable import SymbolTable
 from ASTBuilder import Identifier, PassUpNode, SelectionStatement, DeclarationSpecifiers, DeclList, Declaration, PrimaryExpression, UnaryExpression, Constant, FunctionDefintion, CompoundStatement, AssignmentExpression, InitDeclList
@@ -1668,7 +1670,8 @@ class Parser():
             return
 
         def p_error(p):
-            raise Exception("Parsing error found.")
+            ErrManager.AddError(PrettyErrorPrint("Syntax Error. Did you possibly forget a semicolon somewhere?", p.lexer.lineno, FindColumn(p.lexer.lexdata, p.lexer), p.lexer.lexdata))
+            return
 
 
         #must be here to make parser build correctly

@@ -288,8 +288,8 @@ class Identifier(Node):
         #check for access before declaration
         if not ST.FindSymbolInTable(self.Name) and ST.ReadMode:
             #need a pretty error printing class
-            # raise Exception("Row:{1} Col:{2} Variable \"{3}\" accessed before declaration.".format('{0}', self.Loc[0], self.Loc[2], self.Name))
-            raise Exception(PrettyErrorPrint("Variable \"{0}\" accessed before declaration.".format(self.Name), self.Loc[0], self.Loc[2], self.Production.lexer.lexdata ))
+            # ErrManager.AddError("Row:{1} Col:{2} Variable \"{3}\" accessed before declaration.".format('{0}', self.Loc[0], self.Loc[2], self.Name))
+            ErrManager.AddError(PrettyErrorPrint("Variable \"{0}\" accessed before declaration.".format(self.Name), self.Loc[0], self.Loc[2], self.Production.lexer.lexdata ))
 
 
 class Constant(Node):
@@ -345,7 +345,7 @@ class UnaryExpression(Node):
         if (self.Child.Type == 'constant' or
         self.Child.Type == 'string') and (self.Op == "++" or
         self.Op == "--" ):
-                raise Exception("Row:{1} Col:{2} Attempted increment of constant.".format('{0}', self.Loc[0], self.Loc[1]))
+                ErrManager.AddError("Row:{1} Col:{2} Attempted increment of constant.".format('{0}', self.Loc[0], self.Loc[1]))
         pass
 
 class CompoundStatement(Node):
@@ -385,11 +385,13 @@ class AssignmentExpression(Node):
         LHSId = self.FetchId(self.Left)
         LHS = ST.FindSymbolInTable(LHSId)
 
+        if LHS is False:
+            return
         for ID in LHS:
             if "Type Qualifier" in ID:
                 for qualifier in LHS[0]["Type Qualifier"]:
                     if qualifier == 'const':
-                        raise Exception(PrettyErrorPrint("Attempted Access of Const Variable \"{}\".".format(LHSId),
+                        ErrManager.AddError(PrettyErrorPrint("Attempted Access of Const Variable \"{}\".".format(LHSId),
                                 self.Production.lexer.lineno,
                                     FindColumn(self.Production.lexer.lexdata,
                                         self.Production.lexer
@@ -452,7 +454,7 @@ class SelectionStatement(Node):
         if self.IfExpression is not None: Children.append(self.IfExpression)
         if self.ThenBlock is not None: Children.append(self.ThenBlock)
         if self.ElseBlock is not None: Children.append(self.ElseBlock)
-        return ChildrenE
+        return Children
 
     #we cannot increment a constant
     def RunSemanticAnalysis(self):
