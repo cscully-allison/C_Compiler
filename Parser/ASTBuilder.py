@@ -1,4 +1,16 @@
 
+class TicketCounter(object):
+    def __init__(self, Type):
+        self.Type = Type
+        self.Counter = 0
+
+    def DispenseTicket(self):
+        self.Counter += 1
+        print("DispensedTicket:", self.Type+str(self.Counter))
+        return self.Type+str(self.Counter)
+
+Label = TicketCounter("L")
+Register = TicketCounter("R")
 
 class Node(object):
     '''Abstract base class for nodes'''
@@ -15,26 +27,42 @@ class Node(object):
         ''' Default tree output function. Inherited by all nodes.
             Overwritten in defined in a specific class.
         '''
-        output = '{} = Node(\"{}\"{})'
+        output = '{} = Node(\'{}\'{})'
 
         if Parent is None:
-            output = output.format(self.__class__.__name__ + str(id(self)), self.__class__.__name__, "")
+            output = output.format(self.__class__.__name__ + str(id(self)), self.__class__.__name__ +"_"+ str(id(self))[-4:], "")
         else:
-            output = output.format(self.__class__.__name__ + str(id(self)), self.__class__.__name__, ", parent="+Parent)
+            output = output.format(self.__class__.__name__ + str(id(self)), self.__class__.__name__ +"_"+ str(id(self))[-4:], ", parent="+Parent)
 
         return output
 
 
 
 #We need to make nodes for the following Items
-#Constants
-#STRING_LITERALs
-#Functions
-#if statement
-#declaration lists
-#type specifiers
-#type...modfier things like CONST or whatever
-#arrays
+
+class PassUpNode(Node):
+    '''
+        Children: Must be passed in as a list of nodes when constructor is called
+    '''
+    def __init__(self, ProductionName, Children):
+        self.ProductionName = ProductionName
+        self.Children = Children
+
+    def GetChildren(self):
+        return self.Children
+
+    def BuildTreeOutput(self, Parent):
+        ''' Default tree output function. Inherited by all nodes.
+            Overwritten in defined in a specific class.
+        '''
+        output = '{} = Node(\'{}\'{})'
+
+        if Parent is None:
+            output = output.format(self.__class__.__name__ + str(id(self)), self.ProductionName+"_"+ str(id(self))[-4:], "")
+        else:
+            output = output.format(self.__class__.__name__ + str(id(self)), self.ProductionName+"_"+ str(id(self))[-4:], ", parent="+Parent)
+
+        return output
 
 class PostfixExpression(Node):
     def __init__(self, Loc=None):
@@ -50,8 +78,6 @@ class PostfixExpression(Node):
 
 
 
-
-
 class FunctionDefintion(Node):
     ''' Declaration List is a Subtree
         Statement is a Subtree
@@ -62,7 +88,8 @@ class FunctionDefintion(Node):
         self.Declarator = Declarator
         self.Statement = Statement
         self.DeclarationList = DeclarationList
-        #there will likely be other fancy things here
+        #there will likely be other fancy thins here
+        self.Label = Label.DispenseTicket() # This should go into the symbol table
         pass
 
     def GetChildren(self):
@@ -221,7 +248,8 @@ class Declaration(Node):
                     Child.STPtr['Type'] = self.DeclSpecs['Type'][0]
                     if 'Type Qualifier' in self.DeclSpecs: Child.STPtr['Type Qualifier'] = self.DeclSpecs['Type Qualifier']
                     if 'Storage Class Specifier' in self.DeclSpecs: Child.STPtr['Storage Class Specifier'] = self.DeclSpecs['Storage Class Specifier'][0]
-                if Child.__class__.__name__ == 'InitDeclList':
+
+                else:
                     self.UpdateSymbolTable(Child)
         else:
             return
@@ -250,7 +278,7 @@ class Identifier(Node):
         #check for access before declaration
         if not ST.FindSymbolInTable(self.Name) and ST.ReadMode:
             #need a pretty error printing class
-            raise Exception("Row:{1} Col:{2} Variable \"{3}\" accessed before declaration.".format('{0}', self.Loc[0], self.Loc[2], self.Name))
+            raise Exception("Row:{1} Col:{2} Variable \'{3}\' accessed before declaration.".format('{0}', self.Loc[0], self.Loc[2], self.Name))
 
 
 class Constant(Node):
@@ -334,7 +362,6 @@ class AssignmentExpression(Node):
 
         self.RunSemanticAnalysis()
 
-
     def GetChildren(self):
         Children = []
         if self.Left is not None: Children.append(self.Left)
@@ -350,10 +377,11 @@ class AssignmentExpression(Node):
 
 
 class BinOp(Node):
-    def __init__(self, Op, Left, Right, Loc):
+    def __init__(self, Op, Left, Right, Loc = None):
         self.Left = Left
         self.Right = Right
         self.Op = Op
+        self.Loc = Loc
 
         self.RunSemanticAnalysis()
 
@@ -368,7 +396,26 @@ class BinOp(Node):
         return Children
 
     def RunSemanticAnalysis(self, ST):
-        if self.op == 'DIV':
-            #if const, get the lexeme
-            #if zero, throw div by zero error
             pass
+
+
+class SelectionStatement(Node):
+    def __init__(self, IfExpression=None, ThenBlock=None, ElseBlock = None, Loc=None):
+        self.IfExpression = IfExpression
+        self.ThenBlock = ThenBlock
+        self.ElseBlock = ElseBlock
+        self.Loc = Loc
+
+        if self.ThenBlock is not None: self.ThenLabel = Label.DispenseTicket()
+        if self.ElseBlock is not None: self.ElseLabel = Label.DispenseTicket()
+
+    def GetChildren(self):
+        Children = []
+        if self.IfExpression is not None: Children.append(self.IfExpression)
+        if self.ThenBlock is not None: Children.append(self.ThenBlock)
+        if self.ElseBlock is not None: Children.append(self.ElseBlock)
+        return Children
+
+    #we cannot increment a constant
+    def RunSemanticAnalysis(self):
+        pass
