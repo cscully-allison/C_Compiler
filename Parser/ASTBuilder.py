@@ -382,6 +382,7 @@ class BinOp(Node):
         self.Right = Right
         self.Op = Op
         self.Loc = Loc
+        self.Register = Register.DispenseTicket()
 
         self.RunSemanticAnalysis()
 
@@ -408,6 +409,8 @@ class SelectionStatement(Node):
 
         if self.ThenBlock is not None: self.ThenLabel = Label.DispenseTicket()
         if self.ElseBlock is not None: self.ElseLabel = Label.DispenseTicket()
+
+        self.End = Label.DispenseTicket()
 
     def GetChildren(self):
         Children = []
