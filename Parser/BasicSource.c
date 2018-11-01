@@ -3,6 +3,7 @@ int main(int g){
     const int g;
     static double b;
 
+    l = 2;
 
     a = 1;
 
