@@ -1,3 +1,4 @@
+from Globals import ErrManager
 from Parser_M import Parser
 from ASTWalker import ASTWalker
 import sys
@@ -23,7 +24,7 @@ def driver():
         AST = P.RunParser()
     except Exception as e:
         print("[Compilation stopped]\nReason: {0}".format(e))
-        return
+        # return
 
     AW = ASTWalker(AST)
     AW.PrintASTHelper(AW.AST)

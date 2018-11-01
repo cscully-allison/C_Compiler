@@ -1089,7 +1089,7 @@ class Parser():
         def p_assignment_expression_2(p):
             'assignment_expression :  unary_expression assignment_operator assignment_expression'
             # this should be a binary operation
-            p[0] = AssignmentExpression(p[2], p[1], p[3])
+            p[0] = AssignmentExpression(p[2], p[1], p[3], self.ST, Production = p)
             if self.DebugProd == True:
                 self.DebugPrint("assignment_expression -->  unary_expression assignment_operator assignment_expression", p)
             return

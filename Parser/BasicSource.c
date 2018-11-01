@@ -3,9 +3,7 @@ int funct(){
 }
 
 int main(int g){
-    static const char a, d, r;
-    const int g;
-    static double b;
+    static const char a, d;
 
     if(a < d){
       int a4;
@@ -15,6 +13,7 @@ int main(int g){
       int b6;
       b6 = 4 + 2;
     }
+
 
     a = 1;
     d *= 3;

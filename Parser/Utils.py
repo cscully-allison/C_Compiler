@@ -1,12 +1,7 @@
 def PrettyErrorPrint(Message, Lineno, Column, SourceText):
     arrow = ""
-    i = 0
+    preface = "Error: Line:{} Column:{} ".format(Lineno, Column)
 
-    #print line
-    # with open(self.SourceFile) as file:
-    #     for i in range(0,Lineno):
-    #         source = file.readline()
-    # print(source)
     lines = SourceText.splitlines()
 
     for i, line in enumerate(lines):
@@ -19,4 +14,9 @@ def PrettyErrorPrint(Message, Lineno, Column, SourceText):
     arrow += "^\n"
 
 
-    return Message + '\n' + source + '\n' + arrow + '\n'
+    return preface + Message + '\n' + source + '\n' + arrow + '\n'
+
+
+def FindColumn(input, token):
+    line_start = input.rfind('\n', 0, token.lexpos) + 1
+    return (token.lexpos - line_start) + 1

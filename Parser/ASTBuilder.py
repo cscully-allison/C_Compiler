@@ -1,4 +1,5 @@
-from Utils import PrettyErrorPrint
+from Utils import PrettyErrorPrint, FindColumn
+from Globals import ErrManager
 
 class TicketCounter(object):
     def __init__(self, Type):
@@ -123,6 +124,10 @@ class DeclList(Node):
     #we cannot increment a constant
     def RunSemanticAnalysis(self):
         pass
+
+
+
+
 
 
 class DeclarationSpecifiers(Node):
@@ -261,6 +266,9 @@ class Declaration(Node):
         pass
 
 
+class ArrayDeclaration(Node):
+    '''This class will handle the special case of array declarations'''
+
 class Identifier(Node):
     def __init__(self, Name, STPtr, Loc, ST, P):
         self.Name = Name
@@ -281,7 +289,8 @@ class Identifier(Node):
         if not ST.FindSymbolInTable(self.Name) and ST.ReadMode:
             #need a pretty error printing class
             # raise Exception("Row:{1} Col:{2} Variable \"{3}\" accessed before declaration.".format('{0}', self.Loc[0], self.Loc[2], self.Name))
-            raise Exception(PrettyErrorPrint("Variable \"{0}\" accessed before declaration.".format(self.Name), self.Loc[0], self.Loc[2], self.Production.lexer.lexdata ) )
+            raise Exception(PrettyErrorPrint("Variable \"{0}\" accessed before declaration.".format(self.Name), self.Loc[0], self.Loc[2], self.Production.lexer.lexdata ))
+
 
 class Constant(Node):
     def __init__(self, DataType, Child, Loc=None):
@@ -356,13 +365,14 @@ class CompoundStatement(Node):
         pass
 
 class AssignmentExpression(Node):
-    def __init__(self, Op, Left, Right, Loc=None):
+    def __init__(self, Op, Left, Right, ST, Loc=None, Production=None):
         self.Op = Op
         self.Loc = Loc
         self.Left = Left
         self.Right = Right
+        self.Production = Production
 
-        self.RunSemanticAnalysis()
+        self.RunSemanticAnalysis(ST)
 
     def GetChildren(self):
         Children = []
@@ -371,8 +381,32 @@ class AssignmentExpression(Node):
         return Children
 
     #we cannot increment a constant
-    def RunSemanticAnalysis(self):
-        pass
+    def RunSemanticAnalysis(self, ST):
+        LHSId = self.FetchId(self.Left)
+        LHS = ST.FindSymbolInTable(LHSId)
+
+        for ID in LHS:
+            if "Type Qualifier" in ID:
+                for qualifier in LHS[0]["Type Qualifier"]:
+                    if qualifier == 'const':
+                        raise Exception(PrettyErrorPrint("Attempted Access of Const Variable \"{}\".".format(LHSId),
+                                self.Production.lexer.lineno,
+                                    FindColumn(self.Production.lexer.lexdata,
+                                        self.Production.lexer
+                                    ),
+                                self.Production.lexer.lexdata )
+                            )
+
+
+    def FetchId(self, Subtree):
+        if Subtree is None: return
+        if Subtree.GetChildren() is None: return
+
+        for Child in Subtree.GetChildren():
+            if Child.__class__.__name__ == 'Identifier':
+                return Child.Name
+            else:
+                return(FetchId(Child))
 
     def AddImplicitCast(self):
         pass
@@ -411,12 +445,14 @@ class SelectionStatement(Node):
         if self.ThenBlock is not None: self.ThenLabel = Label.DispenseTicket()
         if self.ElseBlock is not None: self.ElseLabel = Label.DispenseTicket()
 
+        self.End = Label.DispenseTicket()
+
     def GetChildren(self):
         Children = []
         if self.IfExpression is not None: Children.append(self.IfExpression)
         if self.ThenBlock is not None: Children.append(self.ThenBlock)
         if self.ElseBlock is not None: Children.append(self.ElseBlock)
-        return Children
+        return ChildrenE
 
     #we cannot increment a constant
     def RunSemanticAnalysis(self):
