@@ -1,4 +1,17 @@
 
+class TicketCounter(object):
+    def __init__(self, Type):
+        self.Type = Type
+        self.Counter = 0
+
+    def DispenseTicket(self):
+        self.Counter += 1
+        print("DispensedTicket:", self.Type+str(self.Counter))
+        return self.Type+str(self.Counter)
+
+Label = TicketCounter("L")
+Register = TicketCounter("R")
+
 class Node(object):
     '''Abstract base class for nodes'''
     def GetChildren(self):
@@ -75,7 +88,8 @@ class FunctionDefintion(Node):
         self.Declarator = Declarator
         self.Statement = Statement
         self.DeclarationList = DeclarationList
-        #there will likely be other fancy things here
+        #there will likely be other fancy thins here
+        self.Label = Label.DispenseTicket() # This should go into the symbol table
         pass
 
     def GetChildren(self):
@@ -367,6 +381,7 @@ class BinOp(Node):
         self.Left = Left
         self.Right = Right
         self.Op = Op
+        self.Loc = Loc
 
         self.RunSemanticAnalysis()
 
@@ -382,3 +397,25 @@ class BinOp(Node):
 
     def RunSemanticAnalysis(self, ST):
             pass
+
+
+class SelectionStatement(Node):
+    def __init__(self, IfExpression=None, ThenBlock=None, ElseBlock = None, Loc=None):
+        self.IfExpression = IfExpression
+        self.ThenBlock = ThenBlock
+        self.ElseBlock = ElseBlock
+        self.Loc = Loc
+
+        if self.ThenBlock is not None: self.ThenLabel = Label.DispenseTicket()
+        if self.ElseBlock is not None: self.ElseLabel = Label.DispenseTicket()
+
+    def GetChildren(self):
+        Children = []
+        if self.IfExpression is not None: Children.append(self.IfExpression)
+        if self.ThenBlock is not None: Children.append(self.ThenBlock)
+        if self.ElseBlock is not None: Children.append(self.ElseBlock)
+        return Children
+
+    #we cannot increment a constant
+    def RunSemanticAnalysis(self):
+        pass

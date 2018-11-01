@@ -3,7 +3,7 @@ sys.path.append("LexicalAnalizer/")
 sys.path.append("../LexicalAnalizer/")
 from LexicalAnalizer import LexicalAnalizer
 from SymbolTable import SymbolTable
-from ASTBuilder import Identifier, PassUpNode, DeclarationSpecifiers, DeclList, Declaration, PrimaryExpression, UnaryExpression, Constant, FunctionDefintion, CompoundStatement, AssignmentExpression, InitDeclList
+from ASTBuilder import Identifier, PassUpNode, SelectionStatement, DeclarationSpecifiers, DeclList, Declaration, PrimaryExpression, UnaryExpression, Constant, FunctionDefintion, CompoundStatement, AssignmentExpression, InitDeclList
 import ply.yacc as yacc
 # import logging
 # logging.basicConfig(
@@ -824,37 +824,42 @@ class Parser():
 
         def p_statement_1(p):
             'statement :  labeled_statement'
+            p[0] = PassUpNode("Statement", [p[1]])
             if self.DebugProd == True:
                 self.DebugPrint("statement -->  labeled_statement", p)
             return
 
         def p_statement_2(p):
             'statement :  compound_statement'
+            p[0] = PassUpNode("Statement", [p[1]])
             if self.DebugProd == True:
                 self.DebugPrint("statement -->  compound_statement", p)
             return
 
         def p_statement_3(p):
             'statement :  expression_statement'
-            p[0] = p[1]
+            p[0] = PassUpNode("Statement", [p[1]])
             if self.DebugProd == True:
                 self.DebugPrint("statement -->  expression_statement", p)
             return
 
         def p_statement_4(p):
             'statement :  selection_statement'
+            p[0] = PassUpNode("Statement", [p[1]])
             if self.DebugProd == True:
                 self.DebugPrint("statement -->  selection_statement", p)
             return
 
         def p_statement_5(p):
             'statement :  iteration_statement'
+            p[0] = PassUpNode("Statement", [p[1]])
             if self.DebugProd == True:
                 self.DebugPrint("statement -->  iteration_statement", p)
             return
 
         def p_statement_6(p):
             'statement :  jump_statement'
+            p[0] = PassUpNode("Statement", [p[1]])
             if self.DebugProd == True:
                 self.DebugPrint("statement -->  jump_statement", p)
             return
@@ -934,25 +939,32 @@ class Parser():
 
         def p_statement_list_1(p):
             'statement_list : read_mode_e statement'
-            p[0] = p[2]
+            p[0] = PassUpNode("StatementList", [p[2]])
             if self.DebugProd == True:
                 self.DebugPrint("statement_list -->  statement", p)
             return
 
         def p_statement_list_2(p):
             'statement_list :  statement_list read_mode_e statement'
+            p[0] = PassUpNode("StatementList", [p[1], p[3]])
             if self.DebugProd == True:
                 self.DebugPrint("statement_list -->  statement_list statement", p)
             return
 
         def p_selection_statement_1(p):
             'selection_statement :  IF OPENPAREN expression CLOSEPAREN statement'
+
+            p[0] = SelectionStatement(IfExpression=p[3], ThenBlock=p[5])
+
             if self.DebugProd == True:
                 self.DebugPrint("selection_statement -->  IF OPENPAREN expression CLOSEPAREN statement", p)
             return
 
         def p_selection_statement_2(p):
             'selection_statement :  IF OPENPAREN expression CLOSEPAREN statement ELSE statement'
+
+            p[0] = SelectionStatement(IfExpression=p[3], ThenBlock=p[5], ElseBlock=p[7])
+
             if self.DebugProd == True:
                 self.DebugPrint("selection_statement -->  IF OPENPAREN expression CLOSEPAREN statement ELSE statement", p)
             return
@@ -1055,7 +1067,7 @@ class Parser():
 
         def p_expression_1(p):
             'expression :  assignment_expression'
-            p[0] = p[1]
+            p[0] = PassUpNode("Expression", [p[1]])
             if self.DebugProd == True:
                 self.DebugPrint("expression -->  assignment_expression", p)
             return
