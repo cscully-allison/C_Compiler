@@ -466,3 +466,20 @@ class SelectionStatement(Node):
     #we cannot increment a constant
     def RunSemanticAnalysis(self):
         pass
+
+
+class IterationStatement(Node):
+    def __init__(self, AssignmentExpression = None, ConditionalExpression = None, IterativeExpression = None, Statement = None, Production = None):
+        self.AssignmentExpression = AssignmentExpression
+        self.ContitionalExpression = ConditionalExpression
+        self.IterativeExpression = IterativeExpression
+        self.Statement = Statement
+        self.Production = Production
+
+    def GetChildren(self):
+        Children = []
+        return Children
+
+    #we cannot increment a constant
+    def RunSemanticAnalysis(self):
+        pass
