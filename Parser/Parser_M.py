@@ -5,7 +5,7 @@ from Globals import ErrManager
 from Utils import PrettyErrorPrint, FindColumn
 from LexicalAnalizer import LexicalAnalizer
 from SymbolTable import SymbolTable
-from ASTBuilder import Identifier, PassUpNode, SelectionStatement, DeclarationSpecifiers, DeclList, Declaration, PrimaryExpression, UnaryExpression, Constant, FunctionDefintion, CompoundStatement, AssignmentExpression, InitDeclList, BinOp
+from ASTBuilder import Identifier, PassUpNode, SelectionStatement, DeclarationSpecifiers, DeclList, Declaration, PrimaryExpression, UnaryExpression, Constant, FunctionDefintion, CompoundStatement, AssignmentExpression, InitDeclList, BinOp, IterationStatement
 import ply.yacc as yacc
 # import logging
 # logging.basicConfig(
@@ -979,60 +979,70 @@ class Parser():
 
         def p_iteration_statement_1(p):
             'iteration_statement :  WHILE OPENPAREN expression CLOSEPAREN statement'
+            p[0] = IterationStatement(ConditionalExpression = p[3], Statement = p[5], Production = p)
             if self.DebugProd == True:
                 self.DebugPrint("iteration_statement -->  WHILE OPENPAREN expression CLOSEPAREN statement", p)
             return
 
         def p_iteration_statement_2(p):
             'iteration_statement :  DO statement WHILE OPENPAREN expression CLOSEPAREN SEMI'
+            p[0] = IterationStatement(ConditionalExpression = p[5], Statement = p[2], Production = p)
             if self.DebugProd == True:
                 self.DebugPrint("iteration_statement -->  DO statement WHILE OPENPAREN expression CLOSEPAREN SEMI", p)
             return
 
         def p_iteration_statement_3(p):
             'iteration_statement :  FOR OPENPAREN SEMI SEMI CLOSEPAREN statement'
+            p[0] = IterationStatement(Statement = p[6], Production = p)
             if self.DebugProd == True:
                 self.DebugPrint("iteration_statement -->  FOR OPENPAREN SEMI SEMI CLOSEPAREN statement", p)
             return
 
         def p_iteration_statement_4(p):
             'iteration_statement :  FOR OPENPAREN SEMI SEMI expression CLOSEPAREN statement'
+            p[0] = IterationStatement(IterativeExpression = p[5], Statement = p[7], Production = p)
             if self.DebugProd == True:
                 self.DebugPrint("iteration_statement -->  FOR OPENPAREN SEMI SEMI expression CLOSEPAREN statement", p)
             return
 
         def p_iteration_statement_5(p):
             'iteration_statement :  FOR OPENPAREN SEMI expression SEMI CLOSEPAREN statement'
+            p[0] = IterationStatement(ConditionalExpression = p[4], Statement = p[7], Production = p)
             if self.DebugProd == True:
                 self.DebugPrint("iteration_statement -->  FOR OPENPAREN SEMI expression SEMI CLOSEPAREN statement", p)
             return
 
         def p_iteration_statement_6(p):
             'iteration_statement :  FOR OPENPAREN SEMI expression SEMI expression CLOSEPAREN statement'
+            p[0] = IterationStatement(ConditionalExpression = p[4], IterativeExpression = p[6], Statement = p[8], Production = p)
             if self.DebugProd == True:
                 self.DebugPrint("iteration_statement -->  FOR OPENPAREN SEMI expression SEMI expression CLOSEPAREN statement", p)
             return
 
         def p_iteration_statement_7(p):
             'iteration_statement :  FOR OPENPAREN expression SEMI SEMI CLOSEPAREN statement'
+            p[0] = IterationStatement(AssignmentExpression = p[3], Statement = p[7], Production = p)
             if self.DebugProd == True:
                 self.DebugPrint("iteration_statement -->  FOR OPENPAREN expression SEMI SEMI CLOSEPAREN statement", p)
             return
 
         def p_iteration_statement_8(p):
             'iteration_statement :  FOR OPENPAREN expression SEMI SEMI expression CLOSEPAREN statement'
+            p[0] = IterationStatement(AssignmentExpression = p[3], IterativeExpression = p[6], Statement = p[8], Production = p)
             if self.DebugProd == True:
                 self.DebugPrint("iteration_statement -->  FOR OPENPAREN expression SEMI SEMI expression CLOSEPAREN statement", p)
             return
 
         def p_iteration_statement_9(p):
             'iteration_statement :  FOR OPENPAREN expression SEMI expression SEMI CLOSEPAREN statement'
+            p[0] = IterationStatement(AssignmentExpression = p[3], ConditionalExpression = p[5], Statement = p[8], Production = p)
             if self.DebugProd == True:
                 self.DebugPrint("iteration_statement -->  FOR OPENPAREN expression SEMI expression SEMI CLOSEPAREN statement", p)
             return
 
         def p_iteration_statement_10(p):
             'iteration_statement :  FOR OPENPAREN expression SEMI expression SEMI expression CLOSEPAREN statement'
+            p[0] = IterationStatement(AssignmentExpression = p[3], ConditionalExpression = p[5], IterativeExpression = p[7], Statement = p[9], Production = p)
             if self.DebugProd == True:
                 self.DebugPrint("iteration_statement -->  FOR OPENPAREN expression SEMI expression SEMI expression CLOSEPAREN statement", p)
             return
