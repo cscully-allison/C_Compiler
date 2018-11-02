@@ -5,7 +5,7 @@ from Globals import ErrManager
 from Utils import PrettyErrorPrint, FindColumn
 from LexicalAnalizer import LexicalAnalizer
 from SymbolTable import SymbolTable
-from ASTBuilder import Identifier, PassUpNode, SelectionStatement, DeclarationSpecifiers, DeclList, Declaration, PrimaryExpression, UnaryExpression, Constant, FunctionDefintion, CompoundStatement, AssignmentExpression, InitDeclList
+from ASTBuilder import Identifier, PassUpNode, SelectionStatement, DeclarationSpecifiers, DeclList, Declaration, PrimaryExpression, UnaryExpression, Constant, FunctionDefintion, CompoundStatement, AssignmentExpression, InitDeclList, BinOp
 import ply.yacc as yacc
 # import logging
 # logging.basicConfig(
@@ -1203,6 +1203,7 @@ class Parser():
 
         def p_logical_or_expression_2(p):
             'logical_or_expression :  logical_or_expression OR_OP logical_and_expression'
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
             if self.DebugProd == True:
                 self.DebugPrint("logical_or_expression -->  logical_or_expression OR_OP logical_and_expression", p)
             return
@@ -1216,6 +1217,7 @@ class Parser():
 
         def p_logical_and_expression_2(p):
             'logical_and_expression :  logical_and_expression AND_OP inclusive_or_expression'
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
             if self.DebugProd == True:
                 self.DebugPrint("logical_and_expression -->  logical_and_expression AND_OP inclusive_or_expression", p)
             return
@@ -1229,6 +1231,7 @@ class Parser():
 
         def p_inclusive_or_expression_2(p):
             'inclusive_or_expression :  inclusive_or_expression PIPE exclusive_or_expression'
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
             if self.DebugProd == True:
                 self.DebugPrint("inclusive_or_expression -->  inclusive_or_expression PIPE exclusive_or_expression", p)
             return
@@ -1242,6 +1245,7 @@ class Parser():
 
         def p_exclusive_or_expression_2(p):
             'exclusive_or_expression :  exclusive_or_expression CARAT and_expression'
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
             if self.DebugProd == True:
                 self.DebugPrint("exclusive_or_expression -->  exclusive_or_expression CARAT and_expression", p)
             return
@@ -1255,6 +1259,7 @@ class Parser():
 
         def p_and_expression_2(p):
             'and_expression :  and_expression AMPERSAND equality_expression'
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
             if self.DebugProd == True:
                 self.DebugPrint("and_expression -->  and_expression AMPERSAND equality_expression", p)
             return
@@ -1268,12 +1273,14 @@ class Parser():
 
         def p_equality_expression_2(p):
             'equality_expression :  equality_expression EQ_OP relational_expression'
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
             if self.DebugProd == True:
                 self.DebugPrint("equality_expression -->  equality_expression EQ_OP relational_expression", p)
             return
 
         def p_equality_expression_3(p):
             'equality_expression :  equality_expression NE_OP relational_expression'
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
             if self.DebugProd == True:
                 self.DebugPrint("equality_expression -->  equality_expression NE_OP relational_expression", p)
             return
@@ -1287,24 +1294,28 @@ class Parser():
 
         def p_relational_expression_2(p):
             'relational_expression :  relational_expression LE shift_expression'
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
             if self.DebugProd == True:
                 self.DebugPrint("relational_expression -->  relational_expression LE shift_expression", p)
             return
 
         def p_relational_expression_3(p):
             'relational_expression :  relational_expression GT shift_expression'
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
             if self.DebugProd == True:
                 self.DebugPrint("relational_expression -->  relational_expression GT shift_expression", p)
             return
 
         def p_relational_expression_4(p):
             'relational_expression :  relational_expression LE_OP shift_expression'
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
             if self.DebugProd == True:
                 self.DebugPrint("relational_expression -->  relational_expression LE_OP shift_expression", p)
             return
 
         def p_relational_expression_5(p):
             'relational_expression :  relational_expression GE_OP shift_expression'
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
             if self.DebugProd == True:
                 self.DebugPrint("relational_expression -->  relational_expression GE_OP shift_expression", p)
             return
@@ -1318,12 +1329,14 @@ class Parser():
 
         def p_shift_expression_2(p):
             'shift_expression :  shift_expression LEFT_OP additive_expression'
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
             if self.DebugProd == True:
                 self.DebugPrint("shift_expression -->  shift_expression LEFT_OP additive_expression", p)
             return
 
         def p_shift_expression_3(p):
             'shift_expression :  shift_expression RIGHT_OP additive_expression'
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
             if self.DebugProd == True:
                 self.DebugPrint("shift_expression -->  shift_expression RIGHT_OP additive_expression", p)
             return
@@ -1337,12 +1350,14 @@ class Parser():
 
         def p_additive_expression_2(p):
             'additive_expression :  additive_expression PLUS multiplicative_expression'
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
             if self.DebugProd == True:
                 self.DebugPrint("additive_expression -->  additive_expression PLUS multiplicative_expression", p)
             return
 
         def p_additive_expression_3(p):
             'additive_expression :  additive_expression MINUS multiplicative_expression'
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
             if self.DebugProd == True:
                 self.DebugPrint("additive_expression -->  additive_expression MINUS multiplicative_expression", p)
             return
@@ -1357,20 +1372,21 @@ class Parser():
 
         def p_multiplicative_expression_2(p):
             'multiplicative_expression :  multiplicative_expression ASTERISK cast_expression'
-
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
             if self.DebugProd == True:
                 self.DebugPrint("multiplicative_expression -->  multiplicative_expression ASTERISK cast_expression", p)
             return
 
         def p_multiplicative_expression_3(p):
             'multiplicative_expression :  multiplicative_expression DIV cast_expression'
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
             if self.DebugProd == True:
                 self.DebugPrint("multiplicative_expression -->  multiplicative_expression DIV cast_expression", p)
             return
 
         def p_multiplicative_expression_4(p):
             'multiplicative_expression :  multiplicative_expression PERCENT cast_expression'
-
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
             if self.DebugProd == True:
                 self.DebugPrint("multiplicative_expression -->  multiplicative_expression PERCENT cast_expression", p)
             return
