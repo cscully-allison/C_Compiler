@@ -126,10 +126,6 @@ class DeclList(Node):
         pass
 
 
-
-
-
-
 class DeclarationSpecifiers(Node):
     ''' This class represents the static const int etc part of
         a variable declaration. Needs to store the type_specifier
@@ -268,14 +264,57 @@ class Declaration(Node):
 
 class ArrayDeclaration(Node):
     '''This class will handle the special case of array declarations'''
-    def __init__(self, Declarator, Size):
+    def __init__(self, Declarator, SizeExpr):
+        self.Declarator = Declarator
+        self.SizeExpr = SizeExpr
+        self.Size = self.GetSize(SizeExpr)
+        self.Id = self.FetchId(Declarator)
+
+        self.RunSemanticAnalysis()
+
+    def GetChildren(self):
+        Children = []
+        if self.Declarator is not None: Children.append(self.Declarator)
+        if self.SizeExpr is not None: Children.append(self.SizeExpr)
+        return Children
+
+    def GetSize(self, Subtree):
+        if Subtree is None: return
+        if not IsNode(Subtree): return
+        if Subtree.GetChildren() is None: return
+
+
+        for Child in Subtree.GetChildren():
+            if Child.__class__.__name__ == 'Constant':
+                return Child.Child
+            else:
+                return(self.GetSize(Child))
+
+    def FetchId(self, Subtree):
+        if Subtree is None: return
+        if not IsNode(Subtree): return
+        if Subtree.GetChildren() is None: return
+
+
+        for Child in Subtree.GetChildren():
+            if Child.__class__.__name__ == 'Identifier':
+                return Child.STPtr
+            else:
+                return(self.FetchId(Child))
+
+
+    #we cannot increment a constant
+    def RunSemanticAnalysis(self):
         pass
 
 
 class Identifier(Node):
     def __init__(self, Name, STPtr, Loc, ST, P):
         self.Name = Name
-        self.STPtr = STPtr
+        if STPtr is not False:
+            self.STPtr = STPtr
+        else:
+            self.STPtr = None
         self.Loc = Loc
         self.Production = P
 
@@ -405,7 +444,7 @@ class AssignmentExpression(Node):
 
     def FetchId(self, Subtree):
         if Subtree is None: return
-        if Subtree is not IsNode(Subtree): return
+        if not IsNode(Subtree): return
         if Subtree.GetChildren() is None: return
 
 

@@ -2,11 +2,9 @@
 **** Outputting Contents of Symbol Table **** 
 
 Items in Tree at Level 0: 
-	Key: "a" | Content: {'Storage Class Specifier': 'static', 'Type Qualifier': ['const'], 'Type': 'char', 'TokenLocation': (6, 56, 23)}
-	Key: "b" | Content: {'Storage Class Specifier': 'static', 'Type': 'double', 'TokenLocation': (8, 100, 19)}
-	Key: "d" | Content: {'Storage Class Specifier': 'static', 'Type Qualifier': ['const'], 'Type': 'char', 'TokenLocation': (6, 59, 26)}
-	Key: "g" | Content: {'Type Qualifier': ['const'], 'Type': 'int', 'TokenLocation': (7, 79, 15)}
-	Key: "r" | Content: {'Storage Class Specifier': 'static', 'Type Qualifier': ['const'], 'Type': 'char', 'TokenLocation': (6, 62, 29)}
+	Key: "a" | Content: {'Type': 'char', 'TokenLocation': (6, 43, 10)}
+	Key: "arr" | Content: {'Type': 'int', 'TokenLocation': (8, 70, 9)}
+	Key: "d" | Content: {'Type': 'char', 'TokenLocation': (6, 46, 13)}
 Items in Tree at Level 1: 
 	Key: "funct" | Content: {'TokenLocation': (1, 4, 5)}
 	Key: "g" | Content: {'TokenLocation': (5, 30, 14)}

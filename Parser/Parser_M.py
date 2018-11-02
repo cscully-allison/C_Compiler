@@ -5,7 +5,7 @@ from Globals import ErrManager
 from Utils import PrettyErrorPrint, FindColumn
 from LexicalAnalizer import LexicalAnalizer
 from SymbolTable import SymbolTable
-from ASTBuilder import Identifier, PassUpNode, SelectionStatement, DeclarationSpecifiers, DeclList, Declaration, PrimaryExpression, UnaryExpression, Constant, FunctionDefintion, CompoundStatement, AssignmentExpression, InitDeclList, BinOp
+from ASTBuilder import Identifier, ArrayDeclaration, PassUpNode, SelectionStatement, DeclarationSpecifiers, DeclList, Declaration, PrimaryExpression, UnaryExpression, Constant, FunctionDefintion, CompoundStatement, AssignmentExpression, InitDeclList, BinOp
 import ply.yacc as yacc
 # import logging
 # logging.basicConfig(
@@ -576,14 +576,14 @@ class Parser():
 ##################Arrays and function declarations#####################
         def p_direct_declarator_3(p):
             'direct_declarator :  direct_declarator OPENBRACKET CLOSEBRACKET'
-            p[0] = PassUpNode("DirectDeclarator", [p[1]])
+            p[0] = ArrayDeclaration(p[1], None)
             if self.DebugProd == True:
                 self.DebugPrint("direct_declarator -->  direct_declarator OPENBRACKET CLOSEBRACKET", p)
             return
 
         def p_direct_declarator_4(p):
             'direct_declarator :  direct_declarator OPENBRACKET constant_expression CLOSEBRACKET'
-            p[0] = PassUpNode("DirectDeclarator", [p[1],p[3]])
+            p[0] = ArrayDeclaration(p[1], p[3])
             if self.DebugProd == True:
                 self.DebugPrint("direct_declarator -->  direct_declarator OPENBRACKET constant_expression CLOSEBRACKET", p)
             return

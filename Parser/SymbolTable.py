@@ -43,6 +43,8 @@ class SymbolTable():
         except Exception as e:
             raise e
 
+        # can return false causing problems with Children
+        # need to handle this in the context of functions
         return self.FindSymbolInCurrentScope(SymbolKey_str)
 
     #Function: FindSymbolInTable
