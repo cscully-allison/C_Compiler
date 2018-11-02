@@ -469,6 +469,7 @@ class BinOp(Node):
         self.Right = Right
         self.Op = Op
         self.Loc = Loc
+        self.Register = Register.DispenseTicket()
 
         self.RunSemanticAnalysis(None)
 
