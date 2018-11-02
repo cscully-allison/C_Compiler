@@ -54,7 +54,7 @@ DotExporter({}, nodeattrfunc=f).to_picture("AST.png")
         ''' This function is called where the child is our current node. Parent was the callee.
         '''
         #base check
-        if Child is not None:
+        if Child is not None and Child is not False:
             if self.IsNode(Child):
                 self.TreeGraphOutPtr.write(Child.BuildTreeOutput(Parent.__class__.__name__ + str(id(Parent))) + '\n')
 
@@ -63,7 +63,7 @@ DotExporter({}, nodeattrfunc=f).to_picture("AST.png")
                     for SubTree in Child.GetChildren():
                         self.PrintAST(Child, SubTree)
 
-            # check if child is a dictonary 
+            # check if child is a dictonary
             elif type(Child) is type({}):
                 output = '{} = Node(\"{}\"{})'
                 output = output.format("leaf", ', '.join("{!s}={!r}".format(key,val) for (key,val) in Child.items()), ", parent=" +Parent.__class__.__name__ + str(id(Parent)))

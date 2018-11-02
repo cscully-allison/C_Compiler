@@ -1,3 +1,5 @@
+from Utils import PrettyErrorPrint, FindColumn, IsNode
+from Globals import ErrManager
 
 class TicketCounter(object):
     def __init__(self, Type):
@@ -242,7 +244,7 @@ class Declaration(Node):
 
 
     def UpdateSymbolTable(self, DeclList):
-        if DeclList is not None:
+        if DeclList is not None and IsNode(DeclList):
             for Child in DeclList.GetChildren():
                 if Child.__class__.__name__ == 'Identifier':
                     Child.STPtr['Type'] = self.DeclSpecs['Type'][0]
@@ -260,11 +262,66 @@ class Declaration(Node):
         pass
 
 
+class ArrayDeclaration(Node):
+    '''This class will handle the special case of array declarations'''
+    def __init__(self, Declarator, SizeExpr):
+        self.Declarator = Declarator
+        self.SizeExpr = SizeExpr
+        self.Id = self.FetchId(Declarator)
+
+        # update the symbol table with size and subtype information
+        self.GetSize(SizeExpr)
+        self.Id['Subtype'] = 'Array'
+
+        self.RunSemanticAnalysis()
+
+    def GetChildren(self):
+        Children = []
+        if self.Declarator is not None: Children.append(self.Declarator)
+        if self.SizeExpr is not None: Children.append(self.SizeExpr)
+        return Children
+
+    def GetSize(self, Subtree):
+        '''Updates ID pte with the size denoted by the constant expression'''
+        if Subtree is None: return []
+        elif not IsNode(Subtree): return []
+
+        else:
+            for Child in Subtree.GetChildren():
+                if Child.__class__.__name__ == 'Constant':
+                    if 'Array Size' not in self.Id:
+                        self.Id['Array Size'] = [Child.Child]
+                    else:
+                        self.Id['Array Size'] += [Child.Child]
+                else:
+                    self.GetSize(Child)
+
+    def FetchId(self, Subtree):
+        if Subtree is None: return
+        if not IsNode(Subtree): return
+        if Subtree.GetChildren() is None: return
+
+        for Child in Subtree.GetChildren():
+            if Child.__class__.__name__ == 'Identifier':
+                return Child.STPtr
+            else:
+                return(self.FetchId(Child))
+
+
+    #we cannot increment a constant
+    def RunSemanticAnalysis(self):
+        pass
+
+
 class Identifier(Node):
-    def __init__(self, Name, STPtr, Loc, ST):
+    def __init__(self, Name, STPtr, Loc, ST, P):
         self.Name = Name
-        self.STPtr = STPtr
+        if STPtr is not False:
+            self.STPtr = STPtr
+        else:
+            self.STPtr = None
         self.Loc = Loc
+        self.Production = P
 
         self.RunSemanticAnalysis(ST)
 
@@ -278,7 +335,8 @@ class Identifier(Node):
         #check for access before declaration
         if not ST.FindSymbolInTable(self.Name) and ST.ReadMode:
             #need a pretty error printing class
-            raise Exception("Row:{1} Col:{2} Variable \'{3}\' accessed before declaration.".format('{0}', self.Loc[0], self.Loc[2], self.Name))
+            # ErrManager.AddError("Row:{1} Col:{2} Variable \"{3}\" accessed before declaration.".format('{0}', self.Loc[0], self.Loc[2], self.Name))
+            ErrManager.AddError(PrettyErrorPrint("Variable \"{0}\" accessed before declaration.".format(self.Name), self.Loc[0], self.Loc[2], self.Production.lexer.lexdata ))
 
 
 class Constant(Node):
@@ -334,7 +392,7 @@ class UnaryExpression(Node):
         if (self.Child.Type == 'constant' or
         self.Child.Type == 'string') and (self.Op == "++" or
         self.Op == "--" ):
-                raise Exception("Row:{1} Col:{2} Attempted increment of constant.".format('{0}', self.Loc[0], self.Loc[1]))
+                ErrManager.AddError("Row:{1} Col:{2} Attempted increment of constant.".format('{0}', self.Loc[0], self.Loc[1]))
         pass
 
 class CompoundStatement(Node):
@@ -354,13 +412,14 @@ class CompoundStatement(Node):
         pass
 
 class AssignmentExpression(Node):
-    def __init__(self, Op, Left, Right, Loc=None):
+    def __init__(self, Op, Left, Right, ST, Loc=None, Production=None):
         self.Op = Op
         self.Loc = Loc
         self.Left = Left
         self.Right = Right
+        self.Production = Production
 
-        self.RunSemanticAnalysis()
+        self.RunSemanticAnalysis(ST)
 
     def GetChildren(self):
         Children = []
@@ -369,8 +428,36 @@ class AssignmentExpression(Node):
         return Children
 
     #we cannot increment a constant
-    def RunSemanticAnalysis(self):
-        pass
+    def RunSemanticAnalysis(self, ST):
+        LHSId = self.FetchId(self.Left)
+        LHS = ST.FindSymbolInTable(LHSId)
+
+        if LHS is False:
+            return
+        for ID in LHS:
+            if "Type Qualifier" in ID:
+                for qualifier in LHS[0]["Type Qualifier"]:
+                    if qualifier == 'const':
+                        ErrManager.AddError(PrettyErrorPrint("Attempted Access of Const Variable \"{}\".".format(LHSId),
+                                self.Production.lexer.lineno,
+                                    FindColumn(self.Production.lexer.lexdata,
+                                        self.Production.lexer
+                                    ),
+                                self.Production.lexer.lexdata )
+                            )
+
+
+    def FetchId(self, Subtree):
+        if Subtree is None: return
+        if not IsNode(Subtree): return
+        if Subtree.GetChildren() is None: return
+
+
+        for Child in Subtree.GetChildren():
+            if Child.__class__.__name__ == 'Identifier':
+                return Child.Name
+            else:
+                return(self.FetchId(Child))
 
     def AddImplicitCast(self):
         pass
@@ -384,13 +471,15 @@ class BinOp(Node):
         self.Loc = Loc
         self.Register = Register.DispenseTicket()
 
-        self.RunSemanticAnalysis()
+        self.RunSemanticAnalysis(None)
 
     def GetChildren(self):
         Children = []
 
         if self.Left is not None:
             Children.append(self.Left)
+        if self.Op is not None:
+            Children.append(self.Op)
         if self.Right is not None:
             Children.append(self.Right)
 
@@ -417,6 +506,31 @@ class SelectionStatement(Node):
         if self.IfExpression is not None: Children.append(self.IfExpression)
         if self.ThenBlock is not None: Children.append(self.ThenBlock)
         if self.ElseBlock is not None: Children.append(self.ElseBlock)
+        return Children
+
+    #we cannot increment a constant
+    def RunSemanticAnalysis(self):
+        pass
+
+
+class IterationStatement(Node):
+    def __init__(self, AssignmentExpression = None, ConditionalExpression = None, IterativeExpression = None, Statement = None, Production = None):
+        self.AssignmentExpression = AssignmentExpression
+        self.ConditionalExpression = ConditionalExpression
+        self.IterativeExpression = IterativeExpression
+        self.Statement = Statement
+        self.Production = Production
+
+        if self.ConditionalExpression is not None: self.StartLabel = Label.DispenseTicket()
+        if self.Statement is not None: self.EndLabel = Label.DispenseTicket()
+
+    def GetChildren(self):
+        Children = []
+        if self.AssignmentExpression is not None: Children.append(self.AssignmentExpression)
+        if self.ConditionalExpression is not None: Children.append(self.ConditionalExpression)
+        if self.IterativeExpression is not None: Children.append(self.IterativeExpression)
+        if self.Statement is not None: Children.append(self.Statement)
+        #if self.Production is not None: Children.append(self.Production)
         return Children
 
     #we cannot increment a constant

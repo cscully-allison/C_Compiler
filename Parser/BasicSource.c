@@ -3,9 +3,10 @@ int funct(){
 }
 
 int main(int g){
-    static const char a, d, r;
-    const int g;
-    static double b;
+    char a, d;
+    // $!PDO
+    int arr[8][10];
+    // $!PDF
 
     if(a < d){
       int a4;
@@ -16,8 +17,11 @@ int main(int g){
       b6 = 4 + 2;
     }
 
-    a = 1;
-    d *= 3;
+
+    for (a = 4; ; )
+    {
+      int q;
+    }
 
     $!ST1
 }
