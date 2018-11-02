@@ -5,7 +5,7 @@ int funct(){
 int main(int g){
     char a, d;
     // $!PDO
-    int arr[10];
+    int arr[8][10];
     // $!PDF
 
     if(a < d){

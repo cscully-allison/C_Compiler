@@ -3,7 +3,7 @@
 
 Items in Tree at Level 0: 
 	Key: "a" | Content: {'Type': 'char', 'TokenLocation': (6, 43, 10)}
-	Key: "arr" | Content: {'Type': 'int', 'TokenLocation': (8, 70, 9)}
+	Key: "arr" | Content: {'Array Size': ['2', '8', '10'], 'Subtype': 'Array', 'Type': 'int', 'TokenLocation': (8, 70, 9)}
 	Key: "d" | Content: {'Type': 'char', 'TokenLocation': (6, 46, 13)}
 Items in Tree at Level 1: 
 	Key: "funct" | Content: {'TokenLocation': (1, 4, 5)}

@@ -267,8 +267,11 @@ class ArrayDeclaration(Node):
     def __init__(self, Declarator, SizeExpr):
         self.Declarator = Declarator
         self.SizeExpr = SizeExpr
-        self.Size = self.GetSize(SizeExpr)
         self.Id = self.FetchId(Declarator)
+
+        # update the symbol table with size and subtype information
+        self.GetSize(SizeExpr)
+        self.Id['Subtype'] = 'Array'
 
         self.RunSemanticAnalysis()
 
@@ -279,22 +282,24 @@ class ArrayDeclaration(Node):
         return Children
 
     def GetSize(self, Subtree):
-        if Subtree is None: return
-        if not IsNode(Subtree): return
-        if Subtree.GetChildren() is None: return
+        '''Updates ID pte with the size denoted by the constant expression'''
+        if Subtree is None: return []
+        elif not IsNode(Subtree): return []
 
-
-        for Child in Subtree.GetChildren():
-            if Child.__class__.__name__ == 'Constant':
-                return Child.Child
-            else:
-                return(self.GetSize(Child))
+        else:
+            for Child in Subtree.GetChildren():
+                if Child.__class__.__name__ == 'Constant':
+                    if 'Array Size' not in self.Id:
+                        self.Id['Array Size'] = [Child.Child]
+                    else:
+                        self.Id['Array Size'] += [Child.Child]
+                else:
+                    self.GetSize(Child)
 
     def FetchId(self, Subtree):
         if Subtree is None: return
         if not IsNode(Subtree): return
         if Subtree.GetChildren() is None: return
-
 
         for Child in Subtree.GetChildren():
             if Child.__class__.__name__ == 'Identifier':
