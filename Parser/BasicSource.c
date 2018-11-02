@@ -3,7 +3,8 @@ int funct(){
 }
 
 int main(int g){
-    static const char a, d;
+    char a, d;
+    int arr[10];
 
     if(a < d){
       int a4;
@@ -14,7 +15,6 @@ int main(int g){
       b6 = 4 + 2;
     }
 
-    k = 8;
 
     a = 1;
     d *= 3;

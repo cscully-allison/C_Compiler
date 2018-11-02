@@ -20,3 +20,9 @@ def PrettyErrorPrint(Message, Lineno, Column, SourceText):
 def FindColumn(input, token):
     line_start = input.rfind('\n', 0, token.lexpos) + 1
     return (token.lexpos - line_start) + 1
+
+def IsNode(Node):
+    for base in Node.__class__.__bases__:
+        if base.__name__ is 'Node':
+            return True
+    return False

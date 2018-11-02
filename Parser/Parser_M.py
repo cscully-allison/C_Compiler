@@ -1176,7 +1176,7 @@ class Parser():
 
         def p_conditional_expression_1(p):
             'conditional_expression :  logical_or_expression'
-            p[0] = p[1]
+            p[0] = PassUpNode("ConditionalExpression",[p[1]])
             if self.DebugProd == True:
                 self.DebugPrint("conditional_expression -->  logical_or_expression", p)
             return
@@ -1189,13 +1189,14 @@ class Parser():
 
         def p_constant_expression_1(p):
             'constant_expression :  conditional_expression'
+            p[0] = PassUpNode("ConstantExpression",[p[1]])
             if self.DebugProd == True:
                 self.DebugPrint("constant_expression -->  conditional_expression", p)
             return
 
         def p_logical_or_expression_1(p):
             'logical_or_expression :  logical_and_expression'
-            p[0] = p[1]
+            p[0] = PassUpNode("LogicalOrExpression",[p[1]])
             if self.DebugProd == True:
                 self.DebugPrint("logical_or_expression -->  logical_and_expression", p)
             return
@@ -1208,7 +1209,7 @@ class Parser():
 
         def p_logical_and_expression_1(p):
             'logical_and_expression :  inclusive_or_expression'
-            p[0] = p[1]
+            p[0] = PassUpNode("LogicalAndExpression",[p[1]])
             if self.DebugProd == True:
                 self.DebugPrint("logical_and_expression -->  inclusive_or_expression", p)
             return
@@ -1221,7 +1222,7 @@ class Parser():
 
         def p_inclusive_or_expression_1(p):
             'inclusive_or_expression :  exclusive_or_expression'
-            p[0] = p[1]
+            p[0] = PassUpNode("InclusiveOrExpression",[p[1]])
             if self.DebugProd == True:
                 self.DebugPrint("inclusive_or_expression -->  exclusive_or_expression", p)
             return
@@ -1234,7 +1235,7 @@ class Parser():
 
         def p_exclusive_or_expression_1(p):
             'exclusive_or_expression :  and_expression'
-            p[0] = p[1]
+            p[0] = PassUpNode("ExclusiveOrExpression",[p[1]])
             if self.DebugProd == True:
                 self.DebugPrint("exclusive_or_expression -->  and_expression", p)
             return
@@ -1247,7 +1248,7 @@ class Parser():
 
         def p_and_expression_1(p):
             'and_expression :  equality_expression'
-            p[0] = p[1]
+            p[0] = PassUpNode("AndExpression",[p[1]])
             if self.DebugProd == True:
                 self.DebugPrint("and_expression -->  equality_expression", p)
             return
@@ -1260,7 +1261,7 @@ class Parser():
 
         def p_equality_expression_1(p):
             'equality_expression :  relational_expression'
-            p[0] = p[1]
+            p[0] = PassUpNode("EqalityExpression",[p[1]])
             if self.DebugProd == True:
                 self.DebugPrint("equality_expression -->  relational_expression", p)
             return
@@ -1279,7 +1280,7 @@ class Parser():
 
         def p_relational_expression_1(p):
             'relational_expression :  shift_expression'
-            p[0] = p[1]
+            p[0] = PassUpNode("ShiftExpression",[p[1]])
             if self.DebugProd == True:
                 self.DebugPrint("relational_expression -->  shift_expression", p)
             return
@@ -1310,7 +1311,7 @@ class Parser():
 
         def p_shift_expression_1(p):
             'shift_expression :  additive_expression'
-            p[0] = p[1]
+            p[0] = PassUpNode("ShiftExpression",[p[1]])
             if self.DebugProd == True:
                 self.DebugPrint("shift_expression -->  additive_expression", p)
             return
@@ -1329,7 +1330,7 @@ class Parser():
 
         def p_additive_expression_1(p):
             'additive_expression :  multiplicative_expression'
-            p[0] = p[1]
+            p[0] = PassUpNode("AdditiveExpression",[p[1]])
             if self.DebugProd == True:
                 self.DebugPrint("additive_expression -->  multiplicative_expression", p)
             return
@@ -1348,7 +1349,7 @@ class Parser():
 
         def p_multiplicative_expression_1(p):
             'multiplicative_expression :  cast_expression'
-            p[0] = p[1]
+            p[0] = PassUpNode("MultiplicativeExpression",[p[1]])
 
             if self.DebugProd == True:
                 self.DebugPrint("multiplicative_expression -->  cast_expression", p)
@@ -1376,7 +1377,7 @@ class Parser():
 
         def p_cast_expression_1(p):
             'cast_expression :  unary_expression'
-            p[0] = p[1]
+            p[0] = PassUpNode("CastExpression",[p[1]])
             if self.DebugProd == True:
                 self.DebugPrint("cast_expression -->  unary_expression", p)
             return
@@ -1390,7 +1391,7 @@ class Parser():
 
         def p_unary_expression_1(p):
             'unary_expression :  postfix_expression'
-            p[0] = p[1]
+            p[0] = PassUpNode("UnaryExpression",[p[1]])
 
             if self.DebugProd == True:
                 self.DebugPrint("unary_expression -->  postfix_expression", p)
@@ -1484,23 +1485,24 @@ class Parser():
                 self.DebugPrint("unary_operator -->  BANG", p)
             return
 
-        # a very basic instance of a postfix_expression
-        #may have to make modifications in the future
+        #This is array access and function calls, will definately need to modify
         def p_postfix_expression_1(p):
             'postfix_expression :  primary_expression'
-            p[0] = p[1]
+            p[0] = PassUpNode("PostfixExpression",[p[1]])
             if self.DebugProd == True:
                 self.DebugPrint("postfix_expression -->  primary_expression", p)
             return
 
         def p_postfix_expression_2(p):
             'postfix_expression :  postfix_expression OPENBRACKET expression CLOSEBRACKET'
+            p[0] = PassUpNode("PostfixExpression",[p[1], p[3]])
             if self.DebugProd == True:
                 self.DebugPrint("postfix_expression -->  postfix_expression OPENBRACKET expression CLOSEBRACKET", p)
             return
 
         def p_postfix_expression_3(p):
             'postfix_expression :  postfix_expression OPENPAREN CLOSEPAREN'
+            p[0] = PassUpNode("PostfixExpression",[p[1]])
             if self.DebugProd == True:
                 self.DebugPrint("postfix_expression -->  postfix_expression OPENPAREN CLOSEPAREN", p)
             return

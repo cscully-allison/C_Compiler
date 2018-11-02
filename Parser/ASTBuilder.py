@@ -1,4 +1,4 @@
-from Utils import PrettyErrorPrint, FindColumn
+from Utils import PrettyErrorPrint, FindColumn, IsNode
 from Globals import ErrManager
 
 class TicketCounter(object):
@@ -248,7 +248,7 @@ class Declaration(Node):
 
 
     def UpdateSymbolTable(self, DeclList):
-        if DeclList is not None:
+        if DeclList is not None and IsNode(DeclList):
             for Child in DeclList.GetChildren():
                 if Child.__class__.__name__ == 'Identifier':
                     Child.STPtr['Type'] = self.DeclSpecs['Type'][0]
@@ -268,6 +268,9 @@ class Declaration(Node):
 
 class ArrayDeclaration(Node):
     '''This class will handle the special case of array declarations'''
+    def __init__(self, Declarator, Size):
+        pass
+
 
 class Identifier(Node):
     def __init__(self, Name, STPtr, Loc, ST, P):
@@ -402,13 +405,15 @@ class AssignmentExpression(Node):
 
     def FetchId(self, Subtree):
         if Subtree is None: return
+        if Subtree is not IsNode(Subtree): return
         if Subtree.GetChildren() is None: return
+
 
         for Child in Subtree.GetChildren():
             if Child.__class__.__name__ == 'Identifier':
                 return Child.Name
             else:
-                return(FetchId(Child))
+                return(self.FetchId(Child))
 
     def AddImplicitCast(self):
         pass
