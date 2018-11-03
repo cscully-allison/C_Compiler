@@ -18,7 +18,7 @@ int main(int g){
     }
 
 
-    for (a = 4; ; )
+    for (a = 4; a < 2 ; a++ )
     {
       int q;
     }
