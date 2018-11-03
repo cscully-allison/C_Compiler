@@ -1,18 +1,7 @@
 from Utils import PrettyErrorPrint, FindColumn, IsNode
-from Globals import ErrManager
+from Globals import ErrManager, Label, FloatRegister, IntRegister
 
-class TicketCounter(object):
-    def __init__(self, Type):
-        self.Type = Type
-        self.Counter = 0
 
-    def DispenseTicket(self):
-        self.Counter += 1
-        print("DispensedTicket:", self.Type+str(self.Counter))
-        return self.Type+str(self.Counter)
-
-Label = TicketCounter("L")
-Register = TicketCounter("R")
 
 class Node(object):
     '''Abstract base class for nodes'''
@@ -264,13 +253,15 @@ class Declaration(Node):
 
 class ArrayDeclaration(Node):
     '''This class will handle the special case of array declarations'''
-    def __init__(self, Declarator, SizeExpr):
+    def __init__(self, Declarator, SizeExpr, Production):
         self.Declarator = Declarator
         self.SizeExpr = SizeExpr
-        self.Id = self.FetchId(Declarator)
+        self.Production = Production
+        self.Id = self.FetchId(Declarator)[0]
+        self.Label = self.FetchId(Declarator)[1]
 
         # update the symbol table with size and subtype information
-        self.GetSize(SizeExpr)
+        if SizeExpr is not None: self.GetSize(SizeExpr)
         self.Id['Subtype'] = 'Array'
 
         self.RunSemanticAnalysis()
@@ -289,6 +280,9 @@ class ArrayDeclaration(Node):
         else:
             for Child in Subtree.GetChildren():
                 if Child.__class__.__name__ == 'Constant':
+                    if Child.DataType is not 'int':
+                        ErrManager.AddError(PrettyErrorPrint("Size of array \"{}\" has non-integer type.".format(self.Label), self.Id['TokenLocation'][0], self.Id['TokenLocation'][2], self.Production.lexer.lexdata))
+
                     if 'Array Size' not in self.Id:
                         self.Id['Array Size'] = [Child.Child]
                     else:
@@ -303,13 +297,15 @@ class ArrayDeclaration(Node):
 
         for Child in Subtree.GetChildren():
             if Child.__class__.__name__ == 'Identifier':
-                return Child.STPtr
+                return (Child.STPtr, Child.Name)
             else:
                 return(self.FetchId(Child))
 
 
     #we cannot increment a constant
     def RunSemanticAnalysis(self):
+
+
         pass
 
 
@@ -469,6 +465,7 @@ class BinOp(Node):
         self.Right = Right
         self.Op = Op
         self.Loc = Loc
+        # self.Register =
 
         self.RunSemanticAnalysis(None)
 

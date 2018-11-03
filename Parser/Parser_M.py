@@ -576,14 +576,14 @@ class Parser():
 ##################Arrays and function declarations#####################
         def p_direct_declarator_3(p):
             'direct_declarator :  direct_declarator OPENBRACKET CLOSEBRACKET'
-            p[0] = ArrayDeclaration(p[1], None)
+            p[0] = ArrayDeclaration(p[1], None, p)
             if self.DebugProd == True:
                 self.DebugPrint("direct_declarator -->  direct_declarator OPENBRACKET CLOSEBRACKET", p)
             return
 
         def p_direct_declarator_4(p):
             'direct_declarator :  direct_declarator OPENBRACKET constant_expression CLOSEBRACKET'
-            p[0] = ArrayDeclaration(p[1], p[3])
+            p[0] = ArrayDeclaration(p[1], p[3], p)
             if self.DebugProd == True:
                 self.DebugPrint("direct_declarator -->  direct_declarator OPENBRACKET constant_expression CLOSEBRACKET", p)
             return
