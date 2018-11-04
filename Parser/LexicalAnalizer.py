@@ -228,22 +228,32 @@ class LexicalAnalizer():
 
         def t_FLOATING_CONSTANT(t):
             r'[+-]?\d+((\.\d+){1}|([eE][+-]?\d+){1})'
+            if self.DebugLex == True:
+                print(t)
             return t
 
         def t_INTEGER_CONSTANT(t):
             r'[+-]?[0-9]+'
+            if self.DebugLex == True:
+                print(t)
             return t
 
         def t_CHARACTER_CONSTANT(t):
             r'\'[\D\d\n]\''
+            if self.DebugLex == True:
+                print(t)
             return t
 
         def t_STRING_LITERAL(t):
             r'\"[\D\n\d]*\"'
+            if self.DebugLex == True:
+                print(t)
             return t
 
         def t_SINGLE_LINE_COMMENT(t):
             r'(//.*)'
+            if self.DebugLex == True:
+                print(t)
             pass
 
         def t_VARYING_COMMENT(t):

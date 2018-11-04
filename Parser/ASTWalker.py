@@ -1,3 +1,5 @@
+import json
+
 class ASTWalker(object):
     def __init__(self, AST, TreeGraphOut = "TreeGraph.out.py"):
         self.AST = AST
@@ -19,6 +21,7 @@ class ASTWalker(object):
 
     def PrintASTHelper(self, Root):
         self.TreeGraphOutPtr.write("from anytree import Node, RenderTree \n")
+        self.TreeGraphOutPtr.write("from anytree.exporter import DotExporter\n")
 
 
         if Root is not None and self.IsNode(Root):
@@ -30,13 +33,28 @@ class ASTWalker(object):
         else:
             return
 
-        self.TreeGraphOutPtr.write('''for pre, fill, node in RenderTree({}): print("%s%s" % (pre, node.name))'''.format(Root.__class__.__name__ + str(id(Root))))
+        # Write out trailing functions
+        self.TreeGraphOutPtr.write('''
+for pre, fill, node in RenderTree({}):
+    if "TokenLocation" in node.name: print("%s%s" % (pre, node.name))
+    else: print("%s%s" % (pre, node.name[:-5]) )\n
+    '''.format(Root.__class__.__name__ + str(id(Root))))
+
+        self.TreeGraphOutPtr.write('''
+def f(node):
+    if node.is_leaf and "TokenLocation" in node.name:
+        return 'label="%s"' % (node.name)
+    return 'label="%s"' % (node.name[:-5])
+
+DotExporter({}, nodeattrfunc=f).to_picture("AST.png")
+        '''.format(Root.__class__.__name__ + str(id(Root))))
+
 
     def PrintAST(self, Parent, Child):
         ''' This function is called where the child is our current node. Parent was the callee.
         '''
         #base check
-        if Child is not None:
+        if Child is not None and Child is not False:
             if self.IsNode(Child):
                 self.TreeGraphOutPtr.write(Child.BuildTreeOutput(Parent.__class__.__name__ + str(id(Parent))) + '\n')
 
@@ -45,9 +63,15 @@ class ASTWalker(object):
                     for SubTree in Child.GetChildren():
                         self.PrintAST(Child, SubTree)
 
-            elif not self.IsNode(Child):
+            # check if child is a dictonary
+            elif type(Child) is type({}):
                 output = '{} = Node(\"{}\"{})'
-                output = output.format("leaf", Child, ", parent=" +Parent.__class__.__name__ + str(id(Parent)))
+                output = output.format("leaf", ', '.join("{!s}={!r}".format(key,val) for (key,val) in Child.items()), ", parent=" +Parent.__class__.__name__ + str(id(Parent)))
+                self.TreeGraphOutPtr.write(output + '\n')
+
+            else:
+                output = '{} = Node(\'{}\'{})'
+                output = output.format("leaf", Child + "_" + str(id(Parent))[-4:], ", parent=" +Parent.__class__.__name__ + str(id(Parent)))
                 self.TreeGraphOutPtr.write(output + '\n')
 
         else:

@@ -1,3 +1,4 @@
+from Globals import ErrManager
 from Parser_M import Parser
 from ASTWalker import ASTWalker
 import sys
@@ -21,8 +22,12 @@ def driver():
     # terminiation under various circumstances
     try:
         AST = P.RunParser()
+        if ErrManager.HasErrors():
+            raise Exception()
     except Exception as e:
-        print("[Compilation stopped]\nReason: {0}".format(e))
+        print(e)
+        print("\n[Compliation Stopped]\nThe Following Errors Were Found:\n")
+        ErrManager.PrintErrors()
         return
 
     AW = ASTWalker(AST)
