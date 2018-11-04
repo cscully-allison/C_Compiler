@@ -461,6 +461,7 @@ class BinOp(Node):
         self.Right = Right
         self.Op = Op
         self.Loc = Loc
+        self.ExprDataType = None
         # self.Register =
 
         self.RunSemanticAnalysis(None)
@@ -476,6 +477,34 @@ class BinOp(Node):
             Children.append(self.Right)
 
         return Children
+
+    def GetExprDataType(self, Subtree):
+        pass
+
+    def GetBinOpDataType(self, Subtree):
+        if Subtree is None: return
+        if not IsNode(Subtree): return
+        if Subtree.GetChildren() is None: return
+
+        for Child in Subtree.GetChildren():
+            if Child.__class__.__name__ == "BinOp":
+                if Child.ExprDataType is not None:
+                    return BinOp.ExprDataType
+                elif Child.__class__.__name__ == 'Identifier':
+                    return Child.STPtr["Data Type"]
+
+
+
+    def FetchId(self, Subtree):
+        if Subtree is None: return
+        if not IsNode(Subtree): return
+        if Subtree.GetChildren() is None: return
+
+        for Child in Subtree.GetChildren():
+            if Child.__class__.__name__ == 'Identifier':
+                return (Child.STPtr, Child.Name)
+            else:
+                return(self.FetchId(Child))
 
     def RunSemanticAnalysis(self, ST):
             pass
@@ -531,10 +560,18 @@ class IterationStatement(Node):
 
 
 class CastNode(Node):
-    def __init__(self, CastFrom, CastTo, Children, Loc):
-            self.CastFrom = CastFrom
-            self.CastTo = CastTo
-            self.Children = Children
-            self.Loc = Loc
+    def __init__(self, CastFrom, CastTo, SubExpression, Loc):
+        self.CastFrom = CastFrom
+        self.CastTo = CastTo
+        self.SubExpression = SubExpression
+        self.Loc = Loc
 
-    def GetChildren
+    def GetChildren(self):
+        Children = []
+        if self.CastFrom is not None: Children.append(self.CastFrom)
+        if self.CastTo is not None: Children.append(self.CastTo)
+        if self.SubExpression is not None: Children.append(self.SubExpression)
+        return children
+
+    def RunSemanticAnalysis(self):
+        pass
