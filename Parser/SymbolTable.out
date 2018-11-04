@@ -2,9 +2,9 @@
 **** Outputting Contents of Symbol Table **** 
 
 Items in Tree at Level 0: 
-	Key: "a" | Content: {'Type': 'char', 'TokenLocation': (6, 43, 10)}
-	Key: "arr" | Content: {'Array Size': ['8', '10'], 'Subtype': 'Array', 'Type': 'int', 'TokenLocation': (8, 70, 9)}
-	Key: "d" | Content: {'Type': 'char', 'TokenLocation': (6, 46, 13)}
+	Key: "a" | Content: {'TokenLocation': (6, 43, 10), 'Type': 'char'}
+	Key: "arr" | Content: {'TokenLocation': (8, 70, 9), 'Array Size': ['8', '10'], 'Subtype': 'Array', 'Type': 'int'}
+	Key: "d" | Content: {'TokenLocation': (6, 46, 13), 'Type': 'char'}
 Items in Tree at Level 1: 
 	Key: "funct" | Content: {'TokenLocation': (1, 4, 5)}
 	Key: "g" | Content: {'TokenLocation': (5, 30, 14)}

@@ -520,3 +520,13 @@ class IterationStatement(Node):
     #we cannot increment a constant
     def RunSemanticAnalysis(self):
         pass
+
+
+class CastNode(Node):
+    def __init__(self, CastFrom, CastTo, Children, Loc):
+            self.CastFrom = CastFrom
+            self.CastTo = CastTo
+            self.Children = Children
+            self.Loc = Loc
+
+    def GetChildren
