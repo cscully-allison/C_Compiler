@@ -72,7 +72,7 @@ DotExporter({}, nodeattrfunc=f).to_picture("AST.png")
             elif type(Child) is type([]) and Parent.__class__.__name__ is 'CastNode':
                     DataType = ''
                     for SubC in Child:
-                        DataType += SubC
+                        DataType += SubC + " "
 
                     output = '{} = Node(\'{}\'{})'
                     output = output.format("leaf", DataType + "_" + str(id(Parent))[-4:], ", parent=" +Parent.__class__.__name__ + str(id(Parent)))

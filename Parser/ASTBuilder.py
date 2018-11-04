@@ -476,6 +476,8 @@ class BinOp(Node):
             Children.append(self.Op)
         if self.Right is not None:
             Children.append(self.Right)
+        if self.ExprDataType is not None:
+            Children.append(self.ExprDataType)
 
         return Children
 
@@ -489,6 +491,7 @@ class BinOp(Node):
             self.ExprDataType = LDT
         else:
             self.ExprDataType = DominantType
+            # Adding cast nodes
             if DominantType == LDT:
                 #add node on self.Right
                 temp = self.Right
@@ -498,7 +501,6 @@ class BinOp(Node):
                 temp = self.Left
                 self.Left = CastNode(RDT, LDT, temp)
 
-        #add cast nodes if needed
 
 
 
