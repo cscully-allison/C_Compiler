@@ -236,10 +236,9 @@ class Declaration(Node):
         if DeclList is not None and IsNode(DeclList):
             for Child in DeclList.GetChildren():
                 if Child.__class__.__name__ == 'Identifier':
-                    Child.STPtr['Type'] = self.DeclSpecs['Type'][0]
+                    Child.STPtr['Type'] = self.DeclSpecs['Type']
                     if 'Type Qualifier' in self.DeclSpecs: Child.STPtr['Type Qualifier'] = self.DeclSpecs['Type Qualifier']
                     if 'Storage Class Specifier' in self.DeclSpecs: Child.STPtr['Storage Class Specifier'] = self.DeclSpecs['Storage Class Specifier'][0]
-
                 else:
                     self.UpdateSymbolTable(Child)
         else:
@@ -462,8 +461,10 @@ class BinOp(Node):
         self.Op = Op
         self.Loc = Loc
         self.ExprDataType = None
-        # self.Register =
+        self.Register = None
 
+
+        self.ManageExprDataTypes()
         self.RunSemanticAnalysis(None)
 
     def GetChildren(self):
@@ -478,8 +479,28 @@ class BinOp(Node):
 
         return Children
 
-    def GetExprDataType(self, Subtree):
-        pass
+    def ManageExprDataTypes(self):
+        LDT = self.GetBinOpDataType(self.Left)
+        RDT = self.GetBinOpDataType(self.Right)
+
+        #set the overall type of the expression
+        DominantType = self.EvalDataType(LDT, RDT)
+        if DominantType is 'Equal':
+            self.ExprDataType = LDT
+        else:
+            self.ExprDataType = DominantType
+            if DominantType == LDT:
+                #add node on self.Right
+                temp = self.Right
+                self.Right = CastNode(RDT, LDT, temp)
+            else:
+                # add node on self.Left
+                temp = self.Left
+                self.Left = CastNode(RDT, LDT, temp)
+
+        #add cast nodes if needed
+
+
 
     def GetBinOpDataType(self, Subtree):
         if Subtree is None: return
@@ -487,24 +508,61 @@ class BinOp(Node):
         if Subtree.GetChildren() is None: return
 
         for Child in Subtree.GetChildren():
-            if Child.__class__.__name__ == "BinOp":
-                if Child.ExprDataType is not None:
-                    return BinOp.ExprDataType
-                elif Child.__class__.__name__ == 'Identifier':
-                    return Child.STPtr["Data Type"]
-
-
-
-    def FetchId(self, Subtree):
-        if Subtree is None: return
-        if not IsNode(Subtree): return
-        if Subtree.GetChildren() is None: return
-
-        for Child in Subtree.GetChildren():
+            # if Child.__class__.__name__ == "BinOp":
+            #     # if Child.ExprDataType is not None:
+            #     #     return Child.ExprDataType
+            if Child.__class__.__name__ == 'Constant':
+                return [Child.DataType]
             if Child.__class__.__name__ == 'Identifier':
-                return (Child.STPtr, Child.Name)
+                return Child.STPtr["Type"]
+            if Child.__class__.__name__ == "BinOp":
+                LDT = self.GetBinOpDataType(Child.Left)
+                RDT = self.GetBinOpDataType(Child.Right)
+
+                if LDT == RDT:
+                    return LDT
             else:
-                return(self.FetchId(Child))
+                return self.GetBinOpDataType(Child)
+
+
+    def EvalDataType(self, LHS, RHS):
+        '''Returns the data type which should be coreced to'''
+        if self.CalcConversionFactor(LHS) < self.CalcConversionFactor(RHS):
+            return LHS
+        elif self.CalcConversionFactor(LHS) > self.CalcConversionFactor(RHS):
+            return RHS
+        elif self.CalcConversionFactor(LHS) == self.CalcConversionFactor(RHS):
+            return 'Equal'
+
+    def CalcConversionFactor(self, DT):
+        '''DataType conversion hierarchy from wikipedia C_data_types'''
+        '''ConversionFactor: a lower value is higher in the heierachy and coerces to it'''
+        DTCH = [
+        [ ['long double'] ],
+        [ ['double'] ],
+        [ ['float'] ],
+        [ ['unsigned', 'long', 'long'], ['unsigned', 'long', 'long', 'int']],
+        [ ['long', 'long'], ['long','long', 'int'], ['signed', 'long', 'long'], ['signed', 'long', 'long', 'int'] ],
+        [ ['unsigned', 'long'], ['unsigned', 'long', 'int'] ],
+        [ ['long'], ['long', 'int'], ['signed', 'long'], ['signed', 'long', 'int'] ],
+        [ ['unsigned'], ['unsigned', 'int'] ],
+        [ ['int'], ['signed'], ['signed', 'int'] ],
+        [ ['unsigned', 'short'], ['unsigned', 'short', 'int'] ],
+        [ ['short'], ['short', 'int'], ['signed', 'short'], ['signed', 'short', 'int'] ],
+        [ ['unsigned', 'char'] ],
+        [ ['signed', 'char'] ],
+        [ ['char'] ]
+        ]
+
+        ConversionFactor = 0
+
+        for i, Tier in enumerate(DTCH):
+            for DTCombo in Tier:
+                if DT == DTCombo:
+                    ConversionFactor = i
+
+        return ConversionFactor
+
 
     def RunSemanticAnalysis(self, ST):
             pass
@@ -560,7 +618,7 @@ class IterationStatement(Node):
 
 
 class CastNode(Node):
-    def __init__(self, CastFrom, CastTo, SubExpression, Loc):
+    def __init__(self, CastFrom, CastTo, SubExpression, Loc = None):
         self.CastFrom = CastFrom
         self.CastTo = CastTo
         self.SubExpression = SubExpression
@@ -571,7 +629,7 @@ class CastNode(Node):
         if self.CastFrom is not None: Children.append(self.CastFrom)
         if self.CastTo is not None: Children.append(self.CastTo)
         if self.SubExpression is not None: Children.append(self.SubExpression)
-        return children
+        return Children
 
     def RunSemanticAnalysis(self):
         pass

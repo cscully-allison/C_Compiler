@@ -614,24 +614,29 @@ class Parser():
 
         def p_pointer_1(p):
             'pointer :  ASTERISK'
+            p[0] = PassUpNode("Pointer", [p[1]])
             if self.DebugProd == True:
                 self.DebugPrint("pointer -->  ASTERISK", p)
             return
 
         def p_pointer_2(p):
             'pointer :  ASTERISK type_qualifier_list'
+            p[0] = PassUpNode("Pointer", [p[1], p[2]])
             if self.DebugProd == True:
                 self.DebugPrint("pointer -->  ASTERISK type_qualifier_list", p)
             return
 
         def p_pointer_3(p):
             'pointer :  ASTERISK pointer'
+            p[0] = PassUpNode("Pointer", [p[1], p[2]])
             if self.DebugProd == True:
                 self.DebugPrint("pointer -->  ASTERISK pointer", p)
             return
 
         def p_pointer_4(p):
             'pointer :  ASTERISK type_qualifier_list pointer'
+
+            p[0] = PassUpNode("Pointer", [p[1], p[2], p[3]])
             if self.DebugProd == True:
                 self.DebugPrint("pointer -->  ASTERISK type_qualifier_list pointer", p)
             return
@@ -1586,7 +1591,7 @@ class Parser():
 
         def p_primary_expression_3(p):
             'primary_expression :  string'
-            p[0] = PrimaryExpression('string', P[1])
+            p[0] = PrimaryExpression('string', p[1])
 
             if self.DebugProd == True:
                 self.DebugPrint("primary_expression -->  string", p)
@@ -1594,7 +1599,7 @@ class Parser():
 
         def p_primary_expression_4(p):
             'primary_expression :  OPENPAREN expression CLOSEPAREN'
-            p[0] = PrimaryExpression('expression', P[2])
+            p[0] = PrimaryExpression('expression', p[2])
 
             if self.DebugProd == True:
                 self.DebugPrint("primary_expression -->  OPENPAREN expression CLOSEPAREN", p)
