@@ -508,13 +508,21 @@ class SelectionStatement(Node):
 class IterationStatement(Node):
     def __init__(self, AssignmentExpression = None, ConditionalExpression = None, IterativeExpression = None, Statement = None, Production = None):
         self.AssignmentExpression = AssignmentExpression
-        self.ContitionalExpression = ConditionalExpression
+        self.ConditionalExpression = ConditionalExpression
         self.IterativeExpression = IterativeExpression
         self.Statement = Statement
         self.Production = Production
 
+        if self.ConditionalExpression is not None: self.StartLabel = Label.DispenseTicket()
+        if self.Statement is not None: self.EndLabel = Label.DispenseTicket()
+
     def GetChildren(self):
         Children = []
+        if self.AssignmentExpression is not None: Children.append(self.AssignmentExpression)
+        if self.ConditionalExpression is not None: Children.append(self.ConditionalExpression)
+        if self.IterativeExpression is not None: Children.append(self.IterativeExpression)
+        if self.Statement is not None: Children.append(self.Statement)
+        #if self.Production is not None: Children.append(self.Production)
         return Children
 
     #we cannot increment a constant
