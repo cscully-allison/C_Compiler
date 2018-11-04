@@ -69,7 +69,7 @@ DotExporter({}, nodeattrfunc=f).to_picture("AST.png")
                 output = output.format("leaf", ', '.join("{!s}={!r}".format(key,val) for (key,val) in Child.items()), ", parent=" +Parent.__class__.__name__ + str(id(Parent)))
                 self.TreeGraphOutPtr.write(output + '\n')
 
-            elif type(Child) is type([]) and Parent.__class__.__name__ is 'CastNode':
+            elif type(Child) is type([]):
                     DataType = ''
                     for SubC in Child:
                         DataType += SubC + " "
