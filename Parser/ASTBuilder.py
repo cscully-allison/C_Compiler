@@ -269,9 +269,6 @@ class Constant(Node):
         pass
 
 
-
-
-
 class PrimaryExpression(Node):
     def __init__(self, Type, Child, Loc=None):
         self.Type = Type
@@ -285,7 +282,6 @@ class PrimaryExpression(Node):
 
     def RunSemanticAnalysis(self):
         pass
-
 
 
 class UnaryExpression(Node):
@@ -368,7 +364,4 @@ class BinOp(Node):
         return Children
 
     def RunSemanticAnalysis(self, ST):
-        if self.op == 'DIV':
-            #if const, get the lexeme
-            #if zero, throw div by zero error
-            pass
+        pass
