@@ -535,3 +535,17 @@ class IterationStatement(Node):
     #we cannot increment a constant
     def RunSemanticAnalysis(self):
         pass
+
+class ArrayAccess(Node):
+    def __init__(self, ArrayName = None, ArrayOffset = None):
+        self.ArrayName = ArrayName
+        self.ArrayOffset = ArrayOffset
+
+    def GetChildren(self):
+        Children = []
+        if self.ArrayName is not None: Children.append(self.ArrayName)
+        if self.ArrayOffset is not None: Children.append(self.ArrayOffset)
+        return Children
+
+    def RunSemanticAnalysis(self):
+        pass

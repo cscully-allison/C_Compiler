@@ -5,7 +5,7 @@ int funct(){
 int main(int g){
     char a, d;
     // $!PDO
-    int arr[8][10];
+    int arr[8];
     // $!PDF
 
     if(a < d){
@@ -22,6 +22,6 @@ int main(int g){
     {
       int q;
     }
-
+    arr[3] = 5;
     $!ST1
 }

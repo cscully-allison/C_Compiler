@@ -5,7 +5,11 @@ from Globals import ErrManager
 from Utils import PrettyErrorPrint, FindColumn
 from LexicalAnalizer import LexicalAnalizer
 from SymbolTable import SymbolTable
+<<<<<<< HEAD
 from ASTBuilder import Identifier, ArrayDeclaration, PassUpNode, SelectionStatement, DeclarationSpecifiers, DeclList, Declaration, PrimaryExpression, UnaryExpression, Constant, FunctionDefintion, CompoundStatement, AssignmentExpression, InitDeclList, BinOp, IterationStatement
+=======
+from ASTBuilder import Identifier, ArrayDeclaration, PassUpNode, SelectionStatement, DeclarationSpecifiers, DeclList, Declaration, PrimaryExpression, UnaryExpression, Constant, FunctionDefintion, CompoundStatement, AssignmentExpression, InitDeclList, BinOp, IterationStatement, ArrayAccess
+>>>>>>> kurt
 import ply.yacc as yacc
 # import logging
 # logging.basicConfig(
@@ -1521,7 +1525,7 @@ class Parser():
 
         def p_postfix_expression_2(p):
             'postfix_expression :  postfix_expression OPENBRACKET expression CLOSEBRACKET'
-            p[0] = PassUpNode("PostfixExpression",[p[1], p[3]])
+            p[0] = ArrayAccess(ArrayName=p[1], ArrayOffset=p[3])
             if self.DebugProd == True:
                 self.DebugPrint("postfix_expression -->  postfix_expression OPENBRACKET expression CLOSEBRACKET", p)
             return
