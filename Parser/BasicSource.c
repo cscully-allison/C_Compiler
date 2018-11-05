@@ -1,5 +1,5 @@
 
-int main(int g){
+int main(int g, char a5, int c){
     char a, d;
     // $!PDO
     int arr[8];
