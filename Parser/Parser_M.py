@@ -685,7 +685,7 @@ class Parser():
 
         def p_parameter_declaration_1(p):
             'parameter_declaration :  declaration_specifiers declarator'
-            p[0] = PassUpNode("ParameterDeclaration", [p[1], p[2]])
+            p[0] = Declaration(p[1], p[2])
             if self.DebugProd == True:
                 self.DebugPrint("parameter_declaration -->  declaration_specifiers declarator", p)
             return
@@ -699,7 +699,7 @@ class Parser():
 
         def p_parameter_declaration_3(p):
             'parameter_declaration :  declaration_specifiers abstract_declarator'
-            p[0] = PassUpNode("ParameterDeclaration", [p[1]])
+            p[0] = PassUpNode("ParameterDeclaration", [p[1], p[2]])
             if self.DebugProd == True:
                 self.DebugPrint("parameter_declaration -->  declaration_specifiers abstract_declarator", p)
             return

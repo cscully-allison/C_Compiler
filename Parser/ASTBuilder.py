@@ -79,8 +79,16 @@ class FunctionDefintion(Node):
         self.Declarator = Declarator
         self.Statement = Statement
         self.DeclarationList = DeclarationList
-        #there will likely be other fancy thins here
-        self.Label = Label.DispenseTicket() # This should go into the symbol table
+        #label and idptr come from FetchFunctionId function
+        self.Label = None
+        self.IDPtr = None
+
+        self.FunctionArguments = []
+         # This should go into the symbol table
+
+        self.UpdateFunctionSymbolTable()
+
+
         pass
 
     def GetChildren(self):
@@ -88,8 +96,60 @@ class FunctionDefintion(Node):
         if self.DeclarationList is not None: Children.append(self.DeclarationList)
         Children.append(self.ReturnDeclarator)
         Children.append(self.Declarator)
-        Children.append(self.Statement)
+        if self.Statement is not None: Children.append(self.Statement)
         return Children
+
+    def UpdateFunctionSymbolTable(self):
+        self.FetchFunctionId(self.Declarator)
+        # Add to the function subtype IdPtr
+        self.IDPtr['Subtype'] = 'Function'
+        # Add the arguments
+        self.BuildArgumentListHelper(self.Declarator)
+
+        pass
+
+    def FetchFunctionId(self, Subtree):
+        if Subtree is None: return
+        if not IsNode(Subtree): return
+        if Subtree.GetChildren() is None: return
+
+        for Child in Subtree.GetChildren():
+            if Child.__class__.__name__ is "Identifier":
+                self.IDPtr = Child.STPtr
+                self.Label = Child.Name
+            if Child.__class__.__name__ is "PassUpNode":
+                if Child.ProductionName is not "ParameterTypeList":
+                    self.FetchFunctionId(Child)
+            else:
+                self.FetchFunctionId(Child)
+
+    def BuildArgumentListHelper(self, Subtree):
+        '''makes its way to the parameter type list to avoid adding the
+            function id as a paremeter to itself'''
+        if Subtree is None: return
+        if not IsNode(Subtree): return
+        if Subtree.GetChildren() is None: return
+
+        for Child in Subtree.GetChildren():
+            if Child.__class__.__name__ is "PassUpNode":
+                if Child.ProductionName is "ParameterTypeList":
+                    self.BuildArgumentList(Child)
+                else:
+                    self.BuildArgumentListHelper(Child)
+            else:
+                self.BuildArgumentListHelper(Child)
+
+    def BuildArgumentList(self, Subtree):
+            '''Actually handles the building of the arg list'''
+            if Subtree is None: return
+            if not IsNode(Subtree): return
+            if Subtree.GetChildren() is None: return
+
+            for Child in Subtree.GetChildren():
+                if Child.__class__.__name__ is "Identifier":
+                    self.FunctionArguments.append(Child.STPtr)
+                else:
+                    self.BuildArgumentList(Child)
 
     #we cannot increment a constant
     def RunSemanticAnalysis(self):
@@ -501,6 +561,10 @@ class BinOp(Node):
                 temp = self.Left
                 self.Left = CastNode(RDT, LDT, temp)
 
+        if 'float' in self.ExprDataType:
+            self.Register = FloatRegister.DispenseTicket()
+        else:
+            self.Register = IntRegister.DispenseTicket()
 
 
 
