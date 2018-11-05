@@ -19,6 +19,7 @@ class ASTWalker(object):
         return False
 
 
+
     def PrintASTHelper(self, Root):
         self.TreeGraphOutPtr.write("from anytree import Node, RenderTree \n")
         self.TreeGraphOutPtr.write("from anytree.exporter import DotExporter\n")
@@ -68,6 +69,15 @@ DotExporter({}, nodeattrfunc=f).to_picture("AST.png")
                 output = '{} = Node(\"{}\"{})'
                 output = output.format("leaf", ', '.join("{!s}={!r}".format(key,val) for (key,val) in Child.items()), ", parent=" +Parent.__class__.__name__ + str(id(Parent)))
                 self.TreeGraphOutPtr.write(output + '\n')
+
+            elif type(Child) is type([]):
+                    DataType = ''
+                    for SubC in Child:
+                        DataType += SubC + " "
+
+                    output = '{} = Node(\'{}\'{})'
+                    output = output.format("leaf", DataType + "_" + str(id(Parent))[-4:], ", parent=" +Parent.__class__.__name__ + str(id(Parent)))
+                    self.TreeGraphOutPtr.write(output + '\n')
 
             else:
                 output = '{} = Node(\'{}\'{})'

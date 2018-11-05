@@ -1,6 +1,3 @@
-int funct(){
-
-}
 
 int main(int g){
     char a, d;

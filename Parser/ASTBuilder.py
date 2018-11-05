@@ -1,18 +1,7 @@
 from Utils import PrettyErrorPrint, FindColumn, IsNode
-from Globals import ErrManager
+from Globals import ErrManager, Label, FloatRegister, IntRegister
 
-class TicketCounter(object):
-    def __init__(self, Type):
-        self.Type = Type
-        self.Counter = 0
 
-    def DispenseTicket(self):
-        self.Counter += 1
-        print("DispensedTicket:", self.Type+str(self.Counter))
-        return self.Type+str(self.Counter)
-
-Label = TicketCounter("L")
-Register = TicketCounter("R")
 
 class Node(object):
     '''Abstract base class for nodes'''
@@ -90,8 +79,16 @@ class FunctionDefintion(Node):
         self.Declarator = Declarator
         self.Statement = Statement
         self.DeclarationList = DeclarationList
-        #there will likely be other fancy thins here
-        self.Label = Label.DispenseTicket() # This should go into the symbol table
+        #label and idptr come from FetchFunctionId function
+        self.Label = None
+        self.IDPtr = None
+
+        self.FunctionArguments = []
+         # This should go into the symbol table
+
+        self.UpdateFunctionSymbolTable()
+
+
         pass
 
     def GetChildren(self):
@@ -99,8 +96,60 @@ class FunctionDefintion(Node):
         if self.DeclarationList is not None: Children.append(self.DeclarationList)
         Children.append(self.ReturnDeclarator)
         Children.append(self.Declarator)
-        Children.append(self.Statement)
+        if self.Statement is not None: Children.append(self.Statement)
         return Children
+
+    def UpdateFunctionSymbolTable(self):
+        self.FetchFunctionId(self.Declarator)
+        # Add to the function subtype IdPtr
+        self.IDPtr['Subtype'] = 'Function'
+        # Add the arguments
+        self.BuildArgumentListHelper(self.Declarator)
+
+        pass
+
+    def FetchFunctionId(self, Subtree):
+        if Subtree is None: return
+        if not IsNode(Subtree): return
+        if Subtree.GetChildren() is None: return
+
+        for Child in Subtree.GetChildren():
+            if Child.__class__.__name__ is "Identifier":
+                self.IDPtr = Child.STPtr
+                self.Label = Child.Name
+            if Child.__class__.__name__ is "PassUpNode":
+                if Child.ProductionName is not "ParameterTypeList":
+                    self.FetchFunctionId(Child)
+            else:
+                self.FetchFunctionId(Child)
+
+    def BuildArgumentListHelper(self, Subtree):
+        '''makes its way to the parameter type list to avoid adding the
+            function id as a paremeter to itself'''
+        if Subtree is None: return
+        if not IsNode(Subtree): return
+        if Subtree.GetChildren() is None: return
+
+        for Child in Subtree.GetChildren():
+            if Child.__class__.__name__ is "PassUpNode":
+                if Child.ProductionName is "ParameterTypeList":
+                    self.BuildArgumentList(Child)
+                else:
+                    self.BuildArgumentListHelper(Child)
+            else:
+                self.BuildArgumentListHelper(Child)
+
+    def BuildArgumentList(self, Subtree):
+            '''Actually handles the building of the arg list'''
+            if Subtree is None: return
+            if not IsNode(Subtree): return
+            if Subtree.GetChildren() is None: return
+
+            for Child in Subtree.GetChildren():
+                if Child.__class__.__name__ is "Identifier":
+                    self.FunctionArguments.append(Child.STPtr)
+                else:
+                    self.BuildArgumentList(Child)
 
     #we cannot increment a constant
     def RunSemanticAnalysis(self):
@@ -247,10 +296,9 @@ class Declaration(Node):
         if DeclList is not None and IsNode(DeclList):
             for Child in DeclList.GetChildren():
                 if Child.__class__.__name__ == 'Identifier':
-                    Child.STPtr['Type'] = self.DeclSpecs['Type'][0]
+                    Child.STPtr['Type'] = self.DeclSpecs['Type']
                     if 'Type Qualifier' in self.DeclSpecs: Child.STPtr['Type Qualifier'] = self.DeclSpecs['Type Qualifier']
                     if 'Storage Class Specifier' in self.DeclSpecs: Child.STPtr['Storage Class Specifier'] = self.DeclSpecs['Storage Class Specifier'][0]
-
                 else:
                     self.UpdateSymbolTable(Child)
         else:
@@ -264,13 +312,15 @@ class Declaration(Node):
 
 class ArrayDeclaration(Node):
     '''This class will handle the special case of array declarations'''
-    def __init__(self, Declarator, SizeExpr):
+    def __init__(self, Declarator, SizeExpr, Production):
         self.Declarator = Declarator
         self.SizeExpr = SizeExpr
-        self.Id = self.FetchId(Declarator)
+        self.Production = Production
+        self.Id = self.FetchId(Declarator)[0]
+        self.Label = self.FetchId(Declarator)[1]
 
         # update the symbol table with size and subtype information
-        self.GetSize(SizeExpr)
+        if SizeExpr is not None: self.GetSize(SizeExpr)
         self.Id['Subtype'] = 'Array'
 
         self.RunSemanticAnalysis()
@@ -289,6 +339,9 @@ class ArrayDeclaration(Node):
         else:
             for Child in Subtree.GetChildren():
                 if Child.__class__.__name__ == 'Constant':
+                    if Child.DataType is not 'int':
+                        ErrManager.AddError(PrettyErrorPrint("Size of array \"{}\" has non-integer type.".format(self.Label), self.Id['TokenLocation'][0], self.Id['TokenLocation'][2], self.Production.lexer.lexdata))
+
                     if 'Array Size' not in self.Id:
                         self.Id['Array Size'] = [Child.Child]
                     else:
@@ -303,13 +356,15 @@ class ArrayDeclaration(Node):
 
         for Child in Subtree.GetChildren():
             if Child.__class__.__name__ == 'Identifier':
-                return Child.STPtr
+                return (Child.STPtr, Child.Name)
             else:
                 return(self.FetchId(Child))
 
 
     #we cannot increment a constant
     def RunSemanticAnalysis(self):
+
+
         pass
 
 
@@ -355,9 +410,6 @@ class Constant(Node):
         pass
 
 
-
-
-
 class PrimaryExpression(Node):
     def __init__(self, Type, Child, Loc=None):
         self.Type = Type
@@ -371,7 +423,6 @@ class PrimaryExpression(Node):
 
     def RunSemanticAnalysis(self):
         pass
-
 
 
 class UnaryExpression(Node):
@@ -469,7 +520,11 @@ class BinOp(Node):
         self.Right = Right
         self.Op = Op
         self.Loc = Loc
+        self.ExprDataType = None
+        self.Register = None
 
+
+        self.ManageExprDataTypes()
         self.RunSemanticAnalysis(None)
 
     def GetChildren(self):
@@ -481,8 +536,99 @@ class BinOp(Node):
             Children.append(self.Op)
         if self.Right is not None:
             Children.append(self.Right)
+        if self.ExprDataType is not None:
+            Children.append(self.ExprDataType)
 
         return Children
+
+    def ManageExprDataTypes(self):
+        LDT = self.GetBinOpDataType(self.Left)
+        RDT = self.GetBinOpDataType(self.Right)
+
+        #set the overall type of the expression
+        DominantType = self.EvalDataType(LDT, RDT)
+        if DominantType is 'Equal':
+            self.ExprDataType = LDT
+        else:
+            self.ExprDataType = DominantType
+            # Adding cast nodes
+            if DominantType == LDT:
+                #add node on self.Right
+                temp = self.Right
+                self.Right = CastNode(RDT, LDT, temp)
+            else:
+                # add node on self.Left
+                temp = self.Left
+                self.Left = CastNode(RDT, LDT, temp)
+
+        if 'float' in self.ExprDataType:
+            self.Register = FloatRegister.DispenseTicket()
+        else:
+            self.Register = IntRegister.DispenseTicket()
+
+
+
+    def GetBinOpDataType(self, Subtree):
+        if Subtree is None: return
+        if not IsNode(Subtree): return
+        if Subtree.GetChildren() is None: return
+
+        for Child in Subtree.GetChildren():
+            # if Child.__class__.__name__ == "BinOp":
+            #     # if Child.ExprDataType is not None:
+            #     #     return Child.ExprDataType
+            if Child.__class__.__name__ == 'Constant':
+                return [Child.DataType]
+            if Child.__class__.__name__ == 'Identifier':
+                return Child.STPtr["Type"]
+            if Child.__class__.__name__ == "BinOp":
+                LDT = self.GetBinOpDataType(Child.Left)
+                RDT = self.GetBinOpDataType(Child.Right)
+
+                if LDT == RDT:
+                    return LDT
+            else:
+                return self.GetBinOpDataType(Child)
+
+
+    def EvalDataType(self, LHS, RHS):
+        '''Returns the data type which should be coreced to'''
+        if self.CalcConversionFactor(LHS) < self.CalcConversionFactor(RHS):
+            return LHS
+        elif self.CalcConversionFactor(LHS) > self.CalcConversionFactor(RHS):
+            return RHS
+        elif self.CalcConversionFactor(LHS) == self.CalcConversionFactor(RHS):
+            return 'Equal'
+
+    def CalcConversionFactor(self, DT):
+        '''DataType conversion hierarchy from wikipedia C_data_types'''
+        '''ConversionFactor: a lower value is higher in the heierachy and coerces to it'''
+        DTCH = [
+        [ ['long double'] ],
+        [ ['double'] ],
+        [ ['float'] ],
+        [ ['unsigned', 'long', 'long'], ['unsigned', 'long', 'long', 'int']],
+        [ ['long', 'long'], ['long','long', 'int'], ['signed', 'long', 'long'], ['signed', 'long', 'long', 'int'] ],
+        [ ['unsigned', 'long'], ['unsigned', 'long', 'int'] ],
+        [ ['long'], ['long', 'int'], ['signed', 'long'], ['signed', 'long', 'int'] ],
+        [ ['unsigned'], ['unsigned', 'int'] ],
+        [ ['int'], ['signed'], ['signed', 'int'] ],
+        [ ['unsigned', 'short'], ['unsigned', 'short', 'int'] ],
+        [ ['short'], ['short', 'int'], ['signed', 'short'], ['signed', 'short', 'int'] ],
+        [ ['unsigned', 'char'] ],
+        [ ['signed', 'char'] ],
+        [ ['char'] ]
+        ]
+
+        ConversionFactor = 0
+
+        for i, Tier in enumerate(DTCH):
+            for DTCombo in Tier:
+                if DT == DTCombo:
+                    ConversionFactor = i
+
+        return ConversionFactor
+
 
     def RunSemanticAnalysis(self, ST):
             pass
@@ -536,6 +682,7 @@ class IterationStatement(Node):
     def RunSemanticAnalysis(self):
         pass
 
+
 class ArrayAccess(Node):
     def __init__(self, ArrayName = None, ArrayOffset = None):
         self.ArrayName = ArrayName
@@ -545,6 +692,24 @@ class ArrayAccess(Node):
         Children = []
         if self.ArrayName is not None: Children.append(self.ArrayName)
         if self.ArrayOffset is not None: Children.append(self.ArrayOffset)
+        return Children
+
+    def RunSemanticAnalysis(self):
+        pass
+
+
+class CastNode(Node):
+    def __init__(self, CastFrom, CastTo, SubExpression, Loc = None):
+        self.CastFrom = CastFrom
+        self.CastTo = CastTo
+        self.SubExpression = SubExpression
+        self.Loc = Loc
+
+    def GetChildren(self):
+        Children = []
+        if self.CastFrom is not None: Children.append(self.CastFrom)
+        if self.CastTo is not None: Children.append(self.CastTo)
+        if self.SubExpression is not None: Children.append(self.SubExpression)
         return Children
 
     def RunSemanticAnalysis(self):
