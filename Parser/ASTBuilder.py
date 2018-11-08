@@ -1,5 +1,5 @@
-from Utils import PrettyErrorPrint, FindColumn, IsNode
-from Globals import ErrManager, Label, FloatRegister, IntRegister
+from Utils import FunctPrettyErrorPrint, PrettyErrorPrint, FindColumn, IsNode, GetLoc
+from Globals import ErrManager, Label, FloatRegister, IntRegister, OutPutDataType, SCSLib, TSLib, TQLib
 
 
 
@@ -68,45 +68,156 @@ class PostfixExpression(Node):
         pass
 
 
+class FunctionPrototype(Node):
+    '''A node for specifically building a function prototype'''
+    def __init__(self, DirectDeclarator=None, ParameterTypeList=None, Production=None):
+        self.DirectDeclarator = DirectDeclarator
+        self.ParameterTypeList = ParameterTypeList
+        self.Production = Production
+        self.FunctionId = None
+        self.FunctionArguments = []
+        self.Label = None
+
+        # fetch id first
+        self.FetchFunctionId(self.DirectDeclarator)
+
+        # update only if subtype is previously undefined
+        if 'Subtype' in self.FunctionId and self.FunctionId['Subtype'] == 'Function Prototype':
+            return
+        elif 'Subtype' not in self.FunctionId:
+            self.ManagePrototype()
+        else:
+            self.ManagePrototype()
+
+        # do semantic analysis
+        self.RunSemanticAnalysis()
+
+    def GetChildren(self):
+        Children = []
+        if self.DirectDeclarator is not None: Children.append(self.DirectDeclarator)
+        if self.ParameterTypeList is not None: Children.append(self.ParameterTypeList)
+        return Children
+
+    def ManagePrototype(self):
+        self.BuildArgumentList(self.ParameterTypeList)
+        self.FunctionId['Arguments'] = self.FunctionArguments
+        self.FunctionId['Subtype'] = "Function Prototype"
+        self.FunctionId['Label'] = self.Label
+
+    def FetchFunctionId(self, Subtree):
+        if Subtree is None: return
+        if not IsNode(Subtree): return
+        if Subtree.GetChildren() is None: return
+
+        for Child in Subtree.GetChildren():
+            if Child.__class__.__name__ is "Identifier":
+                self.FunctionId = Child.STPtr
+                self.Label = Child.Name
+            if Child.__class__.__name__ is "PassUpNode":
+                if Child.ProductionName is not "ParameterTypeList":
+                    self.FetchFunctionId(Child)
+            else:
+                self.FetchFunctionId(Child)
+
+    def BuildArgumentList(self, Subtree):
+            '''Actually handles the building of the arg list'''
+            if Subtree is None: return
+            if not IsNode(Subtree): return
+            if Subtree.GetChildren() is None: return
+
+            for Child in Subtree.GetChildren():
+                if Child.__class__.__name__ is "DeclarationSpecifiers":
+                    self.FunctionArguments.append(self.BuildDeclSpecsDict(self.FetchDeclSpecs(Child)))
+                else:
+                    self.BuildArgumentList(Child)
+
+    def BuildDeclSpecsDict(self, DeclSpecsList):
+        ''' Converts declaration spcifier list to a queryable dictionary
+        '''
+        Dict = {}
+        for Spec in DeclSpecsList:
+            if Spec in TSLib:
+                if 'Type' in Dict:
+                    Dict['Type'].append(Spec)
+                else:
+                    Dict['Type'] = [Spec]
+            elif Spec in TQLib:
+                if 'Type Qualifier' in Dict:
+                    Dict['Type Qualifier'].append(Spec)
+                else:
+                    Dict['Type Qualifier'] = [Spec]
+            elif Spec in SCSLib:
+                if 'Storage Class Specifier' in Dict:
+                    Dict['Storage Class Specifier'].append(Spec)
+                else:
+                    Dict['Storage Class Specifier'] = [Spec]
+        return Dict
+
+    def FetchDeclSpecs(self, DeclSpecs):
+        ''' Builds up a list of the declaration specifiers recursively
+        '''
+        # past a leaf node case
+        if DeclSpecs is None:
+            return []
+        # at a node case
+        else:
+            DeclSpecsList = []
+            for Child in DeclSpecs.GetChildren():
+                # more nodes beneath us
+                if Child.__class__.__name__ == 'DeclarationSpecifiers':
+                    DeclSpecsList.extend(self.FetchDeclSpecs(Child))
+                # at a leaf node
+                else:
+                    DeclSpecsList = [Child]
+            # return after loop
+            return DeclSpecsList
+
+    def RunSemanticAnalysis(self):
+        for Argument in self.FunctionId['Arguments']:
+            if 'Storage Class Specifier' in Argument:
+                ErrManager.AddError(PrettyErrorPrint("Storage class specifier on function definition argument.", self.FunctionId['TokenLocation'][0], self.FunctionId['TokenLocation'][2], self.Production.lexer.lexdata))
+
+        # if self.R
+        #     print("Warning: Line: {} Col: {} No return type defined for function '{}', default to int.".format(self.IDPtr['TokenLocation'][0], self.IDPtr['TokenLocation'][2], self.Label))
+
+        pass
 
 class FunctionDefintion(Node):
     ''' Declaration List is a Subtree
         Statement is a Subtree
         Decl List can be null
     '''
-    def __init__(self, ReturnDeclarator = None, Declarator = None, DeclarationList = None, Statement = None, Loc=None):
+    def __init__(self, ReturnDeclarator = None, Declarator = None, DeclarationList = None, Statement = None, Loc=None, Production=None):
         self.ReturnDeclarator = ReturnDeclarator
         self.Declarator = Declarator
         self.Statement = Statement
         self.DeclarationList = DeclarationList
+        self.Production = Production
+        self.Loc = GetLoc(Production)
         #label and idptr come from FetchFunctionId function
-        self.Label = None
         self.IDPtr = None
-
+        self.ReturnType = None
         self.FunctionArguments = []
-         # This should go into the symbol table
 
-        self.UpdateFunctionSymbolTable()
-
+        #do things
+        self.ManageFunctionDeclaration()
+        self.RunSemanticAnalysis()
 
         pass
 
     def GetChildren(self):
         Children = []
         if self.DeclarationList is not None: Children.append(self.DeclarationList)
-        Children.append(self.ReturnDeclarator)
-        Children.append(self.Declarator)
+        if self.ReturnDeclarator is not None: Children.append(self.ReturnDeclarator)
+        if self.Declarator is not None: Children.append(self.Declarator)
         if self.Statement is not None: Children.append(self.Statement)
         return Children
 
-    def UpdateFunctionSymbolTable(self):
+    def ManageFunctionDeclaration(self):
         self.FetchFunctionId(self.Declarator)
-        # Add to the function subtype IdPtr
-        self.IDPtr['Subtype'] = 'Function'
-        # Add the arguments
-        self.BuildArgumentListHelper(self.Declarator)
+        self.ReturnType = self.BuildDeclSpecsDict(self.FetchDeclSpecs(self.ReturnDeclarator))
+        self.BuildArgumentList(self.Declarator)
 
-        pass
 
     def FetchFunctionId(self, Subtree):
         if Subtree is None: return
@@ -123,22 +234,6 @@ class FunctionDefintion(Node):
             else:
                 self.FetchFunctionId(Child)
 
-    def BuildArgumentListHelper(self, Subtree):
-        '''makes its way to the parameter type list to avoid adding the
-            function id as a paremeter to itself'''
-        if Subtree is None: return
-        if not IsNode(Subtree): return
-        if Subtree.GetChildren() is None: return
-
-        for Child in Subtree.GetChildren():
-            if Child.__class__.__name__ is "PassUpNode":
-                if Child.ProductionName is "ParameterTypeList":
-                    self.BuildArgumentList(Child)
-                else:
-                    self.BuildArgumentListHelper(Child)
-            else:
-                self.BuildArgumentListHelper(Child)
-
     def BuildArgumentList(self, Subtree):
             '''Actually handles the building of the arg list'''
             if Subtree is None: return
@@ -146,16 +241,88 @@ class FunctionDefintion(Node):
             if Subtree.GetChildren() is None: return
 
             for Child in Subtree.GetChildren():
-                if Child.__class__.__name__ is "Identifier":
-                    self.FunctionArguments.append(Child.STPtr)
+                if Child.__class__.__name__ is "DeclarationSpecifiers":
+                    self.FunctionArguments.append(self.BuildDeclSpecsDict(self.FetchDeclSpecs(Child)))
                 else:
                     self.BuildArgumentList(Child)
 
+
+    def BuildDeclSpecsDict(self, DeclSpecsList):
+        ''' Converts declaration spcifier list to a queryable dictionary
+        '''
+        Dict = {}
+        for Spec in DeclSpecsList:
+            if Spec in TSLib:
+                if 'Type' in Dict:
+                    Dict['Type'].append(Spec)
+                else:
+                    Dict['Type'] = [Spec]
+            elif Spec in TQLib:
+                if 'Type Qualifier' in Dict:
+                    Dict['Type Qualifier'].append(Spec)
+                else:
+                    Dict['Type Qualifier'] = [Spec]
+            elif Spec in SCSLib:
+                if 'Storage Class Specifier' in Dict:
+                    Dict['Storage Class Specifier'].append(Spec)
+                else:
+                    Dict['Storage Class Specifier'] = [Spec]
+        return Dict
+
+    def FetchDeclSpecs(self, DeclSpecs):
+        ''' Builds up a list of the declaration specifiers recursively
+        '''
+        # past a leaf node case
+        if DeclSpecs is None:
+            return []
+        # at a node case
+        else:
+            DeclSpecsList = []
+            for Child in DeclSpecs.GetChildren():
+                # more nodes beneath us
+                if Child.__class__.__name__ == 'DeclarationSpecifiers':
+                    DeclSpecsList.extend(self.FetchDeclSpecs(Child))
+                # at a leaf node
+                else:
+                    DeclSpecsList = [Child]
+            # return after loop
+            return DeclSpecsList
+
+    def GetReturn(self, StatementList):
+        pass
+
+    def MismachedTypes(self, Prototype):
+        returns = []
+        if 'Return Type' in Prototype:
+            if Prototype['Return Type'] != self.ReturnType['Type']:
+                returns.append('Return')
+        if 'Arguments' in Prototype:
+            if len(Prototype['Arguments']) != len(self.FunctionArguments):
+                returns.append('Number')
+            else:
+                for i, Arg in enumerate(Prototype['Arguments']):
+                    if Arg['Type'] != self.FunctionArguments[i]['Type']:
+                        returns.append('Argument')
+        else:
+            returns = None
+
+        return returns
+
+
     #we cannot increment a constant
     def RunSemanticAnalysis(self):
-        # if return type None then default to int
-        # and throw warning, not error
-        pass
+        #check type match with prototype (if prototype is deifned)
+        if 'Subtype' in self.IDPtr and self.IDPtr['Subtype'] == 'Function Prototype':
+            if 'Argument' in self.MismachedTypes(self.IDPtr):
+                ErrManager.AddError(FunctPrettyErrorPrint("Error: Line:{} Column:{} ".format(self.Loc[0], self.Loc[2]) + "Argument data types in function definition do not match prototype. Prototype declaration here.", self.IDPtr['TokenLocation'][0], self.IDPtr['TokenLocation'][2], self.Production.lexer.lexdata))
+            if 'Return' in self.MismachedTypes(self.IDPtr):
+                ErrManager.AddError(FunctPrettyErrorPrint("Error: Line:{} Column:{} ".format(self.Loc[0], self.Loc[2]) + "Return data type in function definition does not match prototype. Prototype declaration here.", self.IDPtr['TokenLocation'][0], self.IDPtr['TokenLocation'][2], self.Production.lexer.lexdata))
+            if 'Number' in self.MismachedTypes(self.IDPtr):
+                ErrManager.AddError(FunctPrettyErrorPrint("Error: Line:{} Column:{} ".format(self.Loc[0], self.Loc[2]) + "Number of arguments in function definition does not match prototype. Expected {} but only found {}. Prototype declaration here.".format(len(self.IDPtr['Arguments']), len(self.FunctionArguments)), self.IDPtr['TokenLocation'][0], self.IDPtr['TokenLocation'][2], self.Production.lexer.lexdata))
+
+        if 'Return Type' not in self.IDPtr and self.ReturnType == None:
+            self.IDPtr['Return Type'] = ['int']
+            print("Warning: Line: {} Col: {} No return type defined for function '{}', default to int.".format(self.IDPtr['TokenLocation'][0], self.IDPtr['TokenLocation'][2], self.Label))
 
 class DeclList(Node):
     '''Self refrencing production like init decl list.
@@ -232,11 +399,6 @@ class Declaration(Node):
         self.Right = Right
         self.Loc = Loc
 
-        #needed for checking the specific subtype of the returned declaration specifier
-        self.TSLib = ['void', 'char', 'int', 'float', 'long', 'double', 'short', 'signed', 'unsigned', 'struct', 'union']
-        self.TQLib = ['const', 'volatile']
-        self.SCSLib = ['auto', 'register', 'static', 'extern', 'typedef']
-
         #gets and formats the declaration specifiers
         self.DeclSpecs = self.BuildDeclSpecsDict( self.FetchDeclSpecs(self.Left) )
 
@@ -254,17 +416,17 @@ class Declaration(Node):
         '''
         Dict = {}
         for Spec in DeclSpecsList:
-            if Spec in self.TSLib:
+            if Spec in TSLib:
                 if 'Type' in Dict:
                     Dict['Type'].append(Spec)
                 else:
                     Dict['Type'] = [Spec]
-            elif Spec in self.TQLib:
+            elif Spec in TQLib:
                 if 'Type Qualifier' in Dict:
                     Dict['Type Qualifier'].append(Spec)
                 else:
                     Dict['Type Qualifier'] = [Spec]
-            elif Spec in self.SCSLib:
+            elif Spec in SCSLib:
                 if 'Storage Class Specifier' in Dict:
                     Dict['Storage Class Specifier'].append(Spec)
                 else:
@@ -296,9 +458,16 @@ class Declaration(Node):
         if DeclList is not None and IsNode(DeclList):
             for Child in DeclList.GetChildren():
                 if Child.__class__.__name__ == 'Identifier':
-                    Child.STPtr['Type'] = self.DeclSpecs['Type']
-                    if 'Type Qualifier' in self.DeclSpecs: Child.STPtr['Type Qualifier'] = self.DeclSpecs['Type Qualifier']
-                    if 'Storage Class Specifier' in self.DeclSpecs: Child.STPtr['Storage Class Specifier'] = self.DeclSpecs['Storage Class Specifier'][0]
+                    # inserting for function prototypes
+                    if 'Subtype' in Child.STPtr and Child.STPtr['Subtype'] == 'Function Prototype':
+                        Child.STPtr['Return Type'] = self.DeclSpecs['Type']
+                    else:
+                        Child.STPtr['Type'] = self.DeclSpecs['Type']
+
+                    if 'Type Qualifier' in self.DeclSpecs:
+                        Child.STPtr['Type Qualifier'] = self.DeclSpecs['Type Qualifier']
+                    if 'Storage Class Specifier' in self.DeclSpecs:
+                        Child.STPtr['Storage Class Specifier'] = self.DeclSpecs['Storage Class Specifier'][0]
                 else:
                     self.UpdateSymbolTable(Child)
         else:
@@ -332,7 +501,7 @@ class ArrayDeclaration(Node):
         return Children
 
     def GetSize(self, Subtree):
-        '''Updates ID pte with the size denoted by the constant expression'''
+        '''Updates ID ptr with the size denoted by the constant expression'''
         if Subtree is None: return []
         elif not IsNode(Subtree): return []
 
@@ -515,11 +684,11 @@ class AssignmentExpression(Node):
 
 
 class BinOp(Node):
-    def __init__(self, Op, Left, Right, Loc = None):
+    def __init__(self, Op, Left, Right, Production, Loc = None):
         self.Left = Left
         self.Right = Right
         self.Op = Op
-        self.Loc = Loc
+        self.Loc = GetLoc(Production)
         self.ExprDataType = None
         self.Register = None
 
@@ -556,10 +725,12 @@ class BinOp(Node):
                 #add node on self.Right
                 temp = self.Right
                 self.Right = CastNode(RDT, LDT, temp)
+                print("Warning: Line: {} Col: {} Implicit cast from {}to {}".format(self.Loc[0], self.Loc[2], OutPutDataType(RDT), OutPutDataType(LDT)))
             else:
                 # add node on self.Left
                 temp = self.Left
                 self.Left = CastNode(RDT, LDT, temp)
+                print("Warning: Line: {} Col: {} Implicit cast from {}to {}".format(self.Loc[0], self.Loc[2], OutPutDataType(LDT), OutPutDataType(RDT)))
 
         if 'float' in self.ExprDataType:
             self.Register = FloatRegister.DispenseTicket()

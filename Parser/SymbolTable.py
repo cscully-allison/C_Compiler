@@ -34,6 +34,8 @@ class SymbolTable():
                                 self.PrettyErrorPrint("Warning: {0} on line {3} is a shadowded variable. Previous declaration in scope level {1} at line {2}.".format(SymbolKey_str, abs(key-len(self.Table)), item[key]["TokenLocation"][0], Content_dict['TokenLocation'][0]), item[key]["TokenLocation"][0], item[key]["TokenLocation"][2] )
                     #perform deepcopy on passed in dictionary
                     self.TopScope.insert(SymbolKey_str, deepcopy(Content_dict) )
+                elif 'Subtype' in found and found['Subtype'] == 'Function Prototype':
+                    pass
                 else:
                     self.PrettyErrorPrint('''Error: Redeclaration of existing variable.\nPrior declaration is here at line {0}: \n'''.format(found["TokenLocation"][0]), found["TokenLocation"][0], found["TokenLocation"][2] )
                     raise Exception('Redeclaration of exisitng variable in current scope.')

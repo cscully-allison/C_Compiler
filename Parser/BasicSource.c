@@ -1,24 +1,15 @@
+int funct(const int, char);
 
-int main(int g, char a5, int c){
-    char a, d;
-    // $!PDO
-    int arr[8];
-    // $!PDF
+const int main(const int g){
+    static int l;
 
-    if(a < d){
-      int a4;
+    funct('a', 'c');
 
-
-    } else {
-      int b6;
-      b6 = 4 + 2;
-    }
+    return 0;
+}
 
 
-    for (a = 4; a < 2 ; a++ )
-    {
-      int q;
-    }
-    arr[3] = 5;
-    $!ST1
+char funct(char a, int c){
+
+
 }

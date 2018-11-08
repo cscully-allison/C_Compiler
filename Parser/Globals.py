@@ -32,3 +32,14 @@ class TicketCounter(object):
 Label = TicketCounter("L")
 FloatRegister = TicketCounter("FR")
 IntRegister = TicketCounter("IR")
+
+def OutPutDataType(Arr):
+    TypeString = ''
+    for DT in Arr:
+        TypeString += DT + ' '
+
+    return TypeString
+
+TSLib = ['void', 'char', 'int', 'float', 'long', 'double', 'short', 'signed', 'unsigned', 'struct', 'union']
+TQLib = ['const', 'volatile']
+SCSLib = ['auto', 'register', 'static', 'extern', 'typedef']
