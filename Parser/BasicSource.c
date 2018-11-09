@@ -7,7 +7,7 @@ int main(){
 	int arr2[9];
 	a=5;
 	arr2[3] = 100;
-	
+
 	while (a)
 	{
 		int arr3[2][3] = 2;
@@ -24,10 +24,5 @@ int main(){
 	}
 
 
-	//x[2][2] = 5;
-	//x[1][2] = x[2][2];
-
-
     return 0;
 }
-
