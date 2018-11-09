@@ -1,15 +1,16 @@
-int funct(const int, char);
 
-const int main(const int g){
-    static int l;
 
-    funct('a', 'c');
+int main(){
+	int a;
+	int arr[6][8];
+	a=5;
+	arr[9][a] = 100;
+	
+
+	//x[2][2] = 5;
+	//x[1][2] = x[2][2];
+
 
     return 0;
 }
 
-
-char funct(char a, int c){
-
-
-}

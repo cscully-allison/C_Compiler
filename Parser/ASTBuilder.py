@@ -855,15 +855,89 @@ class IterationStatement(Node):
 
 
 class ArrayAccess(Node):
-    def __init__(self, ArrayName = None, ArrayOffset = None):
+    def __init__(self, ArrayName = None, ArrayOffset = None, ST = None):
         self.ArrayName = ArrayName
         self.ArrayOffset = ArrayOffset
+        self.Label = self.FetchId(ArrayName)
+        self.ArrayType = None
+        self.CurrentOffset = None
+        self.CurrentOffset = self.GetIndex(ArrayOffset)
+        self.SymbolLocation = ST.FindSymbolInTable(self.Label)
+        self.TempSizes = []
+        
+        
+        if self.SymbolLocation is not False:
+            i=0
+            while i < len(self.SymbolLocation[0]["Array Size"]):
+                self.TempSizes.append(self.SymbolLocation[0]["Array Size"][i])
+                i = i+1
+        self.DigForChecks(self.SymbolLocation, 0)
+
+        #if self.SymbolLocation is False:
+         #   for Child in self.GetChildren():
+          #      if Child.__class__.__name__ == 'ArrayAccess':
+           #         print Child.TempSizes[0]
+        
+        
+
+        if self.SymbolLocation is not False:
+            
+            self.ArrayType = self.SymbolLocation[0]["Type"]
+
+    def DigForChecks(self, Subtree, ArrayLevel):
+        print ArrayLevel
+        if Subtree is not False:
+            if (len(self.TempSizes) == 0):
+                self.TempSizes = Subtree.TempSizes
+            if self.CurrentOffset > self.TempSizes[ArrayLevel]:
+                print "Array out of bounds"
+                #ADD ERROR MESSAGE
+                return False
+            else:
+                print "Array In Bounds"
+                return True
+        if Subtree is False:
+            for Child in self.GetChildren():
+                if Child.__class__.__name__ == 'ArrayAccess':
+                    self.DigForChecks(Child, ArrayLevel+1)
+
+
+    def GetIndex(self, Subtree):
+        if Subtree is None: return
+        if not IsNode(Subtree): return
+        if Subtree.GetChildren() is None: return
+       
+
+        for Child in Subtree.GetChildren():
+            if Child.__class__.__name__ == 'Constant':
+                return Child.Child
+            if Child.__class__.__name__ == 'Identifier':
+                return Child.Name
+
+            return self.GetIndex(Child)
+
+
 
     def GetChildren(self):
         Children = []
-        if self.ArrayName is not None: Children.append(self.ArrayName)
         if self.ArrayOffset is not None: Children.append(self.ArrayOffset)
+        if self.ArrayName is not None: Children.append(self.ArrayName)
+        if self.TempSizes is not None: Children.append(self.TempSizes)
+        if self.CurrentOffset is not None: Children.append(self.CurrentOffset)
         return Children
+
+    def FetchId(self, Subtree):
+        if Subtree is None: return False
+        if not IsNode(Subtree): return False    
+        if Subtree.GetChildren() is None: return False
+
+
+        for Child in Subtree.GetChildren():
+            if Child.__class__.__name__ == 'Identifier':
+                return Child.Name
+            else:
+                return(self.FetchId(Child))
+
 
     def RunSemanticAnalysis(self):
         pass

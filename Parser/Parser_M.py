@@ -1523,7 +1523,7 @@ class Parser():
 
         def p_postfix_expression_2(p):
             'postfix_expression :  postfix_expression OPENBRACKET expression CLOSEBRACKET'
-            p[0] = ArrayAccess(ArrayName=p[1], ArrayOffset=p[3])
+            p[0] = ArrayAccess(ArrayName=p[1], ArrayOffset=p[3], ST=self.ST)
             if self.DebugProd == True:
                 self.DebugPrint("postfix_expression -->  postfix_expression OPENBRACKET expression CLOSEBRACKET", p)
             return
@@ -1655,7 +1655,6 @@ class Parser():
             # p[0] = p[1]
 
             IdPtr = self.ST.InsertSymbol(p[1]['lexeme'], {'TokenLocation': p[1]['additional']['TokenLocation']})
-
             p[0] = Identifier(p[1]['lexeme'], IdPtr, p[1]['additional']['TokenLocation'], self.ST, p)
 
             if self.DebugProd == True:
