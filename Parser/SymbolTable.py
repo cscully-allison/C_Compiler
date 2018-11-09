@@ -108,21 +108,21 @@ class SymbolTable():
         T_Stack = []
         i = 0
 
-        try:
-            with open(FileName_str, "w") as File:
-                File.write("\n**** Outputting Contents of Symbol Table **** \n\n")
+        # try:
+        with open(FileName_str, "w") as File:
+            File.write("\n**** Outputting Contents of Symbol Table **** \n\n")
 
-                while not self.TableIsEmpty():
-                    File.write( "Items in Tree at Level {}: \n".format(i) )
-                    self.PrettyPrintScope(self.TopScope, FilePtr=File)
-                    T_Stack.append( self.PopScope() )
-                    i += 1
+            while not self.TableIsEmpty():
+                File.write( "Items in Tree at Level {}: \n".format(i) )
+                self.PrettyPrintScope(self.TopScope, FilePtr=File)
+                T_Stack.append( self.PopScope() )
+                i += 1
 
-            while len(T_Stack) > 0:
-                self.PushScope(T_Stack.pop())
+        while len(T_Stack) > 0:
+            self.PushScope(T_Stack.pop())
 
-        except Exception as e:
-            raise
+        # except Exception as e:
+        #     raise
 
     def PrettyPrintScope(self, Scope, FilePtr=None):
         for Key in Scope.keys():

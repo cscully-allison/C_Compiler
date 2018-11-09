@@ -1074,12 +1074,14 @@ class Parser():
 
         def p_jump_statement_4(p):
             'jump_statement :  RETURN SEMI'
+            p[0] = PassUpNode("JumpStatement", [p[1]])
             if self.DebugProd == True:
                 self.DebugPrint("jump_statement -->  RETURN SEMI", p)
             return
 
         def p_jump_statement_5(p):
             'jump_statement :  RETURN expression SEMI'
+            p[0] = PassUpNode("JumpStatement", [p[1], p[2]])
             if self.DebugProd == True:
                 self.DebugPrint("jump_statement -->  RETURN expression SEMI", p)
             return
