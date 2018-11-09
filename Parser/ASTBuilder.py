@@ -862,6 +862,7 @@ class ArrayAccess(Node):
         self.ArrayType = None
         self.CurrentOffset = None
         self.CurrentOffset = self.GetIndex(ArrayOffset)
+
         self.SymbolLocation = ST.FindSymbolInTable(self.Label)
         self.TempSizes = []
         
@@ -871,7 +872,7 @@ class ArrayAccess(Node):
             while i < len(self.SymbolLocation[0]["Array Size"]):
                 self.TempSizes.append(self.SymbolLocation[0]["Array Size"][i])
                 i = i+1
-        self.DigForChecks(self.SymbolLocation, 0)
+        
 
         #if self.SymbolLocation is False:
          #   for Child in self.GetChildren():
@@ -880,21 +881,20 @@ class ArrayAccess(Node):
         
         
 
-        if self.SymbolLocation is not False:
-            
+        if self.SymbolLocation is not False:     
             self.ArrayType = self.SymbolLocation[0]["Type"]
+        self.RunSemanticAnalysis()
 
     def DigForChecks(self, Subtree, ArrayLevel):
-        print ArrayLevel
+
         if Subtree is not False:
             if (len(self.TempSizes) == 0):
                 self.TempSizes = Subtree.TempSizes
             if self.CurrentOffset > self.TempSizes[ArrayLevel]:
-                print "Array out of bounds"
-                #ADD ERROR MESSAGE
+                
                 return False
             else:
-                print "Array In Bounds"
+                
                 return True
         if Subtree is False:
             for Child in self.GetChildren():
@@ -912,7 +912,7 @@ class ArrayAccess(Node):
             if Child.__class__.__name__ == 'Constant':
                 return Child.Child
             if Child.__class__.__name__ == 'Identifier':
-                return Child.Name
+                return Child.STPtr
 
             return self.GetIndex(Child)
 
@@ -940,6 +940,8 @@ class ArrayAccess(Node):
 
 
     def RunSemanticAnalysis(self):
+        if self.DigForChecks(self.SymbolLocation, 0) == False:
+            ErrManager.AddError("Row:{} Col:{} Array Acces out of bounds of allocated array memory")
         pass
 
 

@@ -10,7 +10,7 @@ int main(){
 	
 	while (a)
 	{
-		///arr[2][3] = 2;
+		int arr3[2][3] = 2;
 	}
 
 	c = 5 + a;
