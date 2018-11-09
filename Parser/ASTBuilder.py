@@ -1036,23 +1036,23 @@ class ArrayAccess(Node):
 
         self.SymbolLocation = ST.FindSymbolInTable(self.Label)
         self.TempSizes = []
-        
-        
+
+
         if self.SymbolLocation is not False:
             i=0
             while i < len(self.SymbolLocation[0]["Array Size"]):
                 self.TempSizes.append(self.SymbolLocation[0]["Array Size"][i])
                 i = i+1
-        
+
 
         #if self.SymbolLocation is False:
          #   for Child in self.GetChildren():
           #      if Child.__class__.__name__ == 'ArrayAccess':
            #         print Child.TempSizes[0]
-        
-        
 
-        if self.SymbolLocation is not False:     
+
+
+        if self.SymbolLocation is not False:
             self.ArrayType = self.SymbolLocation[0]["Type"]
         self.RunSemanticAnalysis()
 
@@ -1062,10 +1062,10 @@ class ArrayAccess(Node):
             if (len(self.TempSizes) == 0):
                 self.TempSizes = Subtree.TempSizes
             if self.CurrentOffset > self.TempSizes[ArrayLevel]:
-                
+
                 return False
             else:
-                
+
                 return True
         if Subtree is False:
             for Child in self.GetChildren():
@@ -1077,7 +1077,7 @@ class ArrayAccess(Node):
         if Subtree is None: return
         if not IsNode(Subtree): return
         if Subtree.GetChildren() is None: return
-       
+
 
         for Child in Subtree.GetChildren():
             if Child.__class__.__name__ == 'Constant':
@@ -1099,7 +1099,7 @@ class ArrayAccess(Node):
 
     def FetchId(self, Subtree):
         if Subtree is None: return False
-        if not IsNode(Subtree): return False    
+        if not IsNode(Subtree): return False
         if Subtree.GetChildren() is None: return False
 
 

@@ -1,4 +1,4 @@
-int main()
+int main(int arg1)
 {
 	int arr1[5];
 	int arr2[5][7];

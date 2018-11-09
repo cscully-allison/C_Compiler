@@ -1595,7 +1595,7 @@ class Parser():
 
         def p_primary_expression_3(p):
             'primary_expression :  string'
-            p[0] = PrimaryExpression('string', P[1])
+            p[0] = PrimaryExpression('string', p[1])
 
             if self.DebugProd == True:
                 self.DebugPrint("primary_expression -->  string", p)
@@ -1603,7 +1603,7 @@ class Parser():
 
         def p_primary_expression_4(p):
             'primary_expression :  OPENPAREN expression CLOSEPAREN'
-            p[0] = PrimaryExpression('expression', P[2])
+            p[0] = PrimaryExpression('expression', p[2])
 
             if self.DebugProd == True:
                 self.DebugPrint("primary_expression -->  OPENPAREN expression CLOSEPAREN", p)

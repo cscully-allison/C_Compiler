@@ -1,11 +1,13 @@
-int main()
+int main(int arg1)
 {
 	int a;
-	int b;
-	int c;
+	float b;
+	char c;
 
 	a = 5;
-	b = 6;
+	b = 6.0;
 	a = b;
 	c = 5 + a;
+	c = b + a;
+	c = a * 'a';
 }
