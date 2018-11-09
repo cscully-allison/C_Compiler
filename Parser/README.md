@@ -18,6 +18,8 @@ Please refer to the installation section of the [User Manual](https://github.com
 ## Test Cases
 In order to run the tests please refer to the Parser and Linked Test Cases of the [User Manual](https://github.com/cscully-allison/C_Compilier/wiki/User-Manual#parser).
 
+In order to run the tests please refer to the AST Test Cases section of the [User Manual](https://github.com/cscully-allison/C_Compilier/wiki/User-Manual#AST).
+
 ## Important Code Files
 Abstract Symbol Table Builder: [ASTBuilder.py](ASTBuilder.py)<br>
 Abstract Symbol Table Walker: [ASTWalker.py](ASTWalker.py)<br>
