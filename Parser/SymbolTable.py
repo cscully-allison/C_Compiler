@@ -65,7 +65,7 @@ class SymbolTable():
         #add found isntances of symbols to list if present
         for Tree in reversed(self.Table): #reversed so appended items are at the front
             if Tree is not None and Tree.__contains__(SymbolKey_str):
-                T_list.append( {Level_int: Tree.get(SymbolKey_str)} )
+                T_list.append( {abs(Level_int-len(self.Table)): Tree.get(SymbolKey_str)} )
             Level_int += 1
 
         if len(T_list) > 0:

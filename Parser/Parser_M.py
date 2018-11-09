@@ -5,7 +5,7 @@ from Globals import ErrManager
 from Utils import PrettyErrorPrint, FindColumn
 from LexicalAnalizer import LexicalAnalizer
 from SymbolTable import SymbolTable
-from ASTBuilder import FunctionPrototype, Identifier, ArrayDeclaration, PassUpNode, SelectionStatement, DeclarationSpecifiers, DeclList, Declaration, PrimaryExpression, UnaryExpression, Constant, FunctionDefintion, CompoundStatement, AssignmentExpression, InitDeclList, BinOp, IterationStatement, ArrayAccess
+from ASTBuilder import FunctionPrototype, FunctionCall, Identifier, ArrayDeclaration, PassUpNode, SelectionStatement, DeclarationSpecifiers, DeclList, Declaration, PrimaryExpression, UnaryExpression, Constant, FunctionDefintion, CompoundStatement, AssignmentExpression, InitDeclList, BinOp, IterationStatement, ArrayAccess
 import ply.yacc as yacc
 # import logging
 # logging.basicConfig(
@@ -762,6 +762,7 @@ class Parser():
 
         def p_abstract_declarator_2(p):
             'abstract_declarator :  direct_abstract_declarator'
+            p[0] = PassUpNode("AbstractDeclarator", [p[1]])
             if self.DebugProd == True:
                 self.DebugPrint("abstract_declarator -->  direct_abstract_declarator", p)
             return
@@ -780,24 +781,28 @@ class Parser():
 
         def p_direct_abstract_declarator_2(p):
             'direct_abstract_declarator :  OPENBRACKET CLOSEBRACKET'
+            p[0] = PassUpNode("DirectAbstractDeclarator", [])
             if self.DebugProd == True:
                 self.DebugPrint("direct_abstract_declarator -->  OPENBRACKET CLOSEBRACKET", p)
             return
 
         def p_direct_abstract_declarator_3(p):
             'direct_abstract_declarator :  OPENBRACKET constant_expression CLOSEBRACKET'
+            p[0] = PassUpNode("DirectAbstractDeclarator", [p[2]])
             if self.DebugProd == True:
                 self.DebugPrint("direct_abstract_declarator -->  OPENBRACKET constant_expression CLOSEBRACKET", p)
             return
 
         def p_direct_abstract_declarator_4(p):
             'direct_abstract_declarator :  direct_abstract_declarator OPENBRACKET CLOSEBRACKET'
+            p[0] = PassUpNode("DirectAbstractDeclarator", [p[1]])
             if self.DebugProd == True:
                 self.DebugPrint("direct_abstract_declarator -->  direct_abstract_declarator OPENBRACKET CLOSEBRACKET", p)
             return
 
         def p_direct_abstract_declarator_5(p):
             'direct_abstract_declarator :  direct_abstract_declarator OPENBRACKET constant_expression CLOSEBRACKET'
+            p[0] = PassUpNode("DirectAbstractDeclarator", [p[1], p[3]])
             if self.DebugProd == True:
                 self.DebugPrint("direct_abstract_declarator -->  direct_abstract_declarator OPENBRACKET constant_expression CLOSEBRACKET", p)
             return
@@ -1530,13 +1535,14 @@ class Parser():
 
         def p_postfix_expression_3(p):
             'postfix_expression :  postfix_expression OPENPAREN CLOSEPAREN'
-            p[0] = PassUpNode("PostfixExpression",[p[1]])
+            p[0] = FunctionCall(IdentifierSubtree=p[1], Production=p, ST=self.ST)
             if self.DebugProd == True:
                 self.DebugPrint("postfix_expression -->  postfix_expression OPENPAREN CLOSEPAREN", p)
             return
 
         def p_postfix_expression_4(p):
             'postfix_expression :  postfix_expression OPENPAREN argument_expression_list CLOSEPAREN'
+            p[0] = FunctionCall(p[1], p[3], p, self.ST)
             if self.DebugProd == True:
                 self.DebugPrint("postfix_expression -->  postfix_expression OPENPAREN argument_expression_list CLOSEPAREN", p)
             return
@@ -1603,6 +1609,7 @@ class Parser():
 
         def p_argument_expression_list_1(p):
             'argument_expression_list :  assignment_expression'
+            p[0] = PassUpNode("ArgumentExpressionList",[p[1]])
 
             if self.DebugProd == True:
                 self.DebugPrint("argument_expression_list -->  assignment_expression", p)
@@ -1610,6 +1617,8 @@ class Parser():
 
         def p_argument_expression_list_2(p):
             'argument_expression_list :  argument_expression_list COMMA assignment_expression'
+            p[0] = PassUpNode("ArgumentExpressionList",[p[1],p[3]])
+
             if self.DebugProd == True:
                 self.DebugPrint("argument_expression_list -->  argument_expression_list COMMA assignment_expression", p)
             return

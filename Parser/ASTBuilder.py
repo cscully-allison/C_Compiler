@@ -128,8 +128,46 @@ class FunctionPrototype(Node):
             for Child in Subtree.GetChildren():
                 if Child.__class__.__name__ is "DeclarationSpecifiers":
                     self.FunctionArguments.append(self.BuildDeclSpecsDict(self.FetchDeclSpecs(Child)))
+                elif Child.__class__.__name__ is "PassUpNode":
+                    if Child.ProductionName is "AbstractDeclarator":
+                        temp = self.FunctionArguments.pop()
+                        temp['Array Size Info'] = self.FetchAbstractDeclarators(Child)
+                        temp['Subtype'] = 'Array Argument'
+                        self.FunctionArguments.append(temp)
+                    else:
+                        self.BuildArgumentList(Child)
                 else:
                     self.BuildArgumentList(Child)
+
+    def CheckForConstantExpression(self, Subtree):
+        if Subtree.GetChildren() == []:
+            return False
+        return True
+
+    def FetchAbstractDeclarators(self, AbstractDeclarator):
+        ''' Builds up a list of the declaration specifiers recursively
+        '''
+        # past a leaf node case
+        if AbstractDeclarator is None:
+            return []
+        # at a node case
+        else:
+            AbstractDeclaratorList = []
+            for Child in AbstractDeclarator.GetChildren():
+                # more nodes beneath us
+                if Child.__class__.__name__ == 'PassUpNode':
+                    if Child.ProductionName == 'DirectAbstractDeclarator':
+                        if self.CheckForConstantExpression(Child) is False:
+                            AbstractDeclaratorList.append([])
+                if Child.__class__.__name__ != 'Constant':
+                    # we need to check if this abstract declarator has a constant expression
+                    AbstractDeclaratorList.extend(self.FetchAbstractDeclarators(Child))
+                # at a leaf node
+                else:
+                    AbstractDeclaratorList = [Child.Child]
+            # return after loop
+            return AbstractDeclaratorList
+
 
     def BuildDeclSpecsDict(self, DeclSpecsList):
         ''' Converts declaration spcifier list to a queryable dictionary
@@ -241,11 +279,23 @@ class FunctionDefintion(Node):
             if Subtree.GetChildren() is None: return
 
             for Child in Subtree.GetChildren():
-                if Child.__class__.__name__ is "DeclarationSpecifiers":
-                    self.FunctionArguments.append(self.BuildDeclSpecsDict(self.FetchDeclSpecs(Child)))
+                if Child.__class__.__name__ is "PassUpNode" and Child.ProductionName is "Declarator":
+                    # self.FunctionArguments.append(self.BuildDeclSpecsDict(self.FetchDeclSpecs(Child)))
+                    # self.FunctionArguments.append(FetchId(Child))
+                    self.FunctionArguments.append(self.FetchId(Child)[1])
                 else:
                     self.BuildArgumentList(Child)
 
+    def FetchId(self, Subtree):
+        if Subtree is None: return
+        if not IsNode(Subtree): return
+        if Subtree.GetChildren() is None: return
+
+        for Child in Subtree.GetChildren():
+            if Child.__class__.__name__ == 'Identifier':
+                return (Child.Name, Child.STPtr)
+            else:
+                return(self.FetchId(Child))
 
     def BuildDeclSpecsDict(self, DeclSpecsList):
         ''' Converts declaration spcifier list to a queryable dictionary
@@ -268,6 +318,7 @@ class FunctionDefintion(Node):
                 else:
                     Dict['Storage Class Specifier'] = [Spec]
         return Dict
+
 
     def FetchDeclSpecs(self, DeclSpecs):
         ''' Builds up a list of the declaration specifiers recursively
@@ -303,10 +354,28 @@ class FunctionDefintion(Node):
                 for i, Arg in enumerate(Prototype['Arguments']):
                     if Arg['Type'] != self.FunctionArguments[i]['Type']:
                         returns.append('Argument')
+
         else:
             returns = None
 
         return returns
+
+    def CheckArray(self, Prototype):
+        for i, Arg in enumerate(Prototype['Arguments']):
+            print(Arg)
+            if 'Subtype' in Arg and Arg['Subtype'] == 'Array Argument':
+                if 'Subtype' not in self.FunctionArguments[i] or self.FunctionArguments[i]['Subtype'] != 'Array':
+                        ErrManager.AddError(FunctPrettyErrorPrint("Error: Line:{} Column:{} ".format(self.Loc[0], self.Loc[2]) + "Argument data types in function definition do not match prototype. Array was expected from prototype.", self.IDPtr['TokenLocation'][0], self.IDPtr['TokenLocation'][2], self.Production.lexer.lexdata))
+                elif 'Subtype' in self.FunctionArguments[i] and self.FunctionArguments[i]['Subtype'] == 'Array':
+                    if len(self.FunctionArguments[i]['Array Size']) != len(Arg['Array Size Info']):
+                        ErrManager.AddError(FunctPrettyErrorPrint("Error: Line:{} Column:{} ".format(self.Loc[0], self.Loc[2]) + "Array dimensions do not match between prototype and function declaration. Prototype can be found here.", self.IDPtr['TokenLocation'][0], self.IDPtr['TokenLocation'][2], self.Production.lexer.lexdata))
+                    else:
+                        for i, Size in enumerate(self.FunctionArguments[i]['Array Size']):
+                            if Arg['Array Size Info'][i] != Size:
+                                ErrManager.AddError(FunctPrettyErrorPrint("Error: Line:{} Column:{} ".format(self.Loc[0], self.Loc[2]) + "Array sizes do not match between prototype and function declaration. Prototype can be found here.", self.IDPtr['TokenLocation'][0], self.IDPtr['TokenLocation'][2], self.Production.lexer.lexdata))
+
+
+
 
 
     #we cannot increment a constant
@@ -320,9 +389,103 @@ class FunctionDefintion(Node):
             if 'Number' in self.MismachedTypes(self.IDPtr):
                 ErrManager.AddError(FunctPrettyErrorPrint("Error: Line:{} Column:{} ".format(self.Loc[0], self.Loc[2]) + "Number of arguments in function definition does not match prototype. Expected {} but only found {}. Prototype declaration here.".format(len(self.IDPtr['Arguments']), len(self.FunctionArguments)), self.IDPtr['TokenLocation'][0], self.IDPtr['TokenLocation'][2], self.Production.lexer.lexdata))
 
+        self.CheckArray(self.IDPtr)
+
+
         if 'Return Type' not in self.IDPtr and self.ReturnType == None:
             self.IDPtr['Return Type'] = ['int']
             print("Warning: Line: {} Col: {} No return type defined for function '{}', default to int.".format(self.IDPtr['TokenLocation'][0], self.IDPtr['TokenLocation'][2], self.Label))
+
+
+
+class FunctionCall(Node):
+    '''Node for a function call.
+    '''
+    def __init__(self, IdentifierSubtree = None, ArgumentList = None, Production = None, ST = None):
+        self.IdentifierSubtree = IdentifierSubtree
+        self.ArgumentList = ArgumentList
+        self.ST = ST
+        self.Loc = GetLoc(Production)
+        self.Production = Production
+
+        self.Label = Label.DispenseTicket()
+
+        self.Arguments = []
+        self.IdLabel = None
+        self.Id = None
+        self.IdPtr = None
+        self.FunctionPrototypeArgs = None
+
+        self.SetUpFunctionCall()
+        self.RunSemanticAnalysis()
+
+
+    def SetUpFunctionCall(self):
+        self.Arguments = self.FetchArguments(self.ArgumentList)
+        self.IdLabel = self.FetchId(self.IdentifierSubtree)
+        self.IdPtr = self.ST.FindSymbolInTable(self.IdLabel)
+        if self.IdPtr is not False:
+            self.IdPtr = self.IdPtr[0][0]
+            self.FunctionPrototypeArgs = self.IdPtr['Arguments']
+        else:
+            return
+        pass
+
+    def FetchId(self, Subtree):
+        if Subtree is None: return
+        if not IsNode(Subtree): return
+        if Subtree.GetChildren() is None: return
+
+        for Child in Subtree.GetChildren():
+            if Child.__class__.__name__ == 'Identifier':
+                return Child.Name
+            else:
+                return(self.FetchId(Child))
+
+    def FetchArguments(self, Args):
+        ''' Builds up a list of the declaration specifiers recursively
+        '''
+        # past a leaf node case
+        if Args is None:
+            return []
+        # at a node case
+        else:
+            ArgsList = []
+            for Child in Args.GetChildren():
+                # more nodes beneath us
+                if Child.__class__.__name__ == 'Constant':
+                    Arg = {'Type':[Child.DataType] ,'Value':Child.Child, 'Type Qualifier':['const']}
+                    ArgsList = [Arg]
+                elif Child.__class__.__name__ == 'Identifier':
+                    ArgsList = [Child.STPtr]
+                # at a leaf node
+                else:
+                    ArgsList.extend(self.FetchArguments(Child))
+
+            # return after loop
+            return ArgsList
+
+    def GetChildren(self):
+        Children = []
+        if self.IdentifierSubtree is not None: Children.append(self.IdentifierSubtree)
+        if self.ArgumentList is not None: Children.append(self.ArgumentList)
+        return Children
+
+    def RunSemanticAnalysis(self):
+        if self.IdPtr is False:
+            ErrManager.AddError(PrettyErrorPrint("Function '{}' undefined.".format(self.IdLabel), self.Loc[0], self.Loc[2], self.Production.lexer.lexdata))
+            return
+
+        # check for mismatched number of arguments
+        if len(self.Arguments) != len(self.FunctionPrototypeArgs):
+            ErrManager.AddError(FunctPrettyErrorPrint("Error: Line:{} Column:{} ".format(self.Loc[0], self.Loc[2]) + "Number of arguments in function call does not match prototype. Expected {} but only found {}. Prototype declaration here.".format(len(self.FunctionPrototypeArgs), len(self.Arguments)), self.IdPtr['TokenLocation'][0], self.IdPtr['TokenLocation'][2], self.Production.lexer.lexdata))
+
+        # check for incorrect argument types
+        else:
+            for i, arg in enumerate(self.Arguments):
+                if 'Subtype' in arg and arg['Subtype'] == 'Array':
+                    pass
+        pass
 
 class DeclList(Node):
     '''Self refrencing production like init decl list.
