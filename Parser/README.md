@@ -1,5 +1,5 @@
 # CS 660
-# Parser / Abstract Symbol Table
+# Parser / Abstract Syntax Tree
 
 # Connor Scully-Allison and Kurt Andersen
 ### October 19, 2018
