@@ -47,3 +47,17 @@ def IsNode(Node):
 
 def GetLoc(production):
     return (production.lexer.lineno, production.lexer.lexpos, FindColumn(production.lexer.lexdata, production.lexer) )
+
+def BuildArrayString(DataType, SizeArr):
+    string = ''
+    sizes = ''
+
+    for type in DataType:
+        string += type + ' '
+
+    for size in SizeArr:
+        sizes += '[' + size + ']'
+
+    string += sizes
+
+    return string

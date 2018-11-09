@@ -1,4 +1,4 @@
-from Utils import FunctPrettyErrorPrint, PrettyErrorPrint, FindColumn, IsNode, GetLoc
+from Utils import FunctPrettyErrorPrint, PrettyErrorPrint, FindColumn, IsNode, GetLoc, BuildArrayString
 from Globals import ErrManager, Label, FloatRegister, IntRegister, OutPutDataType, SCSLib, TSLib, TQLib
 
 
@@ -215,8 +215,6 @@ class FunctionPrototype(Node):
             if 'Storage Class Specifier' in Argument:
                 ErrManager.AddError(PrettyErrorPrint("Storage class specifier on function definition argument.", self.FunctionId['TokenLocation'][0], self.FunctionId['TokenLocation'][2], self.Production.lexer.lexdata))
 
-        # if self.R
-        #     print("Warning: Line: {} Col: {} No return type defined for function '{}', default to int.".format(self.IDPtr['TokenLocation'][0], self.IDPtr['TokenLocation'][2], self.Label))
 
         pass
 
@@ -362,7 +360,6 @@ class FunctionDefintion(Node):
 
     def CheckArray(self, Prototype):
         for i, Arg in enumerate(Prototype['Arguments']):
-            print(Arg)
             if 'Subtype' in Arg and Arg['Subtype'] == 'Array Argument':
                 if 'Subtype' not in self.FunctionArguments[i] or self.FunctionArguments[i]['Subtype'] != 'Array':
                         ErrManager.AddError(FunctPrettyErrorPrint("Error: Line:{} Column:{} ".format(self.Loc[0], self.Loc[2]) + "Argument data types in function definition do not match prototype. Array was expected from prototype.", self.IDPtr['TokenLocation'][0], self.IDPtr['TokenLocation'][2], self.Production.lexer.lexdata))
@@ -484,8 +481,20 @@ class FunctionCall(Node):
         else:
             for i, arg in enumerate(self.Arguments):
                 if 'Subtype' in arg and arg['Subtype'] == 'Array':
-                    pass
-        pass
+                    if 'Subtype' not in self.FunctionPrototypeArgs[i] or self.FunctionPrototypeArgs[i]['Subtype'] != 'Array Argument':
+                        ErrManager.AddError(FunctPrettyErrorPrint("Error: Line:{} Column:{} ".format(self.Loc[0], self.Loc[2]) +
+                            "Argument types in function call does not match prototype. Expected '{}' but found '{}'. Prototype declaration here.".format(BuildArrayString(self.FunctionPrototypeArgs[i]['Type'], []), BuildArrayString(arg['Type'], arg['Array Size'])), self.IdPtr['TokenLocation'][0], self.IdPtr['TokenLocation'][2], self.Production.lexer.lexdata))
+                if 'Subtype' in self.FunctionPrototypeArgs[i] and self.FunctionPrototypeArgs[i]['Subtype'] == 'Array Argument':
+                    if 'Subtype' not in arg or arg['Subtype'] != 'Array':
+                        ErrManager.AddError(FunctPrettyErrorPrint("Error: Line:{} Column:{} ".format(self.Loc[0], self.Loc[2]) +
+                            "Argument types in function call does not match prototype. Expected '{}' but found '{}'. Prototype declaration here.".format(BuildArrayString(self.FunctionPrototypeArgs[i]['Type'], self.FunctionPrototypeArgs[i]['Array Size Info']), BuildArrayString(arg['Type'], [])), self.IdPtr['TokenLocation'][0], self.IdPtr['TokenLocation'][2], self.Production.lexer.lexdata))
+                if 'Subtype' in self.FunctionPrototypeArgs[i] and self.FunctionPrototypeArgs[i]['Subtype'] == 'Array Argument' and 'Subtype' in arg and arg['Subtype'] == 'Array':
+                    if len(self.FunctionPrototypeArgs[i]['Array Size Info']) != len(arg['Array Size']):
+                        ErrManager.AddError(FunctPrettyErrorPrint("Error: Line:{} Column:{} ".format(self.Loc[0], self.Loc[2]) +
+                            "Array dimensions in function call does not match prototype. Expected '{}' but found '{}'. Prototype declaration here.".format(BuildArrayString(self.FunctionPrototypeArgs[i]['Type'], self.FunctionPrototypeArgs[i]['Array Size Info']), BuildArrayString(arg['Type'],  arg['Array Size'])), self.IdPtr['TokenLocation'][0], self.IdPtr['TokenLocation'][2], self.Production.lexer.lexdata))
+                if 'Subtype' in self.FunctionPrototypeArgs[i] and self.FunctionPrototypeArgs[i]['Subtype'] == 'Array Argument' and 'Subtype' in arg and arg['Subtype'] == 'Array' or 'Subtype' not in arg and 'Subtype' not in self.FunctionPrototypeArgs[i]:
+                    if self.FunctionPrototypeArgs[i]['Type'] != arg['Type']:
+                        print("Warning: Line: {} Col: {} Implicit cast of argument {} in function call \"{}\" from {}to {}".format(self.Loc[0], self.Loc[2], i+1, self.IdLabel, OutPutDataType(arg['Type']), OutPutDataType(self.FunctionPrototypeArgs[i]['Type'])))
 
 class DeclList(Node):
     '''Self refrencing production like init decl list.
@@ -771,7 +780,6 @@ class UnaryExpression(Node):
         return Children
 
     def RunSemanticAnalysis(self):
-        print(self.Op, self.Child.Type)
         if (self.Child.Type == 'constant' or
         self.Child.Type == 'string') and (self.Op == "++" or
         self.Op == "--" ):

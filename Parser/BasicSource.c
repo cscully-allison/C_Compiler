@@ -7,8 +7,10 @@ const int main(const int g){
     char b;
     int arr[10];
 
+    int a = 1 + 2.0;
+
     // $!PDO
-    funct(arr, 4, 1);
+    funct(arr, 7, 1);
     // $!PDF
 
     return 0;
