@@ -47,7 +47,9 @@ class SymbolTable():
 
         # can return false causing problems with Children
         # need to handle this in the context of functions
-        return self.FindSymbolInCurrentScope(SymbolKey_str)
+        return self.RecoverMostRecentID(SymbolKey_str)
+
+
 
     #Function: FindSymbolInTable
     #Desc: Search all scopes of the symbol table to find a specific symbol
@@ -58,7 +60,7 @@ class SymbolTable():
 
         #search the top of our stack
         if self.FindSymbolInCurrentScope(SymbolKey_str):
-            T_list.append( self.FindSymbolInCurrentScope(SymbolKey_str) )
+            T_list.append( {abs(Level_int-len(self.Table)): self.FindSymbolInCurrentScope(SymbolKey_str)} )
         Level_int += 1
 
         #iterate over all trees
@@ -78,6 +80,15 @@ class SymbolTable():
     #Desc: Search only the top level of the symbol table for key
     def FindSymbolInCurrentScope(self, SymbolKey_str):
         return self.TopScope.get(SymbolKey_str, False)
+
+
+    def RecoverMostRecentID(self, SymbolKey_str):
+        SymbolList = self.FindSymbolInTable(SymbolKey_str)
+        if SymbolList is not False:
+            for Key in SymbolList[0]:
+                return SymbolList[0][Key]
+        else:
+            return False
 
     #Function:PushNewScope
     #Desc: Create a new scope and push it onto the table

@@ -1,5 +1,5 @@
 from Utils import FunctPrettyErrorPrint, PrettyErrorPrint, FindColumn, IsNode, GetLoc, BuildArrayString
-from Globals import ErrManager, Label, FloatRegister, IntRegister, OutPutDataType, SCSLib, TSLib, TQLib
+from Globals import ErrManager, Label, FloatRegister, IntRegister, OutPutDataType, SCSLib, TSLib, TQLib, ST_G
 
 
 
@@ -100,6 +100,7 @@ class FunctionPrototype(Node):
 
     def ManagePrototype(self):
         self.BuildArgumentList(self.ParameterTypeList)
+        # print(self.FunctionArguments)
         self.FunctionId['Arguments'] = self.FunctionArguments
         self.FunctionId['Subtype'] = "Function Prototype"
         self.FunctionId['Label'] = self.Label
@@ -109,15 +110,19 @@ class FunctionPrototype(Node):
         if not IsNode(Subtree): return
         if Subtree.GetChildren() is None: return
 
-        for Child in Subtree.GetChildren():
-            if Child.__class__.__name__ is "Identifier":
-                self.FunctionId = Child.STPtr
-                self.Label = Child.Name
-            if Child.__class__.__name__ is "PassUpNode":
-                if Child.ProductionName is not "ParameterTypeList":
-                    self.FetchFunctionId(Child)
-            else:
-                self.FetchFunctionId(Child)
+        if Subtree.__class__.__name__ is "Identifier":
+            self.FunctionId = Subtree.STPtr
+            self.Label = Subtree.Name
+        #
+        # for Child in Subtree.GetChildren():
+        #     if Child.__class__.__name__ is "Identifier":
+        #         self.FunctionId = Child.STPtr
+        #         self.Label = Child.Name
+        #     if Child.__class__.__name__ is "PassUpNode":
+        #         if Child.ProductionName is not "ParameterTypeList":
+        #             self.FetchFunctionId(Child)
+        #     else:
+        #         self.FetchFunctionId(Child)
 
     def BuildArgumentList(self, Subtree):
             '''Actually handles the building of the arg list'''
@@ -125,19 +130,24 @@ class FunctionPrototype(Node):
             if not IsNode(Subtree): return
             if Subtree.GetChildren() is None: return
 
-            for Child in Subtree.GetChildren():
-                if Child.__class__.__name__ is "DeclarationSpecifiers":
-                    self.FunctionArguments.append(self.BuildDeclSpecsDict(self.FetchDeclSpecs(Child)))
-                elif Child.__class__.__name__ is "PassUpNode":
-                    if Child.ProductionName is "AbstractDeclarator":
-                        temp = self.FunctionArguments.pop()
-                        temp['Array Size Info'] = self.FetchAbstractDeclarators(Child)
-                        temp['Subtype'] = 'Array Argument'
-                        self.FunctionArguments.append(temp)
+
+            if Subtree.__class__.__name__ is "DeclarationSpecifiers":
+                self.FunctionArguments.append(self.BuildDeclSpecsDict(self.FetchDeclSpecs(Subtree)))
+
+            else:
+                for Child in Subtree.GetChildren():
+                    if Child.__class__.__name__ is "DeclarationSpecifiers":
+                        self.FunctionArguments.append(self.BuildDeclSpecsDict(self.FetchDeclSpecs(Child)))
+                    elif Child.__class__.__name__ is "PassUpNode":
+                        if Child.ProductionName is "AbstractDeclarator":
+                            temp = self.FunctionArguments.pop()
+                            temp['Array Size Info'] = self.FetchAbstractDeclarators(Child)
+                            temp['Subtype'] = 'Array Argument'
+                            self.FunctionArguments.append(temp)
+                        else:
+                            self.BuildArgumentList(Child)
                     else:
                         self.BuildArgumentList(Child)
-                else:
-                    self.BuildArgumentList(Child)
 
     def CheckForConstantExpression(self, Subtree):
         if Subtree.GetChildren() == []:
@@ -200,6 +210,7 @@ class FunctionPrototype(Node):
         # at a node case
         else:
             DeclSpecsList = []
+
             for Child in DeclSpecs.GetChildren():
                 # more nodes beneath us
                 if Child.__class__.__name__ == 'DeclarationSpecifiers':
@@ -235,9 +246,12 @@ class FunctionDefintion(Node):
         self.ReturnType = None
         self.FunctionArguments = []
 
+
         #do things
         self.ManageFunctionDeclaration()
         self.RunSemanticAnalysis()
+
+
 
         pass
 
@@ -264,11 +278,8 @@ class FunctionDefintion(Node):
             if Child.__class__.__name__ is "Identifier":
                 self.IDPtr = Child.STPtr
                 self.Label = Child.Name
-            if Child.__class__.__name__ is "PassUpNode":
-                if Child.ProductionName is not "ParameterTypeList":
-                    self.FetchFunctionId(Child)
-            else:
-                self.FetchFunctionId(Child)
+                break
+
 
     def BuildArgumentList(self, Subtree):
             '''Actually handles the building of the arg list'''
@@ -276,13 +287,16 @@ class FunctionDefintion(Node):
             if not IsNode(Subtree): return
             if Subtree.GetChildren() is None: return
 
+            DeclSpecs = None
             for Child in Subtree.GetChildren():
-                if Child.__class__.__name__ is "PassUpNode" and Child.ProductionName is "Declarator":
-                    # self.FunctionArguments.append(self.BuildDeclSpecsDict(self.FetchDeclSpecs(Child)))
-                    # self.FunctionArguments.append(FetchId(Child))
-                    self.FunctionArguments.append(self.FetchId(Child)[1])
+                if Child.__class__.__name__ == 'Identifier' and Child.Name is not self.Label:
+                    self.FunctionArguments.append(Child.STPtr)
+                if Child.__class__.__name__ is "DeclarationSpecifiers":
+                    DeclSpecs = self.BuildDeclSpecsDict(self.FetchDeclSpecs(Child))
                 else:
                     self.BuildArgumentList(Child)
+
+
 
     def FetchId(self, Subtree):
         if Subtree is None: return
@@ -337,8 +351,6 @@ class FunctionDefintion(Node):
             # return after loop
             return DeclSpecsList
 
-    def GetReturn(self, StatementList):
-        pass
 
     def MismachedTypes(self, Prototype):
         returns = []
@@ -401,7 +413,7 @@ class FunctionCall(Node):
     def __init__(self, IdentifierSubtree = None, ArgumentList = None, Production = None, ST = None):
         self.IdentifierSubtree = IdentifierSubtree
         self.ArgumentList = ArgumentList
-        self.ST = ST
+        ST_G = ST
         self.Loc = GetLoc(Production)
         self.Production = Production
 
@@ -413,16 +425,18 @@ class FunctionCall(Node):
         self.IdPtr = None
         self.FunctionPrototypeArgs = None
 
+
         self.SetUpFunctionCall()
         self.RunSemanticAnalysis()
+
 
 
     def SetUpFunctionCall(self):
         self.Arguments = self.FetchArguments(self.ArgumentList)
         self.IdLabel = self.FetchId(self.IdentifierSubtree)
-        self.IdPtr = self.ST.FindSymbolInTable(self.IdLabel)
+        self.IdPtr = ST_G.RecoverMostRecentID(self.IdLabel)
         if self.IdPtr is not False:
-            self.IdPtr = self.IdPtr[0][0]
+            self.IdPtr = self.IdPtr
             self.FunctionPrototypeArgs = self.IdPtr['Arguments']
         else:
             return
@@ -443,6 +457,7 @@ class FunctionCall(Node):
         ''' Builds up a list of the declaration specifiers recursively
         '''
         # past a leaf node case
+        if not IsNode(Args): return []
         if Args is None:
             return []
         # at a node case
@@ -570,6 +585,8 @@ class Declaration(Node):
         self.Left = Left
         self.Right = Right
         self.Loc = Loc
+        self.ID = None
+        self.DeclLabel = None
 
         #gets and formats the declaration specifiers
         self.DeclSpecs = self.BuildDeclSpecsDict( self.FetchDeclSpecs(self.Left) )
@@ -627,9 +644,27 @@ class Declaration(Node):
 
 
     def UpdateSymbolTable(self, DeclList):
-        if DeclList is not None and IsNode(DeclList):
+        # print(DeclList)
+        if DeclList.__class__.__name__ == 'Identifier':
+                self.ID = DeclList.STPtr
+                self.DeclLabel = DeclList.Name
+                # inserting for function prototypes
+                if 'Subtype' in DeclList.STPtr and DeclList.STPtr['Subtype'] == 'Function Prototype':
+                    DeclList.STPtr['Return Type'] = self.DeclSpecs['Type']
+                else:
+                    DeclList.STPtr['Type'] = self.DeclSpecs['Type']
+
+                if 'Type Qualifier' in self.DeclSpecs:
+                    DeclList.STPtr['Type Qualifier'] = self.DeclSpecs['Type Qualifier']
+                if 'Storage Class Specifier' in self.DeclSpecs:
+                    DeclList.STPtr['Storage Class Specifier'] = self.DeclSpecs['Storage Class Specifier'][0]
+
+
+        elif DeclList is not None and IsNode(DeclList):
             for Child in DeclList.GetChildren():
                 if Child.__class__.__name__ == 'Identifier':
+                    self.ID = Child.STPtr
+                    self.DeclLabel = Child.Name
                     # inserting for function prototypes
                     if 'Subtype' in Child.STPtr and Child.STPtr['Subtype'] == 'Function Prototype':
                         Child.STPtr['Return Type'] = self.DeclSpecs['Type']
@@ -694,6 +729,9 @@ class ArrayDeclaration(Node):
         if Subtree is None: return
         if not IsNode(Subtree): return
         if Subtree.GetChildren() is None: return
+
+        if Subtree.__class__.__name__ == 'Identifier':
+            return (Subtree.STPtr, Subtree.Name)
 
         for Child in Subtree.GetChildren():
             if Child.__class__.__name__ == 'Identifier':
