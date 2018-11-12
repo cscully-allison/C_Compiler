@@ -17,6 +17,10 @@ int fun1(int arg3[30][20][10], char arg4){
 
     var2 = arg4 + 33;
 
+    if(var0 < var1){
+      fun1(arg3, arg4);
+    }
+
 
     fun2(arg3);
 }

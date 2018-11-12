@@ -6,7 +6,7 @@ Items in Tree at Level 0:
 	Key: "arg2" | Content: {'TokenLocation': (9, 124, 31), 'Type': ['char']}
 	Key: "arg3" | Content: {'TokenLocation': (15, 192, 14), 'Array Size': ['30', '20', '10'], 'Subtype': 'Array', 'Type': ['int']}
 	Key: "arg4" | Content: {'TokenLocation': (15, 215, 37), 'Type': ['char']}
-	Key: "arg5" | Content: {'TokenLocation': (25, 294, 14), 'Type': ['int']}
+	Key: "arg5" | Content: {'TokenLocation': (29, 346, 14), 'Type': ['int']}
 	Key: "fun1" | Content: {'TokenLocation': (6, 53, 5), 'Arguments': [{'Type': ['int']}, {'Type': ['char']}], 'Subtype': 'Function Prototype', 'Label': 'fun1', 'Return Type': ['int']}
 	Key: "fun2" | Content: {'TokenLocation': (7, 82, 5), 'Arguments': [{'Type': ['int']}], 'Subtype': 'Function Prototype', 'Label': 'fun2', 'Return Type': ['int']}
 	Key: "main" | Content: {'TokenLocation': (9, 98, 5), 'Arguments': [{'Type Qualifier': ['const'], 'Type': ['int']}, {'Type': ['char']}], 'Subtype': 'Function Prototype', 'Label': 'main'}
