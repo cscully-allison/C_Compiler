@@ -855,29 +855,26 @@ class IterationStatement(Node):
 
 
 class ArrayAccess(Node):
-    def __init__(self, ArrayName = None, ArrayOffset = None, ST = None):
+    def __init__(self, ArrayName = None, ArrayOffset = None, ST = None, Production = None):
+        self.Loc = GetLoc(Production)
+        self.Production = Production
         self.ArrayName = ArrayName
         self.ArrayOffset = ArrayOffset
         self.Label = self.FetchId(ArrayName)
         self.ArrayType = None
         self.CurrentOffset = None
+        self.SymbolLocation = ST.FindSymbolInTable(self.Label)
         self.CurrentOffset = self.GetIndex(ArrayOffset)
 
-        self.SymbolLocation = ST.FindSymbolInTable(self.Label)
+        
         self.TempSizes = []
         
-        
+        self.SymbolLocation[0]["TokenLocation"][0]
         if self.SymbolLocation is not False:
             i=0
             while i < len(self.SymbolLocation[0]["Array Size"]):
                 self.TempSizes.append(self.SymbolLocation[0]["Array Size"][i])
                 i = i+1
-        
-
-        #if self.SymbolLocation is False:
-         #   for Child in self.GetChildren():
-          #      if Child.__class__.__name__ == 'ArrayAccess':
-           #         print Child.TempSizes[0]
         
         
 
@@ -910,6 +907,8 @@ class ArrayAccess(Node):
 
         for Child in Subtree.GetChildren():
             if Child.__class__.__name__ == 'Constant':
+                if Child.DataType is not 'int':
+                    ErrManager.AddError(PrettyErrorPrint("Access of array \"{}\" has non-integer type.".format(self.Label), self.Loc[0], self.Loc[2], self.Production.lexer.lexdata))
                 return Child.Child
             if Child.__class__.__name__ == 'Identifier':
                 return Child.STPtr
