@@ -7,13 +7,14 @@ int fun1(int[30][20], char);
 int fun2(int);
 
 int main(const int arg1, char arg2){
-  int arr1[10][20][30];
-  fun1(var0, var1);
+  int arr1[30][20];
+  fun1(arr1, var1);
 
 }
 
-int fun1(int arg3[30][20][10], char arg4){
+int fun1(int arg3[30][20], char arg4){
     int var2;
+    char var3;
 
     var2 = arg4 + 33;
 
@@ -22,10 +23,10 @@ int fun1(int arg3[30][20][10], char arg4){
     }
 
 
-    fun2(arg3);
+    fun2(var3);
 }
-
-
+//
+//
 int fun2(int arg5){
     fun2(arg5);
 }

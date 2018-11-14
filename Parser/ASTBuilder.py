@@ -139,7 +139,7 @@ class FunctionPrototype(Node):
                     if Child.__class__.__name__ is "DeclarationSpecifiers":
                         self.FunctionArguments.append(self.BuildDeclSpecsDict(self.FetchDeclSpecs(Child)))
                     elif Child.__class__.__name__ is "PassUpNode":
-                        if Child.ProductionName is "AbstractDeclarator":
+                        if Child.ProductionName is "DirectAbstractDeclarator":
                             temp = self.FunctionArguments.pop()
                             temp['Array Size Info'] = self.FetchAbstractDeclarators(Child)
                             temp['Subtype'] = 'Array Argument'
