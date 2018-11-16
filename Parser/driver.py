@@ -1,6 +1,6 @@
 from Globals import ErrManager, ST_G
 from Parser_M import Parser
-from ASTWalker import ASTWalker
+from ASTWalker import ASTWalker, CodeGenerator
 import sys
 
 def driver():
@@ -36,6 +36,8 @@ def driver():
 
     AW = ASTWalker(AST)
     AW.PrintASTHelper(AW.AST)
+
+    ICG = CodeGenerator(AST, "intermediate.3AC")
 
 
 driver()

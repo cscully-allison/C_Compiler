@@ -2,13 +2,17 @@
 **** Outputting Contents of Symbol Table **** 
 
 Items in Tree at Level 0: 
-	Key: "arg1" | Content: {'Type Qualifier': ['const'], 'Type': ['int'], 'TokenLocation': (9, 113, 20)}
-	Key: "arg2" | Content: {'Type': ['char'], 'TokenLocation': (9, 124, 31)}
-	Key: "arg3" | Content: {'Array Size': ['30', '20'], 'Subtype': 'Array', 'Type': ['int'], 'TokenLocation': (15, 188, 14)}
-	Key: "arg4" | Content: {'Type': ['char'], 'TokenLocation': (15, 207, 33)}
-	Key: "arg5" | Content: {'Type': ['int'], 'TokenLocation': (30, 357, 14)}
-	Key: "fun1" | Content: {'Return Type': ['int'], 'Subtype': 'Function Prototype', 'Label': 'fun1', 'Arguments': [{'Array Size Info': ['30', '20'], 'Type': ['int'], 'Subtype': 'Array Argument'}, {'Type': ['char']}], 'TokenLocation': (6, 53, 5)}
-	Key: "fun2" | Content: {'Return Type': ['int'], 'Subtype': 'Function Prototype', 'Label': 'fun2', 'Arguments': [{'Type': ['int']}], 'TokenLocation': (7, 82, 5)}
-	Key: "main" | Content: {'Subtype': 'Function Prototype', 'Label': 'main', 'Arguments': [{'Type Qualifier': ['const'], 'Type': ['int']}, {'Type': ['char']}], 'TokenLocation': (9, 98, 5)}
+Items in Tree at Level 1: 
+	Key: "arr" | Content: {'Array Size': ['10'], 'Subtype': 'Array', 'Type': ['int'], 'TokenLocation': (20, 275, 9)}
+	Key: "var2" | Content: {'Type': ['int'], 'TokenLocation': (17, 230, 9)}
+	Key: "var3" | Content: {'Type': ['char'], 'TokenLocation': (18, 245, 10)}
+	Key: "var6" | Content: {'Type': ['float'], 'TokenLocation': (19, 261, 11)}
+Items in Tree at Level 2: 
+	Key: "arg1" | Content: {'Type Qualifier': ['const'], 'Type': ['int'], 'TokenLocation': (9, 116, 20)}
+	Key: "arg2" | Content: {'Type': ['char'], 'TokenLocation': (9, 127, 31)}
+	Key: "arg3" | Content: {'Type': ['int'], 'TokenLocation': (16, 204, 14)}
+	Key: "arg4" | Content: {'Type': ['char'], 'TokenLocation': (16, 215, 25)}
+	Key: "fun1" | Content: {'Return Type': ['int'], 'Subtype': 'Function Prototype', 'Label': 'fun1', 'Arguments': [{'Type': ['int']}, {'Type': ['char']}], 'TokenLocation': (6, 56, 5)}
+	Key: "main" | Content: {'Subtype': 'Function Prototype', 'Label': 'main', 'Arguments': [{'Type Qualifier': ['const'], 'Type': ['int']}, {'Type': ['char']}], 'TokenLocation': (9, 101, 5)}
 	Key: "var0" | Content: {'Type': ['int'], 'TokenLocation': (1, 4, 5)}
 	Key: "var1" | Content: {'Type': ['char'], 'TokenLocation': (2, 15, 6)}

@@ -1,6 +1,6 @@
-from Utils import FunctPrettyErrorPrint, PrettyErrorPrint, FindColumn, IsNode, GetLoc, BuildArrayString
+from Utils import FunctPrettyErrorPrint, PrettyErrorPrint, FindColumn, IsNode, GetLoc, BuildArrayString, CalcConversionFactor
 from Globals import ErrManager, Label, FloatRegister, IntRegister, OutPutDataType, SCSLib, TSLib, TQLib, ST_G
-
+from copy import deepcopy
 
 
 class Node(object):
@@ -49,9 +49,9 @@ class PassUpNode(Node):
         output = '{} = Node(\'{}\'{})'
 
         if Parent is None:
-            output = output.format(self.__class__.__name__ + str(id(self)), self.ProductionName+"_"+ str(id(self))[-4:], "")
+            output = output.format(self.__class__.__name__ + str(id(self)), self.ProductionName+"*"+"_"+ str(id(self))[-4:], "")
         else:
-            output = output.format(self.__class__.__name__ + str(id(self)), self.ProductionName+"_"+ str(id(self))[-4:], ", parent="+Parent)
+            output = output.format(self.__class__.__name__ + str(id(self)), self.ProductionName+"*"+"_"+ str(id(self))[-4:], ", parent="+Parent)
 
         return output
 
@@ -432,9 +432,9 @@ class FunctionCall(Node):
 
 
     def SetUpFunctionCall(self):
-        self.Arguments = self.FetchArguments(self.ArgumentList)
         self.IdLabel = self.FetchId(self.IdentifierSubtree)
         self.IdPtr = ST_G.RecoverMostRecentID(self.IdLabel)
+        self.Arguments = self.FetchArguments(self.ArgumentList)
         if self.IdPtr is not False:
             self.IdPtr = self.IdPtr
             self.FunctionPrototypeArgs = self.IdPtr['Arguments']
@@ -469,7 +469,7 @@ class FunctionCall(Node):
                     Arg = {'Type':[Child.DataType] ,'Value':Child.Child, 'Type Qualifier':['const']}
                     ArgsList = [Arg]
                 elif Child.__class__.__name__ == 'Identifier':
-                    ArgsList = [Child.STPtr]
+                    ArgsList = [deepcopy(Child.STPtr)]
                 # at a leaf node
                 else:
                     ArgsList.extend(self.FetchArguments(Child))
@@ -509,7 +509,9 @@ class FunctionCall(Node):
                             "Array dimensions in function call does not match prototype. Expected '{}' but found '{}'. Prototype declaration here.".format(BuildArrayString(self.FunctionPrototypeArgs[i]['Type'], self.FunctionPrototypeArgs[i]['Array Size Info']), BuildArrayString(arg['Type'],  arg['Array Size'])), self.IdPtr['TokenLocation'][0], self.IdPtr['TokenLocation'][2], self.Production.lexer.lexdata))
                 if 'Subtype' in self.FunctionPrototypeArgs[i] and self.FunctionPrototypeArgs[i]['Subtype'] == 'Array Argument' and 'Subtype' in arg and arg['Subtype'] == 'Array' or 'Subtype' not in arg and 'Subtype' not in self.FunctionPrototypeArgs[i]:
                     if self.FunctionPrototypeArgs[i]['Type'] != arg['Type']:
+                        arg['Coerced Type'] = self.FunctionPrototypeArgs[i]['Type']
                         print("Warning: Line: {} Col: {} Implicit cast of argument {} in function call \"{}\" from {}to {}".format(self.Loc[0], self.Loc[2], i+1, self.IdLabel, OutPutDataType(arg['Type']), OutPutDataType(self.FunctionPrototypeArgs[i]['Type'])))
+
 
 class DeclList(Node):
     '''Self refrencing production like init decl list.
@@ -843,11 +845,12 @@ class CompoundStatement(Node):
 class AssignmentExpression(Node):
     def __init__(self, Op, Left, Right, ST, Loc=None, Production=None):
         self.Op = Op
-        self.Loc = Loc
+        self.Loc = GetLoc(Production)
         self.Left = Left
         self.Right = Right
         self.Production = Production
 
+        self.ManageExprDataTypes()
         self.RunSemanticAnalysis(ST)
 
     def GetChildren(self):
@@ -888,8 +891,62 @@ class AssignmentExpression(Node):
             else:
                 return(self.FetchId(Child))
 
-    def AddImplicitCast(self):
-        pass
+    def ManageExprDataTypes(self):
+        LDT = self.GetBinOpDataType(self.Left)
+        RDT = self.GetBinOpDataType(self.Right)
+
+
+
+        #set the overall type of the expression
+        DominantType = self.EvalDataType(LDT, RDT)
+        if DominantType is 'Equal':
+            self.ExprDataType = LDT
+        else:
+            self.ExprDataType = LDT
+            temp = self.Right
+            self.Right = CastNode(RDT, LDT, temp)
+            print("Warning: Line: {} Col: {} Implicit cast in assignment from {}to {}".format(self.Loc[0], self.Loc[2], OutPutDataType(RDT), OutPutDataType(LDT)))
+
+
+        if 'float' in self.ExprDataType:
+            self.Register = FloatRegister.DispenseTicket()
+        else:
+            self.Register = IntRegister.DispenseTicket()
+
+
+
+    def GetBinOpDataType(self, Subtree):
+        if Subtree is None: return
+        if not IsNode(Subtree): return
+        if Subtree.GetChildren() is None: return
+
+        if Subtree.__class__.__name__ == "BinOp":
+            return Subtree.ExprDataType
+
+        else:
+            for Child in Subtree.GetChildren():
+                if Child.__class__.__name__ == 'Constant':
+                    return [Child.DataType]
+                if Child.__class__.__name__ == 'Identifier':
+                    return Child.STPtr["Type"]
+                if Child.__class__.__name__ == "BinOp":
+                    LDT = self.GetBinOpDataType(Child.Left)
+                    RDT = self.GetBinOpDataType(Child.Right)
+
+                    if LDT == RDT:
+                        return LDT
+                else:
+                    return self.GetBinOpDataType(Child)
+
+
+    def EvalDataType(self, LHS, RHS):
+        '''Returns the data type which should be coreced to'''
+        if CalcConversionFactor(LHS) < CalcConversionFactor(RHS):
+            return LHS
+        elif CalcConversionFactor(LHS) > CalcConversionFactor(RHS):
+            return RHS
+        elif CalcConversionFactor(LHS) == CalcConversionFactor(RHS):
+            return 'Equal'
 
 
 class BinOp(Node):
@@ -973,41 +1030,14 @@ class BinOp(Node):
 
     def EvalDataType(self, LHS, RHS):
         '''Returns the data type which should be coreced to'''
-        if self.CalcConversionFactor(LHS) < self.CalcConversionFactor(RHS):
+        if CalcConversionFactor(LHS) < CalcConversionFactor(RHS):
             return LHS
-        elif self.CalcConversionFactor(LHS) > self.CalcConversionFactor(RHS):
+        elif CalcConversionFactor(LHS) > CalcConversionFactor(RHS):
             return RHS
-        elif self.CalcConversionFactor(LHS) == self.CalcConversionFactor(RHS):
+        elif CalcConversionFactor(LHS) == CalcConversionFactor(RHS):
             return 'Equal'
 
-    def CalcConversionFactor(self, DT):
-        '''DataType conversion hierarchy from wikipedia C_data_types'''
-        '''ConversionFactor: a lower value is higher in the heierachy and coerces to it'''
-        DTCH = [
-        [ ['long double'] ],
-        [ ['double'] ],
-        [ ['float'] ],
-        [ ['unsigned', 'long', 'long'], ['unsigned', 'long', 'long', 'int']],
-        [ ['long', 'long'], ['long','long', 'int'], ['signed', 'long', 'long'], ['signed', 'long', 'long', 'int'] ],
-        [ ['unsigned', 'long'], ['unsigned', 'long', 'int'] ],
-        [ ['long'], ['long', 'int'], ['signed', 'long'], ['signed', 'long', 'int'] ],
-        [ ['unsigned'], ['unsigned', 'int'] ],
-        [ ['int'], ['signed'], ['signed', 'int'] ],
-        [ ['unsigned', 'short'], ['unsigned', 'short', 'int'] ],
-        [ ['short'], ['short', 'int'], ['signed', 'short'], ['signed', 'short', 'int'] ],
-        [ ['unsigned', 'char'] ],
-        [ ['signed', 'char'] ],
-        [ ['char'] ]
-        ]
 
-        ConversionFactor = 0
-
-        for i, Tier in enumerate(DTCH):
-            for DTCombo in Tier:
-                if DT == DTCombo:
-                    ConversionFactor = i
-
-        return ConversionFactor
 
 
     def RunSemanticAnalysis(self, ST):

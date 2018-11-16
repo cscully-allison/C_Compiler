@@ -7,14 +7,7 @@ from LexicalAnalizer import LexicalAnalizer
 from SymbolTable import SymbolTable
 from ASTBuilder import FunctionPrototype, FunctionCall, Identifier, ArrayDeclaration, PassUpNode, SelectionStatement, DeclarationSpecifiers, DeclList, Declaration, PrimaryExpression, UnaryExpression, Constant, FunctionDefintion, CompoundStatement, AssignmentExpression, InitDeclList, BinOp, IterationStatement, ArrayAccess
 import ply.yacc as yacc
-# import logging
-# logging.basicConfig(
-#     level = logging.DEBUG,
-#     filename = "parselog.txt",
-#     filemode = "w",
-#     format = "%(filename)10s:%(lineno)4d:%(message)s"
-# )
-# log = logging.getLogger()
+
 
 class Parser():
 
@@ -49,12 +42,12 @@ class Parser():
         return
 
     def RunParser(self):
-        try:
-            with open(self.SourceFile) as file:
-                s = file.read()
-            self.Parser.parse(s, debug=0)
-        except Exception as e:
-            raise e
+        # try:
+        with open(self.SourceFile) as file:
+            s = file.read()
+        self.Parser.parse(s, debug=0)
+        # except Exception as e:
+        #     raise e
 
         return self.AST
 
@@ -1710,7 +1703,10 @@ class Parser():
             return
 
         def p_error(p):
-            ErrManager.AddError(PrettyErrorPrint("Syntax Error. Did you possibly forget a semicolon somewhere?", p.lexer.lineno, FindColumn(p.lexer.lexdata, p.lexer), p.lexer.lexdata))
+            if p ==  None:
+                ErrManager.AddError("Syntax error. Did you miss a close brace?")
+            else:
+                ErrManager.AddError(PrettyErrorPrint("Syntax Error. Did you possibly forget a semicolon somewhere?", p.lexer.lineno, FindColumn(p.lexer.lexdata, p.lexer), p.lexer.lexdata))
             return
 
 

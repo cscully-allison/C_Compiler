@@ -61,3 +61,33 @@ def BuildArrayString(DataType, SizeArr):
     string += sizes
 
     return string
+
+
+def CalcConversionFactor(DT):
+    '''DataType conversion hierarchy from wikipedia C_data_types'''
+    '''ConversionFactor: a lower value is higher in the heierachy and coerces to it'''
+    DTCH = [
+    [ ['long double'] ],
+    [ ['double'] ],
+    [ ['float'] ],
+    [ ['unsigned', 'long', 'long'], ['unsigned', 'long', 'long', 'int']],
+    [ ['long', 'long'], ['long','long', 'int'], ['signed', 'long', 'long'], ['signed', 'long', 'long', 'int'] ],
+    [ ['unsigned', 'long'], ['unsigned', 'long', 'int'] ],
+    [ ['long'], ['long', 'int'], ['signed', 'long'], ['signed', 'long', 'int'] ],
+    [ ['unsigned'], ['unsigned', 'int'] ],
+    [ ['int'], ['signed'], ['signed', 'int'] ],
+    [ ['unsigned', 'short'], ['unsigned', 'short', 'int'] ],
+    [ ['short'], ['short', 'int'], ['signed', 'short'], ['signed', 'short', 'int'] ],
+    [ ['unsigned', 'char'] ],
+    [ ['signed', 'char'] ],
+    [ ['char'] ]
+    ]
+
+    ConversionFactor = 0
+
+    for i, Tier in enumerate(DTCH):
+        for DTCombo in Tier:
+            if DT == DTCombo:
+                ConversionFactor = i
+
+    return ConversionFactor
