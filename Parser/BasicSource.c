@@ -1,33 +1,38 @@
+int var0;
+char var1;
 
+// int a, b, c;
+// // char d;
+int fun1(int, char);
+// int fun2(int, int);
 
-int main(){
-	int a;
-	int c;
-	int arr[6][8];
-	int arr2[9];
-	a=5;
-	arr2[3] = 100;
-	
-	while (a)
-	{
-		int arr3[2][3] = 2;
-	}
+int main(const int arg1, char arg2){
+  int var2;
+  var2 = arg1 + 3;
+  fun1(var2, var1);
 
-	c = 5 + a;
-	a=c;
-
-	for ( ; ; )
-	{
-		do {
-
-		}while (c);
-	}
-
-
-	//x[2][2] = 5;
-	//x[1][2] = x[2][2];
-
-
-    return 0;
 }
+//
+int fun1(int arg3, char arg4){
+    int var2;
+    char var3;
+    float var6;
+    int arr[10];
 
+    var2 = var6 + 4.0;
+
+    if(var0 < var1){
+      fun1(arg3, arg4);
+
+        $!ST1
+    }
+}
+//
+//
+//     fun2(var3, var2);
+// }
+// //
+// //
+// int fun2(int arg5, int arg6){
+//     fun2(arg5, arg6);
+// }

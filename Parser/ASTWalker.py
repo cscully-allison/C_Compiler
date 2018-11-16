@@ -1,5 +1,48 @@
 import json
 
+class CodeGenerator(object):
+    def __init__(self, AST, File):
+        self.AST = AST
+        self.File = File
+        self.Ouput3AC(AST)
+
+    def IsNode(self, Node):
+        for base in Node.__class__.__bases__:
+            if base.__name__ is 'Node':
+                return True
+        return False
+
+    def IsIdentifier(self, Node):
+        for base in Node.__class__.__bases__:
+            if base.__name__ is 'Identifier':
+                return True
+        return False
+
+    def IsPassUpNode(self, Node):
+        if Node.__class__.__name__ == 'PassUpNode':
+            return True;
+        return False;
+
+    def Ouput3AC(self, Subtree):
+        # Base Case
+        if Subtree is None: return
+        if not self.IsNode(Subtree): return
+        if Subtree.GetChildren() is None: return
+
+        #Conditionals for many occurences
+        print(Subtree)
+
+        #Pass Up Node
+        if self.IsPassUpNode(Subtree):
+            for Child in Subtree.GetChildren():
+                self.Ouput3AC(Child)
+        else:
+            for Child in Subtree.GetChildren():
+                self.Ouput3AC(Child)
+
+
+
+
 class ASTWalker(object):
     def __init__(self, AST, TreeGraphOut = "TreeGraph.out.py"):
         self.AST = AST

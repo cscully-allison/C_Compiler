@@ -1,4 +1,4 @@
-int main()
+int main(int arg1)
 {
 	const int i;
 	int a;

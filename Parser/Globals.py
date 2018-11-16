@@ -1,3 +1,7 @@
+from SymbolTable import SymbolTable
+
+ST_G = SymbolTable(None)
+
 class ErrorManager(object):
     def __init__(self):
         self.Errors = []
