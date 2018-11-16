@@ -1,6 +1,6 @@
-from Globals import ErrManager
+from Globals import ErrManager, ST_G
 from Parser_M import Parser
-from ASTWalker import ASTWalker
+from ASTWalker import ASTWalker, CodeGenerator
 import sys
 
 def driver():
@@ -13,10 +13,14 @@ def driver():
         if arg == "-i":
             SourceCodeFile = sys.argv[i+1]
 
+    ST_G.SourceFile = SourceCodeFile
+
 
     # Construct parser
     P = Parser(SourceFile=SourceCodeFile, DebugArgs = sys.argv)
     P.BuildParser()
+
+    # AST = P.RunParser()
 
     #Run parser in try except block to enable compliation
     # terminiation under various circumstances
@@ -32,6 +36,8 @@ def driver():
 
     AW = ASTWalker(AST)
     AW.PrintASTHelper(AW.AST)
+
+    ICG = CodeGenerator(AST, "intermediate.3AC")
 
 
 driver()

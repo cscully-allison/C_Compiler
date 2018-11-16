@@ -2,10 +2,17 @@
 **** Outputting Contents of Symbol Table **** 
 
 Items in Tree at Level 0: 
-	Key: "a" | Content: {'Type': 'char', 'TokenLocation': (6, 43, 10)}
-	Key: "arr" | Content: {'Array Size': ['2', '8', '10'], 'Subtype': 'Array', 'Type': 'int', 'TokenLocation': (8, 70, 9)}
-	Key: "d" | Content: {'Type': 'char', 'TokenLocation': (6, 46, 13)}
 Items in Tree at Level 1: 
-	Key: "funct" | Content: {'TokenLocation': (1, 4, 5)}
-	Key: "g" | Content: {'TokenLocation': (5, 30, 14)}
-	Key: "main" | Content: {'TokenLocation': (5, 21, 5)}
+	Key: "arr" | Content: {'Array Size': ['10'], 'Subtype': 'Array', 'Type': ['int'], 'TokenLocation': (20, 275, 9)}
+	Key: "var2" | Content: {'Type': ['int'], 'TokenLocation': (17, 230, 9)}
+	Key: "var3" | Content: {'Type': ['char'], 'TokenLocation': (18, 245, 10)}
+	Key: "var6" | Content: {'Type': ['float'], 'TokenLocation': (19, 261, 11)}
+Items in Tree at Level 2: 
+	Key: "arg1" | Content: {'Type Qualifier': ['const'], 'Type': ['int'], 'TokenLocation': (9, 116, 20)}
+	Key: "arg2" | Content: {'Type': ['char'], 'TokenLocation': (9, 127, 31)}
+	Key: "arg3" | Content: {'Type': ['int'], 'TokenLocation': (16, 204, 14)}
+	Key: "arg4" | Content: {'Type': ['char'], 'TokenLocation': (16, 215, 25)}
+	Key: "fun1" | Content: {'Return Type': ['int'], 'Subtype': 'Function Prototype', 'Label': 'fun1', 'Arguments': [{'Type': ['int']}, {'Type': ['char']}], 'TokenLocation': (6, 56, 5)}
+	Key: "main" | Content: {'Subtype': 'Function Prototype', 'Label': 'main', 'Arguments': [{'Type Qualifier': ['const'], 'Type': ['int']}, {'Type': ['char']}], 'TokenLocation': (9, 101, 5)}
+	Key: "var0" | Content: {'Type': ['int'], 'TokenLocation': (1, 4, 5)}
+	Key: "var1" | Content: {'Type': ['char'], 'TokenLocation': (2, 15, 6)}
