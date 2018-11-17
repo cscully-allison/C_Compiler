@@ -4,11 +4,18 @@ class CodeGenerator(object):
     def __init__(self, AST, File):
         self.AST = AST
         self.File = File
+        self.Output = []
         self.Ouput3AC(AST)
 
     def IsNode(self, Node):
         for base in Node.__class__.__bases__:
             if base.__name__ is 'Node':
+                return True
+        return False
+
+    def IsNodeType(self, Node, Name):
+        if self.IsNode(Node):
+            if Node.__class__.__name__ == Name:
                 return True
         return False
 
@@ -23,19 +30,52 @@ class CodeGenerator(object):
             return True;
         return False;
 
+    def Load3AC(self, Op = None, Dest = None, OperandA = None, OperandB = None):
+        self.Output.append({'Op': Op, 'Dest': Dest, 'OpA': OperandA, 'OpB': OperandB})
+
+
+    def Declaration(self, DeclNode):
+        # add declaration to symbol table
+        return DeclNode.Bytes
+
+    def GetStackFrameSize(self, CompoundStatement):
+        if CompoundStatement is None: return 0
+        if not self.IsNode(CompoundStatement): return 0
+        if CompoundStatement.GetChildren() is None: return 0
+
+        RunningSize = 0
+
+        for Child in CompoundStatement.GetChildren():
+            if self.IsNodeType(Child, 'CompoundStatement'):
+                RunningSize += self.GetStackFrameSize(Child)
+            elif self.IsNodeType(Child, 'Declaration'):
+                RunningSize += self.Declaration(Child);
+            else:
+                RunningSize += self.GetStackFrameSize(Child)
+
+        return RunningSize
+
+    def FunctionDefintion(self, FunctSubtree):
+        StackFrameSize = 0
+
+        for Child in FunctSubtree.GetChildren():
+            if self.IsNodeType(Child, 'CompoundStatement'):
+                StackFrameSize = self.GetStackFrameSize(Child)
+
+        print(FunctSubtree.IDPtr['Label'], StackFrameSize)
+
     def Ouput3AC(self, Subtree):
         # Base Case
         if Subtree is None: return
         if not self.IsNode(Subtree): return
         if Subtree.GetChildren() is None: return
 
-        #Conditionals for many occurences
-        print(Subtree)
-
         #Pass Up Node
         if self.IsPassUpNode(Subtree):
             for Child in Subtree.GetChildren():
                 self.Ouput3AC(Child)
+        elif self.IsNodeType(Subtree, 'FunctionDefintion'):
+            self.FunctionDefintion(Subtree)
         else:
             for Child in Subtree.GetChildren():
                 self.Ouput3AC(Child)

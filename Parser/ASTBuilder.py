@@ -589,6 +589,7 @@ class Declaration(Node):
         self.Loc = Loc
         self.ID = None
         self.DeclLabel = None
+        self.Bytes = 1;
 
         #gets and formats the declaration specifiers
         self.DeclSpecs = self.BuildDeclSpecsDict( self.FetchDeclSpecs(self.Left) )
