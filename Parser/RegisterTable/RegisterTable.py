@@ -34,14 +34,17 @@ class RegisterTable():
 		self.Registers.append({'register': 'r30', 'assembly name': '$fp', 'value': None, 'data type' : None})
 		self.Registers.append({'register': 'r31', 'assembly name': '$ra', 'value': None, 'data type' : None})
 
-	def GetRegister(self, RegisterName = None, AssemblyName = None):
-		if RegisterName != 'None':
-			for elem in self.Registers:
-				if elem['register'] == RegisterName:
-					return elem
-		elif AssemblyName != 'None':
+	def GetRegisterData(self, AssemblyName = None):
+		if AssemblyName is not None:
 			for elem in self.Registers:
 				if elem['assembly name'] == AssemblyName:
 					return elem
 		else:
 			return False
+
+	def SetRegisterData(self, AssemblyName = None, NewValue = None, NewDataType = None):
+		if AssemblyName is not None:
+			for elem in self.Registers:
+				if elem['assembly name'] == AssemblyName:
+					elem['value'] = NewValue
+					elem['data type'] = NewDataType
