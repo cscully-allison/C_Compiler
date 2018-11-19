@@ -37,4 +37,11 @@ class RegisterTable():
 	def GetRegister(self, RegisterName = None, AssemblyName = None):
 		if RegisterName != 'None':
 			for elem in self.Registers:
-				
+				if elem['register'] == RegisterName:
+					return elem
+		elif AssemblyName != 'None':
+			for elem in self.Registers:
+				if elem['assembly name'] == AssemblyName:
+					return elem
+		else:
+			return False
