@@ -1,4 +1,8 @@
 import json
+from Globals import CM
+from Utils import GetBytesFromId
+
+
 
 class CodeGenerator(object):
     def __init__(self, AST, File):
@@ -30,7 +34,7 @@ class CodeGenerator(object):
             return True;
         return False;
 
-    def Load3AC(self, Op = None, Dest = None, OperandA = None, OperandB = None, LineNo = None):
+    def Load3AC(self, Instruction = None, Dest = None, OperandA = None, OperandB = None, LineNo = None):
         self.Output.append({'Instruction': Instruction, 'Dest': Dest, 'OpA': OperandA, 'OpB': OperandB, 'LineNo': LineNo})
 
 
@@ -49,7 +53,7 @@ class CodeGenerator(object):
             if self.IsNodeType(Child, 'CompoundStatement'):
                 RunningSize += self.GetStackFrameSize(Child)
             elif self.IsNodeType(Child, 'Declaration'):
-                RunningSize += self.Declaration(Child);
+                RunningSize += self.Declaration(Child)
             else:
                 RunningSize += self.GetStackFrameSize(Child)
 
@@ -57,12 +61,20 @@ class CodeGenerator(object):
 
     def FunctionDefintion(self, FunctSubtree):
         StackFrameSize = 0
+        ArgsSize = 0
 
+        # fetch stack frame size from locals
         for Child in FunctSubtree.GetChildren():
             if self.IsNodeType(Child, 'CompoundStatement'):
                 StackFrameSize = self.GetStackFrameSize(Child)
 
-        print(FunctSubtree.IDPtr['Label'], StackFrameSize)
+        # add stack frame size from Arguments
+        for Arg in FunctSubtree.FunctionArguments:
+            ArgsSize += GetBytesFromId(Arg, CM.TypeToBytes(Arg['Type']))
+
+
+        # Loading label, argsize in bytes, and StackFrameSize in bytes
+        self.Load3AC(Instruction = "PROCENTRY", Dest=FunctSubtree.IDPtr['Label'], OperandA = StackFrameSize, OperandB = ArgsSize)
 
     def Ouput3AC(self, Subtree):
         # Base Case

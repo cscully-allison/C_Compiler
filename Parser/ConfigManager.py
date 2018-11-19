@@ -19,3 +19,8 @@ class ConfigManager(object):
                 self.units = Child.attrib["units"]
                 for Type in Child:
                     setattr(self, Type.tag, Type.text)
+
+    def TypeToBytes(self, Type):
+        for TypeStr in Type:
+            if TypeStr is not 'long' and TypeStr is not 'short' and TypeStr is not 'unsigned' and TypeStr is not 'signed':
+                 return int(getattr(self, TypeStr))

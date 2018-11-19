@@ -39,5 +39,7 @@ def driver():
 
     ICG = CodeGenerator(AST, "intermediate.3AC")
 
+    print(ICG.Output)
+
 
 driver()

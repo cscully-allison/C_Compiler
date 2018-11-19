@@ -1,3 +1,28 @@
+def GetBytesFromId(ID, DTCBytes):
+    Bytes = 0
+    TotalSize = 1
+    if 'Subtype' in ID and ID['Subtype'] is 'Array':
+        for Size in ID['Array Size']:
+            TotalSize *= int(Size)
+        Bytes += TotalSize * DTCBytes
+    else:
+        Bytes += DTCBytes
+
+    return Bytes
+
+def GetBytesFromIds(IDs, DTCBytes):
+    Bytes = 0
+    for ID in IDs:
+        TotalSize = 1
+        if 'Subtype' in ID and ID['Subtype'] is 'Array':
+            for Size in ID['Array Size']:
+                TotalSize *= int(Size)
+            Bytes += TotalSize * DTCBytes
+        else:
+            Bytes += DTCBytes
+
+    return Bytes
+
 def PrettyErrorPrint(Message, Lineno, Column, SourceText):
     arrow = ""
     preface = "Error: Line:{} Column:{} ".format(Lineno, Column)

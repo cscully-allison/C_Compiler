@@ -1,4 +1,4 @@
-from Utils import FunctPrettyErrorPrint, PrettyErrorPrint, FindColumn, IsNode, GetLoc, BuildArrayString, CalcConversionFactor
+from Utils import GetBytesFromIds, FunctPrettyErrorPrint, PrettyErrorPrint, FindColumn, IsNode, GetLoc, BuildArrayString, CalcConversionFactor
 from Globals import CM, ErrManager, Label, FloatRegister, IntRegister, OutPutDataType, SCSLib, TSLib, TQLib, ST_G
 from copy import deepcopy
 
@@ -146,6 +146,13 @@ class FunctionPrototype(Node):
                             self.FunctionArguments.append(temp)
                         else:
                             self.BuildArgumentList(Child)
+                    # one-d array case
+                    elif Child.__class__.__name__ is "PrimaryExpression":
+                        temp = self.FunctionArguments.pop()
+                        temp['Array Size Info'] = self.FetchAbstractDeclarators(Child)
+                        temp['Subtype'] = 'Array Argument'
+                        self.FunctionArguments.append(temp)
+
                     else:
                         self.BuildArgumentList(Child)
 
@@ -603,15 +610,16 @@ class Declaration(Node):
 
     def CalcBytes(self, DeclSpecs):
         Bytes = 0
+        DTCBytes = 0
         Type = DeclSpecs['Type']
-        for TypeStr in Type:
-            if TypeStr is not 'long' and TypeStr is not 'short' and TypeStr is not 'unsigned' and TypeStr is not 'signed':
-                Bytes = int(getattr(CM, TypeStr))
+        DTCBytes = CM.TypeToBytes(Type)
 
-        for ID in self.ID:
-            print(ID)
 
-        Bytes *= self.IDCtr
+        # caluclates a conditional for arrays and normal data types space allocaton
+        Bytes = GetBytesFromIds(self.ID, DTCBytes)
+
+
+        return Bytes
 
     def GetChildren(self):
         Children = []
