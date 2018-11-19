@@ -3,15 +3,15 @@
 
 Items in Tree at Level 0: 
 Items in Tree at Level 1: 
-	Key: "arr" | Content: {'Array Size': ['10'], 'Subtype': 'Array', 'Type': ['int'], 'TokenLocation': (29, 394, 9)}
-	Key: "var2" | Content: {'Type': ['int'], 'TokenLocation': (26, 349, 9)}
-	Key: "var3" | Content: {'Type': ['char'], 'TokenLocation': (27, 364, 10)}
-	Key: "var6" | Content: {'Type': ['float'], 'TokenLocation': (28, 380, 11)}
+	Key: "arr" | Content: {'Array Size': ['10'], 'Subtype': 'Array', 'Type': ['int'], 'TokenLocation': (30, 419, 9)}
+	Key: "var2" | Content: {'Type': ['int'], 'TokenLocation': (27, 374, 9)}
+	Key: "var3" | Content: {'Type': ['char'], 'TokenLocation': (28, 389, 10)}
+	Key: "var6" | Content: {'Type': ['float'], 'TokenLocation': (29, 405, 11)}
 Items in Tree at Level 2: 
 	Key: "arg1" | Content: {'Type Qualifier': ['const'], 'Type': ['int'], 'TokenLocation': (9, 116, 20)}
 	Key: "arg2" | Content: {'Type': ['char'], 'TokenLocation': (9, 127, 31)}
-	Key: "arg3" | Content: {'Type': ['int'], 'TokenLocation': (25, 323, 14)}
-	Key: "arg4" | Content: {'Type': ['char'], 'TokenLocation': (25, 334, 25)}
+	Key: "arg3" | Content: {'Type': ['int'], 'TokenLocation': (26, 348, 14)}
+	Key: "arg4" | Content: {'Type': ['char'], 'TokenLocation': (26, 359, 25)}
 	Key: "fun1" | Content: {'Return Type': ['int'], 'Subtype': 'Function Prototype', 'Label': 'fun1', 'Arguments': [{'Type': ['int']}, {'Type': ['char']}], 'TokenLocation': (6, 56, 5)}
 	Key: "main" | Content: {'Subtype': 'Function Prototype', 'Label': 'main', 'Arguments': [{'Type Qualifier': ['const'], 'Type': ['int']}, {'Type': ['char']}], 'TokenLocation': (9, 101, 5)}
 	Key: "var0" | Content: {'Type': ['int'], 'TokenLocation': (1, 4, 5)}

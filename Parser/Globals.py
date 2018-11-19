@@ -1,6 +1,9 @@
 from SymbolTable import SymbolTable
+from ConfigManager import ConfigManager
 
+CM = ConfigManager("TargetMachine.config")
 ST_G = SymbolTable(None)
+
 
 class ErrorManager(object):
     def __init__(self):

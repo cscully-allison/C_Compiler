@@ -1,5 +1,5 @@
 from Utils import FunctPrettyErrorPrint, PrettyErrorPrint, FindColumn, IsNode, GetLoc, BuildArrayString, CalcConversionFactor
-from Globals import ErrManager, Label, FloatRegister, IntRegister, OutPutDataType, SCSLib, TSLib, TQLib, ST_G
+from Globals import CM, ErrManager, Label, FloatRegister, IntRegister, OutPutDataType, SCSLib, TSLib, TQLib, ST_G
 from copy import deepcopy
 
 
@@ -587,15 +587,26 @@ class Declaration(Node):
         self.Left = Left
         self.Right = Right
         self.Loc = Loc
-        self.ID = None
-        self.DeclLabel = None
+        self.ID = []
+        self.DeclLabel = []
+        self.IDCtr = 0;
         self.Bytes = 1;
 
         #gets and formats the declaration specifiers
         self.DeclSpecs = self.BuildDeclSpecsDict( self.FetchDeclSpecs(self.Left) )
+        self.Bytes = self.CalcBytes(self.DeclSpecs);
 
         #updates the symbol table
         self.UpdateSymbolTable(Right)
+
+        # for list declarations gets the required number of bytes for each var
+        self.Bytes *= self.IDCtr;
+
+    def CalcBytes(self, DeclSpecs):
+        Type = DeclSpecs['Type']
+        for TypeStr in Type:
+            if TypeStr is not 'long' and TypeStr is not 'short' and TypeStr is not 'unsigned' and TypeStr is not 'signed':
+                return int(getattr(CM, TypeStr))
 
     def GetChildren(self):
         Children = []
@@ -647,10 +658,10 @@ class Declaration(Node):
 
 
     def UpdateSymbolTable(self, DeclList):
-        # print(DeclList)
         if DeclList.__class__.__name__ == 'Identifier':
-                self.ID = DeclList.STPtr
-                self.DeclLabel = DeclList.Name
+                self.ID.append(DeclList.STPtr)
+                self.DeclLabel.append(DeclList.Name)
+                self.IDCtr += 1;
                 # inserting for function prototypes
                 if 'Subtype' in DeclList.STPtr and DeclList.STPtr['Subtype'] == 'Function Prototype':
                     DeclList.STPtr['Return Type'] = self.DeclSpecs['Type']
@@ -666,8 +677,9 @@ class Declaration(Node):
         elif DeclList is not None and IsNode(DeclList):
             for Child in DeclList.GetChildren():
                 if Child.__class__.__name__ == 'Identifier':
-                    self.ID = Child.STPtr
-                    self.DeclLabel = Child.Name
+                    self.ID.append(Child.STPtr)
+                    self.DeclLabel.append(Child.Name)
+                    self.IDCtr += 1;
                     # inserting for function prototypes
                     if 'Subtype' in Child.STPtr and Child.STPtr['Subtype'] == 'Function Prototype':
                         Child.STPtr['Return Type'] = self.DeclSpecs['Type']
@@ -684,7 +696,7 @@ class Declaration(Node):
             return
 
     def RunSemanticAnalysis(self):
-        # check that only one Type exists
+        # check that only one meaningful Type exists
         # check that only one Storage Class Specifier Exists
         pass
 

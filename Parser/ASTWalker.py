@@ -30,8 +30,8 @@ class CodeGenerator(object):
             return True;
         return False;
 
-    def Load3AC(self, Op = None, Dest = None, OperandA = None, OperandB = None):
-        self.Output.append({'Op': Op, 'Dest': Dest, 'OpA': OperandA, 'OpB': OperandB})
+    def Load3AC(self, Op = None, Dest = None, OperandA = None, OperandB = None, LineNo = None):
+        self.Output.append({'Instruction': Instruction, 'Dest': Dest, 'OpA': OperandA, 'OpB': OperandB, 'LineNo': LineNo})
 
 
     def Declaration(self, DeclNode):
@@ -163,7 +163,7 @@ DotExporter({}, nodeattrfunc=f).to_picture("AST.png")
                     self.TreeGraphOutPtr.write(output + '\n')
 
             else:
-                output = '{} = Node(\'{}\'{})'
+                output = '{} = Node(\"{}\"{})'
                 output = output.format("leaf", Child + "_" + str(id(Parent))[-4:], ", parent=" +Parent.__class__.__name__ + str(id(Parent)))
                 self.TreeGraphOutPtr.write(output + '\n')
 
