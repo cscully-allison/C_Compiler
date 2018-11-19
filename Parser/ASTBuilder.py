@@ -594,19 +594,24 @@ class Declaration(Node):
 
         #gets and formats the declaration specifiers
         self.DeclSpecs = self.BuildDeclSpecsDict( self.FetchDeclSpecs(self.Left) )
-        self.Bytes = self.CalcBytes(self.DeclSpecs);
 
         #updates the symbol table
         self.UpdateSymbolTable(Right)
 
         # for list declarations gets the required number of bytes for each var
-        self.Bytes *= self.IDCtr;
+        self.Bytes = self.CalcBytes(self.DeclSpecs);
 
     def CalcBytes(self, DeclSpecs):
+        Bytes = 0
         Type = DeclSpecs['Type']
         for TypeStr in Type:
             if TypeStr is not 'long' and TypeStr is not 'short' and TypeStr is not 'unsigned' and TypeStr is not 'signed':
-                return int(getattr(CM, TypeStr))
+                Bytes = int(getattr(CM, TypeStr))
+
+        for ID in self.ID:
+            print(ID)
+
+        Bytes *= self.IDCtr
 
     def GetChildren(self):
         Children = []
