@@ -1104,35 +1104,16 @@ class ArrayAccess(Node):
         self.CurrentOffset = None
         self.SymbolLocation = ST.FindSymbolInTable(self.Label)
         self.CurrentOffset = self.GetIndex(ArrayOffset)
-
-<<<<<<< HEAD
-        
+ 
         self.TempSizes = []
         
-        self.SymbolLocation[0]["TokenLocation"][0]
-=======
-        self.SymbolLocation = ST.FindSymbolInTable(self.Label)
-        self.TempSizes = []
+        #self.SymbolLocation[0]["TokenLocation"][0]
 
-
->>>>>>> master
         if self.SymbolLocation is not False:
             i=0
             while i < len(self.SymbolLocation[0]["Array Size"]):
                 self.TempSizes.append(self.SymbolLocation[0]["Array Size"][i])
                 i = i+1
-<<<<<<< HEAD
-        
-        
-=======
-
-
-        #if self.SymbolLocation is False:
-         #   for Child in self.GetChildren():
-          #      if Child.__class__.__name__ == 'ArrayAccess':
-           #         print Child.TempSizes[0]
->>>>>>> master
-
 
 
         if self.SymbolLocation is not False:
