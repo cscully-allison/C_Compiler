@@ -34,6 +34,8 @@ def driver():
         ErrManager.PrintErrors()
         return
 
+    ST_G.ClearSymbolTable()
+
     AW = ASTWalker(AST)
     AW.PrintASTHelper(AW.AST)
 

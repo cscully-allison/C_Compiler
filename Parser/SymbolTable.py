@@ -9,6 +9,7 @@ class SymbolTable():
         self.ReadMode = False           #Read or lookup mode
         self.DebugMode = False
         self.SourceFile = SourceFile
+        self.LastPushedInScope = None
 
     #Function: InsertSymbol
     #Desc: Insert a symbol into the current top of the symbol table
@@ -34,6 +35,7 @@ class SymbolTable():
                                 self.PrettyErrorPrint("Warning: {0} on line {3} is a shadowded variable. Previous declaration in scope level {1} at line {2}.".format(SymbolKey_str, abs(key-len(self.Table)), item[key]["TokenLocation"][0], Content_dict['TokenLocation'][0]), item[key]["TokenLocation"][0], item[key]["TokenLocation"][2] )
                     #perform deepcopy on passed in dictionary
                     self.TopScope.insert(SymbolKey_str, deepcopy(Content_dict) )
+                    self.LastPushedInScope = Content_dict
                 elif 'Subtype' in found and found['Subtype'] == 'Function Prototype':
                     pass
                 else:
@@ -90,10 +92,18 @@ class SymbolTable():
         else:
             return False
 
+    def CalcLocalOffset(self):
+        if self.LastPushedInScope is None:
+            return 0;
+        else:
+            return self.LastPushedInScope['Local Offset'] + self.LastPushedInScope['Size In Bytes']
+
+
     #Function:PushNewScope
     #Desc: Create a new scope and push it onto the table
     def PushNewScope(self):
         self.PushScope(FastRBTree())
+        self.LastPushedInScope = None
         return
 
     #Function: PushScope
@@ -171,6 +181,11 @@ class SymbolTable():
         if self.TopScope is None:
             return True
         return False
+
+    def ClearSymbolTable(self):
+        while not self.TableIsEmpty():
+            self.PopScope()
+        return
 
 
     def PrettyErrorPrint(self, Message, Lineno, Column):

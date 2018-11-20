@@ -1,5 +1,5 @@
 import json
-from Globals import CM
+from Globals import CM, ST_G
 from Utils import GetBytesFromId
 
 
@@ -40,6 +40,12 @@ class CodeGenerator(object):
 
     def Declaration(self, DeclNode):
         # add declaration to symbol table
+        for ID in DeclNode.ID:
+            ID['Size In Bytes'] = GetBytesFromId(ID, CM.TypeToBytes(ID['Type']))
+            ID['Local Offset'] = ST_G.CalcLocalOffset()
+            ST_G.InsertSymbol(ID['Label'], ID)
+
+
         return DeclNode.Bytes
 
     def GetStackFrameSize(self, CompoundStatement):
@@ -63,18 +69,34 @@ class CodeGenerator(object):
         StackFrameSize = 0
         ArgsSize = 0
 
+        # push a new scope on
+        ST_G.PushNewScope()
+
+        # add stack frame size from Arguments
+        for Arg in FunctSubtree.FunctionArguments:
+
+            Arg['Size In Bytes'] = GetBytesFromId(Arg, CM.TypeToBytes(Arg['Type']))
+            Arg['Local Offset'] = ST_G.CalcLocalOffset()
+            ST_G.InsertSymbol(Arg['Label'], Arg)
+
+            ArgsSize += Arg['Size In Bytes']
+
         # fetch stack frame size from locals
         for Child in FunctSubtree.GetChildren():
             if self.IsNodeType(Child, 'CompoundStatement'):
                 StackFrameSize = self.GetStackFrameSize(Child)
 
-        # add stack frame size from Arguments
-        for Arg in FunctSubtree.FunctionArguments:
-            ArgsSize += GetBytesFromId(Arg, CM.TypeToBytes(Arg['Type']))
-
 
         # Loading label, argsize in bytes, and StackFrameSize in bytes
         self.Load3AC(Instruction = "PROCENTRY", Dest=FunctSubtree.IDPtr['Label'], OperandA = StackFrameSize, OperandB = ArgsSize)
+
+
+        ST_G.WriteSymbolTableToFile("walkerst.out")
+
+        #recursively call Output 3AC on CompoundStatement to maintain correct scoping in ST
+
+        #pop scope
+
 
     def Ouput3AC(self, Subtree):
         # Base Case
