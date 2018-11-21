@@ -52,9 +52,6 @@ class RegisterTable():
 		#no register found
 		return False
 
-
-
-
 	def SetSRegister(self, NewValue = None, NewDataType = None):
 		RegisterName = self.GetFirstOpenRegister('$s')
 		if RegisterName is not False:
@@ -78,6 +75,7 @@ class RegisterTable():
 			self.RegisterOverflow()
 
 	def RegisterOverflow(self):
+		#this will be filled out later with better knowledge of overflow
 		print('Register Overflow Called')
 		pass
 	
@@ -87,3 +85,10 @@ class RegisterTable():
 				if elem['value'] is None and elem['data type'] is None:
 					return elem['assembly name']
 		return False
+
+	def ClearRegister(self, RegisterToClear):
+		for elem in self.Registers:
+			if elem['assembly name'] == RegisterToClear:
+				elem['value'] = None
+				elem['data type'] = None
+				return True

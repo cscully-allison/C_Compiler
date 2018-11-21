@@ -20,19 +20,19 @@ def driver():
     P = Parser(SourceFile=SourceCodeFile, DebugArgs = sys.argv)
     P.BuildParser()
 
-    # AST = P.RunParser()
+    AST = P.RunParser()
 
     #Run parser in try except block to enable compliation
     # terminiation under various circumstances
-    try:
-        AST = P.RunParser()
-        if ErrManager.HasErrors():
-            raise Exception()
-    except Exception as e:
-        print(e)
-        print("\n[Compliation Stopped]\nThe Following Errors Were Found:\n")
-        ErrManager.PrintErrors()
-        return
+    #try:
+     #   AST = P.RunParser()
+      #  if ErrManager.HasErrors():
+       #     raise Exception()
+    #except Exception as e:
+     #   print(e)
+      #  print("\n[Compliation Stopped]\nThe Following Errors Were Found:\n")
+       # ErrManager.PrintErrors()
+        #return
 
     AW = ASTWalker(AST)
     AW.PrintASTHelper(AW.AST)
