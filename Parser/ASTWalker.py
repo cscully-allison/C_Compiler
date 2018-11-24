@@ -56,6 +56,16 @@ class CodeGenerator(object):
         self.Output.append({'Instruction': Instruction, 'Dest': Dest, 'OpA': OperandA, 'OpB': OperandB, 'LineNo': LineNo})
 
 
+    def BinOp(self, Subtree):
+        pass
+        #base case
+
+        # recursive binop call (depth first and return temp address lhs and rhs)
+
+        # things we need: binary operator, temporary storage, op1, op2
+
+
+
     def Declaration(self, DeclNode):
         # add declaration to symbol table
         if self.PostDeclaration is False:
@@ -146,6 +156,8 @@ class CodeGenerator(object):
             self.FunctionDefintion(Subtree)
         elif self.IsNodeType(Subtree, "Declaration"):
             self.Declaration(Subtree)
+        # elif self.IsNodeType(Subtree, "BinOp"):
+        #     self.BinOp()
         # if in selection Statement
             # call self.SeclectionStatmenet(Subtree)
         else:
