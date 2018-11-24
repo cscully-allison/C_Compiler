@@ -1523,7 +1523,7 @@ class Parser():
 
         def p_postfix_expression_2(p):
             'postfix_expression :  postfix_expression OPENBRACKET expression CLOSEBRACKET'
-            p[0] = ArrayAccess(ArrayName=p[1], ArrayOffset=p[3], ST=self.ST)
+            p[0] = ArrayAccess(ArrayName=p[1], ArrayOffset=p[3], ST=self.ST, Production = p)
             if self.DebugProd == True:
                 self.DebugPrint("postfix_expression -->  postfix_expression OPENBRACKET expression CLOSEBRACKET", p)
             return

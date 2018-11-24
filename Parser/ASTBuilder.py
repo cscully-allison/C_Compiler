@@ -954,6 +954,7 @@ class AssignmentExpression(Node):
                 if Child.__class__.__name__ == 'Constant':
                     return [Child.DataType]
                 if Child.__class__.__name__ == 'Identifier':
+                    print Child.STPtr
                     return Child.STPtr["Type"]
                 if Child.__class__.__name__ == "BinOp":
                     LDT = self.GetBinOpDataType(Child.Left)
@@ -1125,51 +1126,57 @@ class IterationStatement(Node):
 
 
 class ArrayAccess(Node):
-    def __init__(self, ArrayName = None, ArrayOffset = None, ST = None):
+    def __init__(self, ArrayName = None, ArrayOffset = None, ST = None, Production = None):
+        self.Loc = GetLoc(Production)
+        self.Production = Production
         self.ArrayName = ArrayName
         self.ArrayOffset = ArrayOffset
-        self.Label = self.FetchId(ArrayName)
         self.ArrayType = None
-        self.CurrentOffset = None
-        self.CurrentOffset = self.GetIndex(ArrayOffset)
+        self.CurrentOffset = []
+        self.SymbolLocation = None
+        #for child in self.ArrayOffset.GetChildren():
+         #   print child.__class__.__name__
+        self.Label = self.FetchId(ArrayName)
+        print ("iteration")
 
-        self.SymbolLocation = ST.FindSymbolInTable(self.Label)
+        #appends offset from inner level
+        for child in ArrayName.GetChildren():
+            if child.__class__.__name__ == 'list':
+                    if len(child) < 2:
+                        self.CurrentOffset += child
+
+        if self.Label is not False:
+            self.SymbolLocation = ST.FindSymbolInTable(self.Label)[0]
+        self.CurrentOffset += self.GetIndex(ArrayOffset)
+
         self.TempSizes = []
-
-
-        if self.SymbolLocation is not False:
-            i=0
-            while i < len(self.SymbolLocation[0]["Array Size"]):
-                self.TempSizes.append(self.SymbolLocation[0]["Array Size"][i])
+        
+        #self.SymbolLocation[0]["TokenLocation"][0]
+        if self.SymbolLocation is not None:
+            i=0 
+            while i < len(self.SymbolLocation[1]["Array Size"]):
+                self.TempSizes.append(self.SymbolLocation[1]["Array Size"][i])
                 i = i+1
 
-
-        #if self.SymbolLocation is False:
-         #   for Child in self.GetChildren():
-          #      if Child.__class__.__name__ == 'ArrayAccess':
-           #         print Child.TempSizes[0]
-
-
-
-        if self.SymbolLocation is not False:
-            self.ArrayType = self.SymbolLocation[0]["Type"]
+        print self.CurrentOffset
+        if self.SymbolLocation is not None:
+            self.ArrayType = self.SymbolLocation[1]["Type"]
         self.RunSemanticAnalysis()
 
-    def DigForChecks(self, Subtree, ArrayLevel):
+   # def DigForChecks(self, Subtree, ArrayLevel):
+    #    if Subtree is not False:
+            
+     #       if (len(self.TempSizes) == 0):
+      #          self.TempSizes = Subtree.TempSizes
+       #     if self.CurrentOffset > self.TempSizes[ArrayLevel]:
+        #        return False
+         #   else:
+        #        return True
+        #if Subtree is False:
 
-        if Subtree is not False:
-            if (len(self.TempSizes) == 0):
-                self.TempSizes = Subtree.TempSizes
-            if self.CurrentOffset > self.TempSizes[ArrayLevel]:
-
-                return False
-            else:
-
-                return True
-        if Subtree is False:
-            for Child in self.GetChildren():
-                if Child.__class__.__name__ == 'ArrayAccess':
-                    self.DigForChecks(Child, ArrayLevel+1)
+         #   for Child in self.GetChildren():
+          #      if Child.__class__.__name__ == 'ArrayAccess':
+           #         self.DigForChecks(Child, ArrayLevel+1)
 
 
     def GetIndex(self, Subtree):
@@ -1177,12 +1184,14 @@ class ArrayAccess(Node):
         if not IsNode(Subtree): return
         if Subtree.GetChildren() is None: return
 
-
         for Child in Subtree.GetChildren():
             if Child.__class__.__name__ == 'Constant':
+                if Child.DataType is not 'int':
+                    ErrManager.AddError(PrettyErrorPrint("Access of array \"{}\" has non-integer type.".format(self.Label), self.Loc[0], self.Loc[2], self.Production.lexer.lexdata))
+                    pass
                 return Child.Child
             if Child.__class__.__name__ == 'Identifier':
-                return Child.STPtr
+                return Child.Name
 
             return self.GetIndex(Child)
 
@@ -1201,17 +1210,20 @@ class ArrayAccess(Node):
         if not IsNode(Subtree): return False
         if Subtree.GetChildren() is None: return False
 
+        if Subtree.__class__.__name__ == 'Identifier':
+            return Subtree.Name
 
-        for Child in Subtree.GetChildren():
-            if Child.__class__.__name__ == 'Identifier':
-                return Child.Name
-            else:
-                return(self.FetchId(Child))
+        else:
+            for Child in Subtree.GetChildren():
+                if Child.__class__.__name__ == 'Identifier':
+                    return Child.Name
+                else:
+                    return(self.FetchId(Child))
 
 
     def RunSemanticAnalysis(self):
-        if self.DigForChecks(self.SymbolLocation, 0) == False:
-            ErrManager.AddError("Row:{} Col:{} Array Acces out of bounds of allocated array memory")
+        #if self.DigForChecks(self.SymbolLocation, 0) == False:
+            #ErrManager.AddError("Row:{} Col:{} Array Acces out of bounds of allocated array memory")
         pass
 
 
