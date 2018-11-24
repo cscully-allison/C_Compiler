@@ -1,6 +1,13 @@
-def SafeCheckDict(Dict, Key, Content):
-    if Key in Dict and Dict[Key] == Content:
+def SafeCheckDict(Dict, Key, Content = None):
+    if Dict is None:
+        return False
+    if Content is not None:
+        if Key in Dict and Dict[Key] == Content:
+            return True
+        return False
+    elif Key in Dict:
         return True
+
     return False
 
 def GetBytesFromId(ID, DTCBytes):

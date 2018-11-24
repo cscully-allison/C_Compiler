@@ -38,12 +38,3 @@ int fun1(int arg3[10], char arg4){
         $!ST1
     }
 }
-//
-//
-//     fun2(var3, var2);
-// }
-// //
-// //
-// int fun2(int arg5, int arg6){
-//     fun2(arg5, arg6);
-// }

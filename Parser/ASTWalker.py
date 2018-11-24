@@ -13,6 +13,28 @@ class CodeGenerator(object):
         ST_G.PushNewScope()
         self.Output3AC(AST)
 
+    def GetPads(self):
+        Pads = [len('Instruction') + 3, len('Destination') + 3, len('Operand A') + 3, len('Operand B') + 3]
+
+        for line in self.Output:
+            line['Dest'] = str(line['Dest'])
+            line['OpA'] = str(line['OpA'])
+            line['OpB'] = str(line['OpB'])
+
+            if len(line['Instruction']) > Pads[0]: Pads[0] = len(line['Instruction']) + 2
+            if len(line['Dest']) > Pads[1]: Pads[1] = len(line['Dest']) + 2
+            if len(line['OpA']) > Pads[2]: Pads[2] = len(line['OpA']) + 2
+            if len(line['OpB']) > Pads[3]: Pads[3] = len(line['OpB']) + 2
+
+        return Pads
+
+
+    def PrettyPrint3AC(self):
+        Pads = self.GetPads()
+        print("%s %s %s %s" % ('Instruction'.ljust(Pads[0]), 'Destination'.ljust(Pads[1]), 'Operand A'.ljust(Pads[2]), 'Operand B'.ljust(Pads[3])))
+        for line in self.Output:
+            print("%s %s %s %s" % ( line['Instruction'].ljust(Pads[0]), line['Dest'].ljust(Pads[1]), line['OpA'].ljust(Pads[2]), line['OpB'].ljust(Pads[3]) ) )
+
     def GetStatementRoot(self, FunctSubtree):
         CompoundRoot = None
         StatementIdentifiers = ['StatementList', 'AssignmentExpression', 'SelectionStatement', 'IterationStatement', 'BinOp']
@@ -30,6 +52,8 @@ class CodeGenerator(object):
         return None
 
     def IsNode(self, Node):
+        if type(Node) is type("string"):
+            return False
         for base in Node.__class__.__bases__:
             if base.__name__ is 'Node':
                 return True
@@ -52,17 +76,88 @@ class CodeGenerator(object):
             return True;
         return False;
 
+    def IsTempReg(self, String):
+        if String is None: return False
+
+        if "FR" in String or "IR" in String:
+            return True
+
+        return False
+
+    def GetInsFromOp(self, Operand):
+        InsOpMap = { '+': 'ADD', '-': 'SUB', '*': 'MULT', '/': 'DIV', '==': 'EQ', '>': 'GT', '<': 'LT', '>=': 'GE', '<=': 'LE', '!=': 'NE', '!': 'NOT', '++': 'INC', '--' : 'DEC'}
+        return InsOpMap[Operand]
+
+    def GetFormattedOperand(self, Operand):
+        Opcode = ""
+
+        if not self.IsTempReg(Operand):
+            if Operand is not None:
+                if 'Global' in Operand and Operand['Global'] is True:
+                    Opcode = self.FormatGlobalVarCall(Operand)
+                # need a case for arguments
+                elif 'Local Offset' in Operand:
+                    Opcode = self.FormatLocalVarCall(Operand)
+                else:
+                    Opcode = self.FormatConstant(Operand)
+        else:
+            Opcode = Operand
+
+        return Opcode
+
+
+    def FormatLocalVarCall(self, ID):
+        return('local ' + str(ID['Local Offset']))
+
+    def FormatGlobalVarCall(self, ID):
+        return('glob ' + ID['Label'])
+
+    def FormatConstant(self, Const):
+        if 'float' in Const['Type']:
+            return('fconst ' + str(Const['Value']))
+        return('const ' + str(Const['Value']))
+
     def Load3AC(self, Instruction = None, Dest = None, OperandA = None, OperandB = None, LineNo = None):
         self.Output.append({'Instruction': Instruction, 'Dest': Dest, 'OpA': OperandA, 'OpB': OperandB, 'LineNo': LineNo})
 
 
     def BinOp(self, Subtree):
-        pass
         #base case
+        if not self.IsNode(Subtree):
+            return
 
-        # recursive binop call (depth first and return temp address lhs and rhs)
+        elif self.IsNodeType(Subtree, "CastNode"):
+            # this wil be replaced with a cast node output thing
+            return self.BinOp(Subtree.SubExpression)
 
-        # things we need: binary operator, temporary storage, op1, op2
+        elif self.IsNodeType(Subtree, 'Identifier'):
+            ID = ST_G.RecoverMostRecentID(Subtree.Name)
+            return ID
+            # return data structure
+
+        elif self.IsNodeType(Subtree, "Constant"):
+            # return pseudo-identifier
+            return {'Type': [Subtree.DataType], 'Value': Subtree.Child, 'Type Qualifier': ['const']}
+
+        elif self.IsNodeType(Subtree, "BinOp"):
+            LHSOp = None
+            RHSOp = None
+            LHS = self.BinOp(Subtree.Left)
+            RHS = self.BinOp(Subtree.Right)
+
+            # We need to check some things: casts, identifiers for loading into items
+            Ins = self.GetInsFromOp(Subtree.Op)
+            LHSOp = self.GetFormattedOperand(LHS)
+            RHSOp = self.GetFormattedOperand(RHS)
+
+            print (Ins, Subtree.Register, LHSOp, RHSOp)
+            self.Load3AC(Instruction = Ins, Dest=Subtree.Register, OperandA = LHSOp, OperandB = RHSOp)
+
+            return Subtree.Register
+
+        else:
+            for Child in Subtree.GetChildren():
+                return self.BinOp(Child)
 
 
 
@@ -156,8 +251,8 @@ class CodeGenerator(object):
             self.FunctionDefintion(Subtree)
         elif self.IsNodeType(Subtree, "Declaration"):
             self.Declaration(Subtree)
-        # elif self.IsNodeType(Subtree, "BinOp"):
-        #     self.BinOp()
+        elif self.IsNodeType(Subtree, "BinOp"):
+            self.BinOp(Subtree)
         # if in selection Statement
             # call self.SeclectionStatmenet(Subtree)
         else:
