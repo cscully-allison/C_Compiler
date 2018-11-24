@@ -1,6 +1,6 @@
 import json
 from Globals import CM, ST_G
-from Utils import GetBytesFromId
+from Utils import GetBytesFromId, SafeCheckDict
 
 
 
@@ -9,7 +9,25 @@ class CodeGenerator(object):
         self.AST = AST
         self.File = File
         self.Output = []
-        self.Ouput3AC(AST)
+        self.PostDeclaration = False
+        ST_G.PushNewScope()
+        self.Output3AC(AST)
+
+    def GetStatementRoot(self, FunctSubtree):
+        CompoundRoot = None
+        StatementIdentifiers = ['StatementList', 'AssignmentExpression', 'SelectionStatement', 'IterationStatement', 'BinOp']
+        for Child in FunctSubtree.GetChildren():
+            if self.IsNodeType(Child, 'CompoundStatement'):
+                CompoundRoot = Child
+
+        for Child in CompoundRoot.GetChildren():
+            if self.IsNodeType(Child, 'PassUpNode'):
+                if Child.ProductionName in StatementIdentifiers:
+                    return Child
+            elif Child.__class__.__name__ in StatementIdentifiers:
+                return Child
+
+        return None
 
     def IsNode(self, Node):
         for base in Node.__class__.__bases__:
@@ -40,13 +58,22 @@ class CodeGenerator(object):
 
     def Declaration(self, DeclNode):
         # add declaration to symbol table
-        for ID in DeclNode.ID:
-            ID['Size In Bytes'] = GetBytesFromId(ID, CM.TypeToBytes(ID['Type']))
-            ID['Local Offset'] = ST_G.CalcLocalOffset()
-            ST_G.InsertSymbol(ID['Label'], ID)
+        if self.PostDeclaration is False:
+            for ID in DeclNode.ID:
+                if not SafeCheckDict(ID, 'Subtype', 'Function Prototype'):
+                    ID['Size In Bytes'] = GetBytesFromId(ID, CM.TypeToBytes(ID['Type']))
+                    ID['Local Offset'] = ST_G.CalcLocalOffset()
+                    if ST_G.IsGlobalScope():
+                        ID['Global'] = True
+                        self.Load3AC(Instruction = "GLOBAL", Dest=ID['Label'], OperandA = ID['Size In Bytes'])
+                    else:
+                        ID['Global'] = False
+                    ST_G.InsertSymbol(ID['Label'], ID)
 
 
-        return DeclNode.Bytes
+            return DeclNode.Bytes
+
+        return None
 
     def GetStackFrameSize(self, CompoundStatement):
         if CompoundStatement is None: return 0
@@ -74,7 +101,6 @@ class CodeGenerator(object):
 
         # add stack frame size from Arguments
         for Arg in FunctSubtree.FunctionArguments:
-
             Arg['Size In Bytes'] = GetBytesFromId(Arg, CM.TypeToBytes(Arg['Type']))
             Arg['Local Offset'] = ST_G.CalcLocalOffset()
             ST_G.InsertSymbol(Arg['Label'], Arg)
@@ -86,6 +112,7 @@ class CodeGenerator(object):
             if self.IsNodeType(Child, 'CompoundStatement'):
                 StackFrameSize = self.GetStackFrameSize(Child)
 
+        self.PostDeclaration = True
 
         # Loading label, argsize in bytes, and StackFrameSize in bytes
         self.Load3AC(Instruction = "PROCENTRY", Dest=FunctSubtree.IDPtr['Label'], OperandA = StackFrameSize, OperandB = ArgsSize)
@@ -94,11 +121,18 @@ class CodeGenerator(object):
         ST_G.WriteSymbolTableToFile("walkerst.out")
 
         #recursively call Output 3AC on CompoundStatement to maintain correct scoping in ST
+        Statement = self.GetStatementRoot(FunctSubtree)
+
+
+        if Statement is not None:
+            self.Output3AC(Statement)
 
         #pop scope
+        self.PostDeclaration = False
+        ST_G.PopScope()
 
 
-    def Ouput3AC(self, Subtree):
+    def Output3AC(self, Subtree):
         # Base Case
         if Subtree is None: return
         if not self.IsNode(Subtree): return
@@ -107,12 +141,16 @@ class CodeGenerator(object):
         #Pass Up Node
         if self.IsPassUpNode(Subtree):
             for Child in Subtree.GetChildren():
-                self.Ouput3AC(Child)
+                self.Output3AC(Child)
         elif self.IsNodeType(Subtree, 'FunctionDefintion'):
             self.FunctionDefintion(Subtree)
+        elif self.IsNodeType(Subtree, "Declaration"):
+            self.Declaration(Subtree)
+        # if in selection Statement
+            # call self.SeclectionStatmenet(Subtree)
         else:
             for Child in Subtree.GetChildren():
-                self.Ouput3AC(Child)
+                self.Output3AC(Child)
 
 
 

@@ -29,9 +29,10 @@ int fun1(int arg3[10], char arg4){
     float var6;
     int arr[10][10], arrb;
 
-    var2 = var6 + 4.0;
+    10 + 2;
+    var2 = 3 * (3.2 * var2);
 
-    if(var0 < var1){
+    if( (4 > var0) < var1 ){
           fun1(arg3, 'a');
 
         $!ST1

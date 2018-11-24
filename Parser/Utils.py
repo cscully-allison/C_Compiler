@@ -1,3 +1,8 @@
+def SafeCheckDict(Dict, Key, Content):
+    if Key in Dict and Dict[Key] == Content:
+        return True
+    return False
+
 def GetBytesFromId(ID, DTCBytes):
     Bytes = 0
     TotalSize = 1

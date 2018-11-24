@@ -7,11 +7,15 @@ class ConfigManager(object):
         self.float = 0
         self.double = 0
         self.units = ""
+        self.Tree = None
 
         self.SetupConfig(SourceFile)
 
+        
+
     def SetupConfig(self, SourceFile):
         tree = ET.parse(SourceFile)
+        self.Tree = tree
         root = tree.getroot()
 
         for Child in root:

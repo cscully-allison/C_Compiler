@@ -999,6 +999,8 @@ class BinOp(Node):
             Children.append(self.Right)
         if self.ExprDataType is not None:
             Children.append(self.ExprDataType)
+        if self.Register is not None:
+            Children.append(self.Register)
 
         return Children
 
@@ -1045,11 +1047,14 @@ class BinOp(Node):
             if Child.__class__.__name__ == 'Identifier':
                 return Child.STPtr["Type"]
             if Child.__class__.__name__ == "BinOp":
+                # print(Child.Left, Child.Right)
                 LDT = self.GetBinOpDataType(Child.Left)
                 RDT = self.GetBinOpDataType(Child.Right)
-
                 if LDT == RDT:
                     return LDT
+                else:
+                    if Child.ExprDataType is not None:
+                         return Child.ExprDataType
             else:
                 return self.GetBinOpDataType(Child)
 

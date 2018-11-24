@@ -187,6 +187,10 @@ class SymbolTable():
             self.PopScope()
         return
 
+    def IsGlobalScope(self):
+        if len(self.Table) is 1 and self.TopScope is not None:
+            return True
+        return False
 
     def PrettyErrorPrint(self, Message, Lineno, Column):
         arrow = ""
