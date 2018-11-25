@@ -1,4 +1,4 @@
-from Utils import FunctPrettyErrorPrint, PrettyErrorPrint, FindColumn, IsNode, GetLoc, BuildArrayString, CalcConversionFactor
+from Utils import GetBytesFromIds, FunctPrettyErrorPrint, PrettyErrorPrint, FindColumn, IsNode, GetLoc, BuildArrayString, CalcConversionFactor, SafeCheckDict
 from Globals import CM, ErrManager, Label, FloatRegister, IntRegister, OutPutDataType, SCSLib, TSLib, TQLib, ST_G
 from copy import deepcopy
 
@@ -146,6 +146,13 @@ class FunctionPrototype(Node):
                             self.FunctionArguments.append(temp)
                         else:
                             self.BuildArgumentList(Child)
+                    # one-d array case
+                    elif Child.__class__.__name__ is "PrimaryExpression":
+                        temp = self.FunctionArguments.pop()
+                        temp['Array Size Info'] = self.FetchAbstractDeclarators(Child)
+                        temp['Subtype'] = 'Array Argument'
+                        self.FunctionArguments.append(temp)
+
                     else:
                         self.BuildArgumentList(Child)
 
@@ -274,11 +281,17 @@ class FunctionDefintion(Node):
         if not IsNode(Subtree): return
         if Subtree.GetChildren() is None: return
 
-        for Child in Subtree.GetChildren():
-            if Child.__class__.__name__ is "Identifier":
-                self.IDPtr = Child.STPtr
-                self.Label = Child.Name
-                break
+        if Subtree.__class__.__name__ is "Identifier":
+            self.IDPtr = Subtree.STPtr
+            self.Label = Subtree.Name
+            return
+
+        else:
+            for Child in Subtree.GetChildren():
+                if Child.__class__.__name__ is "Identifier":
+                    self.IDPtr = Child.STPtr
+                    self.Label = Child.Name
+                    break
 
 
     def BuildArgumentList(self, Subtree):
@@ -366,22 +379,23 @@ class FunctionDefintion(Node):
                         returns.append('Argument')
 
         else:
-            returns = None
+            returns = []
 
         return returns
 
     def CheckArray(self, Prototype):
-        for i, Arg in enumerate(Prototype['Arguments']):
-            if 'Subtype' in Arg and Arg['Subtype'] == 'Array Argument':
-                if 'Subtype' not in self.FunctionArguments[i] or self.FunctionArguments[i]['Subtype'] != 'Array':
-                        ErrManager.AddError(FunctPrettyErrorPrint("Error: Line:{} Column:{} ".format(self.Loc[0], self.Loc[2]) + "Argument data types in function definition do not match prototype. Array was expected from prototype.", self.IDPtr['TokenLocation'][0], self.IDPtr['TokenLocation'][2], self.Production.lexer.lexdata))
-                elif 'Subtype' in self.FunctionArguments[i] and self.FunctionArguments[i]['Subtype'] == 'Array':
-                    if len(self.FunctionArguments[i]['Array Size']) != len(Arg['Array Size Info']):
-                        ErrManager.AddError(FunctPrettyErrorPrint("Error: Line:{} Column:{} ".format(self.Loc[0], self.Loc[2]) + "Array dimensions do not match between prototype and function declaration. Prototype can be found here.", self.IDPtr['TokenLocation'][0], self.IDPtr['TokenLocation'][2], self.Production.lexer.lexdata))
-                    else:
-                        for i, Size in enumerate(self.FunctionArguments[i]['Array Size']):
-                            if Arg['Array Size Info'][i] != Size:
-                                ErrManager.AddError(FunctPrettyErrorPrint("Error: Line:{} Column:{} ".format(self.Loc[0], self.Loc[2]) + "Array sizes do not match between prototype and function declaration. Prototype can be found here.", self.IDPtr['TokenLocation'][0], self.IDPtr['TokenLocation'][2], self.Production.lexer.lexdata))
+        if 'Arguments' in Prototype:
+            for i, Arg in enumerate(Prototype['Arguments']):
+                if 'Subtype' in Arg and Arg['Subtype'] == 'Array Argument':
+                    if 'Subtype' not in self.FunctionArguments[i] or self.FunctionArguments[i]['Subtype'] != 'Array':
+                            ErrManager.AddError(FunctPrettyErrorPrint("Error: Line:{} Column:{} ".format(self.Loc[0], self.Loc[2]) + "Argument data types in function definition do not match prototype. Array was expected from prototype.", self.IDPtr['TokenLocation'][0], self.IDPtr['TokenLocation'][2], self.Production.lexer.lexdata))
+                    elif 'Subtype' in self.FunctionArguments[i] and self.FunctionArguments[i]['Subtype'] == 'Array':
+                        if len(self.FunctionArguments[i]['Array Size']) != len(Arg['Array Size Info']):
+                            ErrManager.AddError(FunctPrettyErrorPrint("Error: Line:{} Column:{} ".format(self.Loc[0], self.Loc[2]) + "Array dimensions do not match between prototype and function declaration. Prototype can be found here.", self.IDPtr['TokenLocation'][0], self.IDPtr['TokenLocation'][2], self.Production.lexer.lexdata))
+                        else:
+                            for i, Size in enumerate(self.FunctionArguments[i]['Array Size']):
+                                if Arg['Array Size Info'][i] != Size:
+                                    ErrManager.AddError(FunctPrettyErrorPrint("Error: Line:{} Column:{} ".format(self.Loc[0], self.Loc[2]) + "Array sizes do not match between prototype and function declaration. Prototype can be found here.", self.IDPtr['TokenLocation'][0], self.IDPtr['TokenLocation'][2], self.Production.lexer.lexdata))
 
 
 
@@ -594,19 +608,25 @@ class Declaration(Node):
 
         #gets and formats the declaration specifiers
         self.DeclSpecs = self.BuildDeclSpecsDict( self.FetchDeclSpecs(self.Left) )
-        self.Bytes = self.CalcBytes(self.DeclSpecs);
 
         #updates the symbol table
         self.UpdateSymbolTable(Right)
 
         # for list declarations gets the required number of bytes for each var
-        self.Bytes *= self.IDCtr;
+        self.Bytes = self.CalcBytes(self.DeclSpecs);
 
     def CalcBytes(self, DeclSpecs):
+        Bytes = 0
+        DTCBytes = 0
         Type = DeclSpecs['Type']
-        for TypeStr in Type:
-            if TypeStr is not 'long' and TypeStr is not 'short' and TypeStr is not 'unsigned' and TypeStr is not 'signed':
-                return int(getattr(CM, TypeStr))
+        DTCBytes = CM.TypeToBytes(Type)
+
+
+        # caluclates a conditional for arrays and normal data types space allocaton
+        Bytes = GetBytesFromIds(self.ID, DTCBytes)
+
+
+        return Bytes
 
     def GetChildren(self):
         Children = []
@@ -941,7 +961,6 @@ class AssignmentExpression(Node):
                 if Child.__class__.__name__ == 'Constant':
                     return [Child.DataType]
                 if Child.__class__.__name__ == 'Identifier':
-                    print Child.STPtr
                     return Child.STPtr["Type"]
                 if Child.__class__.__name__ == "BinOp":
                     LDT = self.GetBinOpDataType(Child.Left)
@@ -987,6 +1006,8 @@ class BinOp(Node):
             Children.append(self.Right)
         if self.ExprDataType is not None:
             Children.append(self.ExprDataType)
+        if self.Register is not None:
+            Children.append(self.Register)
 
         return Children
 
@@ -1031,13 +1052,19 @@ class BinOp(Node):
             if Child.__class__.__name__ == 'Constant':
                 return [Child.DataType]
             if Child.__class__.__name__ == 'Identifier':
-                return Child.STPtr["Type"]
+                if SafeCheckDict(Child.STPtr, 'Type'):
+                    return Child.STPtr['Type']
+                else:
+                    raise ValueError("Fatal error, see logs below.")
             if Child.__class__.__name__ == "BinOp":
+                # print(Child.Left, Child.Right)
                 LDT = self.GetBinOpDataType(Child.Left)
                 RDT = self.GetBinOpDataType(Child.Right)
-
                 if LDT == RDT:
                     return LDT
+                else:
+                    if Child.ExprDataType is not None:
+                         return Child.ExprDataType
             else:
                 return self.GetBinOpDataType(Child)
 
@@ -1131,22 +1158,21 @@ class ArrayAccess(Node):
         self.CurrentOffset += self.GetIndex(ArrayOffset)
 
         self.TempSizes = []
-        
+
         #self.SymbolLocation[0]["TokenLocation"][0]
         if self.SymbolLocation is not None:
-            i=0 
+            i=0
             while i < len(self.SymbolLocation[1]["Array Size"]):
                 self.TempSizes.append(self.SymbolLocation[1]["Array Size"][i])
                 i = i+1
 
-        print self.CurrentOffset
         if self.SymbolLocation is not None:
             self.ArrayType = self.SymbolLocation[1]["Type"]
         self.RunSemanticAnalysis()
 
    # def DigForChecks(self, Subtree, ArrayLevel):
     #    if Subtree is not False:
-            
+
      #       if (len(self.TempSizes) == 0):
       #          self.TempSizes = Subtree.TempSizes
        #     if self.CurrentOffset > self.TempSizes[ArrayLevel]:
