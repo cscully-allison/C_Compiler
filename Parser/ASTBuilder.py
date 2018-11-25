@@ -1116,10 +1116,8 @@ class ArrayAccess(Node):
         self.ArrayType = None
         self.CurrentOffset = []
         self.SymbolLocation = None
-        #for child in self.ArrayOffset.GetChildren():
-         #   print child.__class__.__name__
         self.Label = self.FetchId(ArrayName)
-        print ("iteration")
+
 
         #appends offset from inner level
         for child in ArrayName.GetChildren():
@@ -1127,6 +1125,7 @@ class ArrayAccess(Node):
                     if len(child) < 2:
                         self.CurrentOffset += child
 
+       
         if self.Label is not False:
             self.SymbolLocation = ST.FindSymbolInTable(self.Label)[0]
         self.CurrentOffset += self.GetIndex(ArrayOffset)
