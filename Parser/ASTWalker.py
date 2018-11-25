@@ -1,5 +1,5 @@
 import json
-from Globals import CM, ST_G
+from Globals import CM, ST_G, FloatRegister, IntRegister
 from Utils import GetBytesFromId, SafeCheckDict
 
 
@@ -12,6 +12,12 @@ class CodeGenerator(object):
         self.PostDeclaration = False
         ST_G.PushNewScope()
         self.Output3AC(AST)
+
+    '''
+    **********************
+    Output functions.
+    **********************
+    '''
 
     def GetPads(self):
         Pads = [len('Instruction') + 3, len('Destination') + 3, len('Operand A') + 3, len('Operand B') + 3]
@@ -28,13 +34,19 @@ class CodeGenerator(object):
 
         return Pads
 
-
     def PrettyPrint3AC(self):
         Pads = self.GetPads()
         print("%s %s %s %s" % ('Instruction'.ljust(Pads[0]), 'Destination'.ljust(Pads[1]), 'Operand A'.ljust(Pads[2]), 'Operand B'.ljust(Pads[3])))
         for line in self.Output:
             print("%s %s %s %s" % ( line['Instruction'].ljust(Pads[0]), line['Dest'].ljust(Pads[1]), line['OpA'].ljust(Pads[2]), line['OpB'].ljust(Pads[3]) ) )
 
+
+
+    '''
+    **********************
+    Auxilary functons.
+    **********************
+    '''
     def GetStatementRoot(self, FunctSubtree):
         CompoundRoot = None
         StatementIdentifiers = ['StatementList', 'AssignmentExpression', 'SelectionStatement', 'IterationStatement', 'BinOp']
@@ -85,8 +97,12 @@ class CodeGenerator(object):
         return False
 
     def GetInsFromOp(self, Operand):
-        InsOpMap = { '+': 'ADD', '-': 'SUB', '*': 'MULT', '/': 'DIV', '==': 'EQ', '>': 'GT', '<': 'LT', '>=': 'GE', '<=': 'LE', '!=': 'NE', '!': 'NOT', '++': 'INC', '--' : 'DEC'}
-        return InsOpMap[Operand]
+        InsOpMap = { '+': 'ADD', '+=': 'ADD', '-': 'SUB', '-=': 'SUB', '*': 'MULT', '*=': 'MULT', '/': 'DIV', '/=': 'DIV', '==': 'EQ', '>': 'GT', '<': 'LT', '>=': 'GE', '<=': 'LE', '!=': 'NE', '!': 'NOT', '++': 'INC', '--' : 'DEC'}
+        return InsOpMap.get(Operand)
+
+    def GetInverseComparator(self, Operand):
+        ComparatorMap = {'EQ':'BRNE', 'NE':'BREQ', 'LT':'BRGE', 'GE': 'BRLT', 'GT': 'BRLE', 'LE':'BRGT'}
+        return ComparatorMap.get(Operand)
 
     def GetFormattedOperand(self, Operand):
         Opcode = ""
@@ -105,20 +121,96 @@ class CodeGenerator(object):
 
         return Opcode
 
-
     def FormatLocalVarCall(self, ID):
         return('local ' + str(ID['Local Offset']))
 
     def FormatGlobalVarCall(self, ID):
         return('glob ' + ID['Label'])
 
+    def FormatLabel(self, Label):
+        return('label ' + Label)
+
     def FormatConstant(self, Const):
         if 'float' in Const['Type']:
             return('fconst ' + str(Const['Value']))
         return('const ' + str(Const['Value']))
 
+    def GetJumpStatement(self, Quad, Label):
+        # evaluate
+        Ins = self.GetInverseComparator(Quad.get('Instruction'))
+        Quad['Instruction'] = Ins
+        Quad['Dest'] = self.FormatLabel(Label)
+
+        return Quad
+
     def Load3AC(self, Instruction = None, Dest = None, OperandA = None, OperandB = None, LineNo = None):
         self.Output.append({'Instruction': Instruction, 'Dest': Dest, 'OpA': OperandA, 'OpB': OperandB, 'LineNo': LineNo})
+
+    '''
+    **********************
+    Walking functons.
+    **********************
+    '''
+
+    def Identifier(self, Subtree):
+        ID = ST_G.RecoverMostRecentID(Subtree.Name)
+        return ID
+
+    def Constant(self, Subtree):
+        return {'Type': [Subtree.DataType], 'Value': Subtree.Child, 'Type Qualifier': ['const']}
+
+    def ArrayAccess(self, Subtree):
+        pass
+
+    def PrimaryExpression(self, Subtree):
+        return self.Output3AC(Subtree)
+
+    def SelectionStatement(self, Subtree):
+        # call Output3AC on the BinOp statement
+        result = self.Output3AC(Subtree.IfExpression)
+
+        #build our Jump Statement from the last output
+        JumpStatementQuad = self.GetJumpStatement(self.Output.pop(), Subtree.ElseLabel) #then block is our end of block
+
+        #load jump statement into the output
+        self.Output.append(JumpStatementQuad)
+
+        #call generate 3AC on then block
+        self.Output3AC(Subtree.ThenBlock)
+
+        #print jump Label
+        self.Load3AC(Instruction = "LABEL", Dest=Subtree.ElseLabel)
+
+        if Subtree.ElseBlock is not None:
+            self.Output3AC(Subtree.ElseBlock)
+
+        pass
+
+    def AssignmentExpression(self, Subtree):
+        # assign a register
+        AssignRegister = None
+
+        # get either side
+        LHS = self.Output3AC(Subtree.Left)
+        RHS = self.Output3AC(Subtree.Right)
+        LHSOp = self.GetFormattedOperand(LHS)
+        RHSOp = self.GetFormattedOperand(RHS)
+
+        # get a register for this assignment expression
+        if 'float' in LHS['Type']:
+            AssignRegister = FloatRegister.DispenseTicket()
+        else:
+            AssignRegister = IntRegister.DispenseTicket()
+
+        # outputting binary operation before assignment
+        Ins = self.GetInsFromOp(Subtree.Op)
+
+        # check for compound operation
+        if Ins is not None:
+            self.Load3AC(Instruction = Ins, Dest=AssignRegister, OperandA = LHSOp, OperandB = RHSOp)
+            self.Load3AC(Instruction = "ASSIGN", Dest=LHSOp, OperandB=AssignRegister)
+        else:
+            self.Load3AC(Instruction = "ASSIGN", Dest=LHSOp, OperandB=RHSOp)
 
 
     def BinOp(self, Subtree):
@@ -129,6 +221,9 @@ class CodeGenerator(object):
         elif self.IsNodeType(Subtree, "CastNode"):
             # this wil be replaced with a cast node output thing
             return self.BinOp(Subtree.SubExpression)
+
+        elif self.IsNodeType(Subtree, 'ArrayAccess'):
+            return self.ArrayAccess(Subtree)
 
         elif self.IsNodeType(Subtree, 'Identifier'):
             ID = ST_G.RecoverMostRecentID(Subtree.Name)
@@ -150,7 +245,6 @@ class CodeGenerator(object):
             LHSOp = self.GetFormattedOperand(LHS)
             RHSOp = self.GetFormattedOperand(RHS)
 
-            print (Ins, Subtree.Register, LHSOp, RHSOp)
             self.Load3AC(Instruction = Ins, Dest=Subtree.Register, OperandA = LHSOp, OperandB = RHSOp)
 
             return Subtree.Register
@@ -239,9 +333,11 @@ class CodeGenerator(object):
 
     def Output3AC(self, Subtree):
         # Base Case
-        if Subtree is None: return
-        if not self.IsNode(Subtree): return
-        if Subtree.GetChildren() is None: return
+        if Subtree is None: return None
+        if not self.IsNode(Subtree): return None
+        if Subtree.GetChildren() is None: return None
+
+        SideEffect = None
 
         #Pass Up Node
         if self.IsPassUpNode(Subtree):
@@ -252,12 +348,20 @@ class CodeGenerator(object):
         elif self.IsNodeType(Subtree, "Declaration"):
             self.Declaration(Subtree)
         elif self.IsNodeType(Subtree, "BinOp"):
-            self.BinOp(Subtree)
-        # if in selection Statement
-            # call self.SeclectionStatmenet(Subtree)
+            SideEffect = self.BinOp(Subtree)
+        elif self.IsNodeType(Subtree, "AssignmentExpression"):
+            self.AssignmentExpression(Subtree)
+        elif self.IsNodeType(Subtree, "Identifier"):
+            SideEffect = self.Identifier(Subtree)
+        elif self.IsNodeType(Subtree, "Constant"):
+            SideEffect = self.Constant(Subtree)
+        elif self.IsNodeType(Subtree, "SelectionStatement"):
+            self.SelectionStatement(Subtree)
         else:
             for Child in Subtree.GetChildren():
-                self.Output3AC(Child)
+                SideEffect = self.Output3AC(Child)
+
+        return SideEffect
 
 
 

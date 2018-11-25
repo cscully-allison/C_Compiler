@@ -1092,8 +1092,7 @@ class SelectionStatement(Node):
         self.ElseBlock = ElseBlock
         self.Loc = Loc
 
-        if self.ThenBlock is not None: self.ThenLabel = Label.DispenseTicket()
-        if self.ElseBlock is not None: self.ElseLabel = Label.DispenseTicket()
+        if self.ThenBlock is not None: self.ElseLabel = Label.DispenseTicket()
 
         self.End = Label.DispenseTicket()
 
@@ -1146,7 +1145,6 @@ class ArrayAccess(Node):
         #for child in self.ArrayOffset.GetChildren():
          #   print child.__class__.__name__
         self.Label = self.FetchId(ArrayName)
-        print ("iteration")
 
         #appends offset from inner level
         for child in ArrayName.GetChildren():
@@ -1155,7 +1153,7 @@ class ArrayAccess(Node):
                         self.CurrentOffset += child
 
         if self.Label is not False:
-            self.SymbolLocation = ST.FindSymbolInTable(self.Label)[0]
+            self.SymbolLocation = ST.RecoverMostRecentID(self.Label)
         self.CurrentOffset += self.GetIndex(ArrayOffset)
 
         self.TempSizes = []
@@ -1163,12 +1161,12 @@ class ArrayAccess(Node):
         #self.SymbolLocation[0]["TokenLocation"][0]
         if self.SymbolLocation is not None:
             i=0
-            while i < len(self.SymbolLocation[1]["Array Size"]):
-                self.TempSizes.append(self.SymbolLocation[1]["Array Size"][i])
+            while i < len(self.SymbolLocation["Array Size"]):
+                self.TempSizes.append(self.SymbolLocation["Array Size"][i])
                 i = i+1
 
         if self.SymbolLocation is not None:
-            self.ArrayType = self.SymbolLocation[1]["Type"]
+            self.ArrayType = self.SymbolLocation["Type"]
         self.RunSemanticAnalysis()
 
    # def DigForChecks(self, Subtree, ArrayLevel):
