@@ -105,7 +105,7 @@ class CodeGenerator(object):
         return False
 
     def GetInsFromOp(self, Operand):
-        InsOpMap = { '+': 'ADD', '+=': 'ADD', '-': 'SUB', '-=': 'SUB', '*': 'MULT', '*=': 'MULT', '/': 'DIV', '/=': 'DIV', '==': 'EQ', '>': 'GT', '<': 'LT', '>=': 'GE', '<=': 'LE', '!=': 'NE', '!': 'NOT', '++': 'INC', '--' : 'DEC'}
+        InsOpMap = { '+': 'ADD', '+=': 'ADD', '-': 'SUB', '-=': 'SUB', '*': 'MULT', '*=': 'MULT', '/': 'DIV', '/=': 'DIV', '==': 'EQ', '>': 'GT', '<': 'LT', '>=': 'GE', '<=': 'LE', '!=': 'NE', '!': 'NOT', '++': 'ADD', '--' : 'SUB'}
         return InsOpMap.get(Operand)
 
     def GetInverseComparator(self, Operand):
@@ -193,7 +193,6 @@ class CodeGenerator(object):
             ArraySizes = Subtree.SymbolLocation['Array Size']
             ID = Subtree.SymbolLocation
             # get a register for this assignment expression
-            ArrayAccessRegister = self.AllocateRegister(Subtree.SymbolLocation)
 
 
             LHS = self.ArrayAccess(Subtree.ArrayName, Depth + 1)
@@ -226,6 +225,7 @@ class CodeGenerator(object):
 
             # we are still calulating dimensional offsets
             if Depth > 0:
+                ArrayAccessRegister = IntRegister.DispenseTicket()
                 # multiply the size offset with the actual offset value
                 OffsetReg = IntRegister.DispenseTicket()
                 Offset = self.GetFormattedOperand(RHS)
@@ -240,23 +240,26 @@ class CodeGenerator(object):
 
             # we are not still calculating dimensional offsets
             else:
-                OffsetReg = IntRegister.DispenseTicket()
+                ArrayAccessRegister = self.AllocateRegister(Subtree.SymbolLocation)
                 Offset = self.GetFormattedOperand(RHS)
-                Bytes = 'const ' + str(CM.TypeToBytes(ID['Type']))
-                self.Load3AC(Instruction = "MULT", Dest=OffsetReg, OperandA=Bytes, OperandB=Offset)
 
                 if 'Subtype' not in LHS:
                     FinalOffsetReg = IntRegister.DispenseTicket()
                     RemainingOffsets = self.GetFormattedOperand(LHS)
-                    self.Load3AC(Instruction = "ADD", Dest=FinalOffsetReg, OperandA=RemainingOffsets, OperandB=OffsetReg)
+                    self.Load3AC(Instruction = "ADD", Dest=FinalOffsetReg, OperandA=RemainingOffsets, OperandB=Offset)
                 else:
                     FinalOffsetReg = IntRegister.DispenseTicket()
-                    self.Load3AC(Instruction = "ASSIGN", Dest=FinalOffsetReg, OperandB=OffsetReg)
+                    self.Load3AC(Instruction = "ASSIGN", Dest=FinalOffsetReg, OperandB=Offset)
 
                 #load address of our current array into temp
                 # add int to the address in array
                 # access new offset as variable
-                self.Load3AC(Instruction = "ASSIGN", Dest=ArrayAccessRegister, OperandA=FinalOffsetReg, OperandB=self.GetFormattedOperand(ID))
+
+                OffsetInBytes = IntRegister.DispenseTicket()
+                Bytes = 'const ' + str(CM.TypeToBytes(ID['Type']))
+
+                self.Load3AC(Instruction = "MULT", Dest=OffsetInBytes, OperandA=Bytes, OperandB=FinalOffsetReg)
+                self.Load3AC(Instruction = "ASSIGN", Dest=ArrayAccessRegister, OperandA=OffsetInBytes, OperandB=self.GetFormattedOperand(ID))
 
 
             return ArrayAccessRegister
@@ -309,8 +312,9 @@ class CodeGenerator(object):
         LHSOp = self.GetFormattedOperand(LHS)
         RHSOp = self.GetFormattedOperand(RHS)
 
+
         # get a register for this assignment expression
-        if 'float' in LHS['Type']:
+        if type(LHS) is not type("string") and 'float' in LHS['Type']:
             AssignRegister = FloatRegister.DispenseTicket()
         else:
             AssignRegister = IntRegister.DispenseTicket()
@@ -446,7 +450,7 @@ class CodeGenerator(object):
         self.Load3AC(Instruction = "ENDPROC")
         self.Load3AC(Instruction = "RETURN")
 
-    
+
 
 
     def Output3AC(self, Subtree):
