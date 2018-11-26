@@ -446,6 +446,7 @@ class CodeGenerator(object):
         self.Load3AC(Instruction = "ENDPROC")
         self.Load3AC(Instruction = "RETURN")
 
+    
 
 
     def Output3AC(self, Subtree):
@@ -478,6 +479,8 @@ class CodeGenerator(object):
             self.Return(Subtree)
         elif self.IsNodeType(Subtree, "ArrayAccess"):
             SideEffect = self.ArrayAccess(Subtree)
+        elif self.IsNodeType(Subtree, "UnaryExpression"):
+            SideEffect = self.UnaryExpression(Subtree)
         else:
             for Child in Subtree.GetChildren():
                 SideEffect = self.Output3AC(Child)

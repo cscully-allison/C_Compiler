@@ -1,6 +1,6 @@
 from RegisterTable import RegisterTable
 
-TestReg = RegisterTable()
+TestReg = RegisterTable('../TargetMachine.config')
 TestReg.SetARegister('a', 'char')
 TestReg.SetTRegister(20, 'int')
 TestReg.SetTRegister(21, 'int')

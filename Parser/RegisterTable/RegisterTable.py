@@ -1,38 +1,67 @@
+from ConfigManager import ConfigManager
+
 class RegisterTable():
-	def __init__ (self):
+	def __init__ (self, filepath = None):
+		
 		self.Registers = []
-		self.Registers.append({'assembly name': '$zero', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$at', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$v0', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$v1', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$a0', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$a1', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$a2', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$a3', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$t0', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$t1', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$t2', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$t3', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$t4', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$t5', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$t6', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$t7', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$s0', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$s1', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$s2', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$s3', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$s4', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$s5', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$s6', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$s7', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$t8', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$t9', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$k0', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$k1', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$gp', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$sp', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$fp', 'value': None, 'data type' : None})
-		self.Registers.append({'assembly name': '$ra', 'value': None, 'data type' : None})
+
+		#get data from file
+		manager = ConfigManager(filepath)
+		root = manager.Tree.getroot()
+		
+		#set prefixes and declare base number of registers
+		regPrefix = '$'
+		a = 'a'
+		aNum = None
+		f = 'f'
+		fNum = None
+		v = 'v'
+		vNUm = None
+		t = 't'
+		tNum = None
+		s = 's'
+		sNum = None
+		
+		#add default registers
+		self.Registers.append({'assembly name': '$zero', 'value': 0, 'data type': 'Int'})
+		self.Registers.append({'assembly name': '$sp', 'value': None, 'data type': None})
+		self.Registers.append({'assembly name': '$ra', 'value': None, 'data type': None})
+
+		for Argument in root.iter('Argument'):
+			for things in Argument:
+				if things.tag == 'Number':
+					aNum = things.text
+					for i in range(int(aNum)):
+						self.Registers.append({'assembly name': regPrefix+a+str(i), 'value': None, 'data type' : None})	
+
+		for Argument in root.iter('Return'):
+			for things in Argument:
+				if things.tag == 'Number':
+					vNum = things.text
+					for i in range(int(vNum)):
+						self.Registers.append({'assembly name': regPrefix+v+str(i), 'value': None, 'data type' : None})
+
+		for Argument in root.iter('Temporary'):
+			for things in Argument:
+				if things.tag == 'Number':
+					tNum = things.text
+					for i in range(int(tNum)):
+						self.Registers.append({'assembly name': regPrefix+t+str(i), 'value': None, 'data type' : None})
+
+		for Argument in root.iter('SavedTemporary'):
+			for things in Argument:
+				if things.tag == 'Number':
+					sNum = things.text
+					for i in range(int(sNum)):
+						self.Registers.append({'assembly name': regPrefix+s+str(i), 'value': None, 'data type' : None})
+
+		for Argument in root.iter('FTemp'):
+			for things in Argument:
+				if things.tag == 'Number':
+					fNum = things.text
+					for i in range(int(fNum)):
+						self.Registers.append({'assembly name': regPrefix+f+str(i), 'value': None, 'data type' : 'Float'})
+
 
 	def GetRegisterData(self, AssemblyName = None):
 		if AssemblyName is not None:
