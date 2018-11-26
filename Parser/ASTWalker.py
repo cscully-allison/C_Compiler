@@ -1,7 +1,7 @@
 import json
-from Globals import CM, ST_G, FloatRegister, IntRegister
+from Globals import CM, ST_G, FloatRegister, IntRegister, ErrManager
 from Utils import GetBytesFromId, SafeCheckDict
-
+from copy import deepcopy
 
 
 class CodeGenerator(object):
@@ -44,7 +44,7 @@ class CodeGenerator(object):
 
     '''
     **********************
-    Auxilary functons.
+    Auxilary functions.
     **********************
     '''
     def GetStatementRoot(self, FunctSubtree):
@@ -76,6 +76,14 @@ class CodeGenerator(object):
             if Node.__class__.__name__ == Name:
                 return True
         return False
+
+    def AllocateRegister(self, ID):
+        Register = None
+        if 'float' in ID['Type']:
+            Register = FloatRegister.DispenseTicket()
+        else:
+            Register = IntRegister.DispenseTicket()
+        return Register
 
     def IsIdentifier(self, Node):
         for base in Node.__class__.__bases__:
@@ -112,6 +120,7 @@ class CodeGenerator(object):
                 if 'Global' in Operand and Operand['Global'] is True:
                     Opcode = self.FormatGlobalVarCall(Operand)
                 # need a case for arguments
+
                 elif 'Local Offset' in Operand:
                     Opcode = self.FormatLocalVarCall(Operand)
                 else:
@@ -143,6 +152,19 @@ class CodeGenerator(object):
 
         return Quad
 
+    def GetArrayOffsetInfo(self, Array, Depth):
+        Index = 0
+        Arr = deepcopy(Array)
+        Temparr = []
+
+
+        while Index < Depth:
+            Temparr.append(Arr.pop())
+            Index += 1
+
+
+        return Temparr
+
     def Load3AC(self, Instruction = None, Dest = None, OperandA = None, OperandB = None, LineNo = None):
         self.Output.append({'Instruction': Instruction, 'Dest': Dest, 'OpA': OperandA, 'OpB': OperandB, 'LineNo': LineNo})
 
@@ -159,11 +181,102 @@ class CodeGenerator(object):
     def Constant(self, Subtree):
         return {'Type': [Subtree.DataType], 'Value': Subtree.Child, 'Type Qualifier': ['const']}
 
-    def ArrayAccess(self, Subtree):
-        pass
+    def ArrayAccess(self, Subtree, Depth = 0):
+        Returned = None
+        ArrayAccessRegister = None
+
+        if self.IsNodeType(Subtree, "PrimaryExpression"):
+            Returned = self.PrimaryExpression(Subtree)
+            return Returned
+        elif self.IsNodeType(Subtree, "ArrayAccess"):
+            # variables
+            ArraySizes = Subtree.SymbolLocation['Array Size']
+            ID = Subtree.SymbolLocation
+            # get a register for this assignment expression
+            ArrayAccessRegister = self.AllocateRegister(Subtree.SymbolLocation)
+
+
+            LHS = self.ArrayAccess(Subtree.ArrayName, Depth + 1)
+
+            # check if we have a recusrive element in the array access area
+            if self.IsNodeType(Subtree.ArrayOffset, "ArrayAccess"):
+                RHS = self.Output3AC(Subtree.ArrayOffset)
+            else:
+                RHS = self.ArrayAccess(Subtree.ArrayOffset, Depth + 1)
+
+
+            Multiplicands = self.GetArrayOffsetInfo(ArraySizes, Depth)
+
+
+            #### Main output of 3AC ######
+            PriorReg = None
+            # assume these are integers
+            for Scalar in Multiplicands:
+                if PriorReg is None:
+                    # assign and make register
+                    PriorReg = IntRegister.DispenseTicket()
+                    ScalarOp = "const " + str(Scalar)
+                    self.Load3AC(Instruction = "ASSIGN", Dest=PriorReg, OperandB=ScalarOp)
+                else:
+                    # multiply with prior reg and assign
+                    TReg = IntRegister.DispenseTicket()
+                    ScalarOp = "const " + str(Scalar)
+                    self.Load3AC(Instruction = "MULT", Dest=TReg, OperandA=PriorReg, OperandB=ScalarOp)
+                    PriorReg = TReg
+
+            # we are still calulating dimensional offsets
+            if Depth > 0:
+                # multiply the size offset with the actual offset value
+                OffsetReg = IntRegister.DispenseTicket()
+                Offset = self.GetFormattedOperand(RHS)
+                self.Load3AC(Instruction = "MULT", Dest=OffsetReg, OperandA=PriorReg, OperandB=Offset)
+
+                #add with remaining offsets to get our total offset
+                if 'Subtype' not in LHS:
+                    RemainingOffsets = self.GetFormattedOperand(LHS)
+                    self.Load3AC(Instruction = "ADD", Dest=ArrayAccessRegister, OperandA=RemainingOffsets, OperandB=OffsetReg)
+                else:
+                    self.Load3AC(Instruction = "ASSIGN", Dest=ArrayAccessRegister, OperandB=OffsetReg)
+
+            # we are not still calculating dimensional offsets
+            else:
+                OffsetReg = IntRegister.DispenseTicket()
+                Offset = self.GetFormattedOperand(RHS)
+                Bytes = 'const ' + str(CM.TypeToBytes(ID['Type']))
+                self.Load3AC(Instruction = "MULT", Dest=OffsetReg, OperandA=Bytes, OperandB=Offset)
+
+                if 'Subtype' not in LHS:
+                    FinalOffsetReg = IntRegister.DispenseTicket()
+                    RemainingOffsets = self.GetFormattedOperand(LHS)
+                    self.Load3AC(Instruction = "ADD", Dest=FinalOffsetReg, OperandA=RemainingOffsets, OperandB=OffsetReg)
+                else:
+                    FinalOffsetReg = IntRegister.DispenseTicket()
+                    self.Load3AC(Instruction = "ASSIGN", Dest=FinalOffsetReg, OperandB=OffsetReg)
+
+                #load address of our current array into temp
+                # add int to the address in array
+                # access new offset as variable
+                self.Load3AC(Instruction = "ASSIGN", Dest=ArrayAccessRegister, OperandA=FinalOffsetReg, OperandB=self.GetFormattedOperand(ID))
+
+
+            return ArrayAccessRegister
+
+
 
     def PrimaryExpression(self, Subtree):
         return self.Output3AC(Subtree)
+
+    def Return(self, Subtree):
+        ReturnOp = None
+        ReturnRegister_Const = 'return'
+
+        #check for return vale and call recursion
+        if Subtree.ReturnExpression is not None:
+            Return = self.Output3AC(Subtree.ReturnExpression)
+            ReturnOp = self.GetFormattedOperand(Return)
+            #load in special reserved register
+            self.Load3AC(Instruction = "ASSIGN", Dest=ReturnRegister_Const, OperandB=ReturnOp)
+
 
     def SelectionStatement(self, Subtree):
         # call Output3AC on the BinOp statement
@@ -330,6 +443,10 @@ class CodeGenerator(object):
         self.PostDeclaration = False
         ST_G.PopScope()
 
+        self.Load3AC(Instruction = "ENDPROC")
+        self.Load3AC(Instruction = "RETURN")
+
+
 
     def Output3AC(self, Subtree):
         # Base Case
@@ -357,6 +474,10 @@ class CodeGenerator(object):
             SideEffect = self.Constant(Subtree)
         elif self.IsNodeType(Subtree, "SelectionStatement"):
             self.SelectionStatement(Subtree)
+        elif self.IsNodeType(Subtree, "ReturnNode"):
+            self.Return(Subtree)
+        elif self.IsNodeType(Subtree, "ArrayAccess"):
+            SideEffect = self.ArrayAccess(Subtree)
         else:
             for Child in Subtree.GetChildren():
                 SideEffect = self.Output3AC(Child)

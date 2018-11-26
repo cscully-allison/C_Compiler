@@ -5,7 +5,7 @@ from Globals import ErrManager, ST_G
 from Utils import PrettyErrorPrint, FindColumn
 from LexicalAnalizer import LexicalAnalizer
 from SymbolTable import SymbolTable
-from ASTBuilder import FunctionPrototype, FunctionCall, Identifier, ArrayDeclaration, PassUpNode, SelectionStatement, DeclarationSpecifiers, DeclList, Declaration, PrimaryExpression, UnaryExpression, Constant, FunctionDefintion, CompoundStatement, AssignmentExpression, InitDeclList, BinOp, IterationStatement, ArrayAccess
+from ASTBuilder import ReturnNode, FunctionPrototype, FunctionCall, Identifier, ArrayDeclaration, PassUpNode, SelectionStatement, DeclarationSpecifiers, DeclList, Declaration, PrimaryExpression, UnaryExpression, Constant, FunctionDefintion, CompoundStatement, AssignmentExpression, InitDeclList, BinOp, IterationStatement, ArrayAccess
 import ply.yacc as yacc
 
 
@@ -1067,14 +1067,14 @@ class Parser():
 
         def p_jump_statement_4(p):
             'jump_statement :  RETURN SEMI'
-            p[0] = p[1]
+            p[0] = ReturnNode(Production=p)
             if self.DebugProd == True:
                 self.DebugPrint("jump_statement -->  RETURN SEMI", p)
             return
 
         def p_jump_statement_5(p):
             'jump_statement :  RETURN expression SEMI'
-            p[0] = PassUpNode("JumpStatement", [p[1], p[2]])
+            p[0] = ReturnNode(ReturnExpression=p[2],Production=p)
             if self.DebugProd == True:
                 self.DebugPrint("jump_statement -->  RETURN expression SEMI", p)
             return
