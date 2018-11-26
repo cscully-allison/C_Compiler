@@ -77,6 +77,7 @@ class FunctionPrototype(Node):
         self.FunctionId = None
         self.FunctionArguments = []
         self.Label = None
+        self.Loc = GetLoc(Production)
 
         # fetch id first
         self.FetchFunctionId(self.DirectDeclarator)
@@ -558,6 +559,7 @@ class DeclarationSpecifiers(Node):
         self.TSpec = TSpec
         self.TQual = TQual
         self.DeclSpec = DeclSpec
+        self.Loc = GetLoc(Loc)
 
     def GetChildren(self):
         Children = []
@@ -580,6 +582,7 @@ class InitDeclList(Node):
     def __init__(self, DeclList=None, Decl=None, Loc=None):
         self.DeclList = DeclList
         self.Decl = Decl
+        self.Loc = GetLoc(Loc)
 
 
     def GetChildren(self):
@@ -603,7 +606,7 @@ class Declaration(Node):
     def __init__(self, Left=None, Right=None, Loc=None):
         self.Left = Left
         self.Right = Right
-        self.Loc = Loc
+        self.Loc = GetLoc(Loc)
         self.ID = []
         self.DeclLabel = []
         self.IDCtr = 0;
@@ -732,6 +735,7 @@ class ArrayDeclaration(Node):
         self.Production = Production
         self.Id = self.FetchId(Declarator)[0]
         self.Label = self.FetchId(Declarator)[1]
+        self.Loc = GetLoc(Production)
 
         # update the symbol table with size and subtype information
         if SizeExpr is not None: self.GetSize(SizeExpr)
@@ -815,6 +819,7 @@ class Constant(Node):
     def __init__(self, DataType, Child, Loc=None):
         self.DataType = DataType
         self.Child = Child
+        self.Loc = GetLoc(Loc)
         pass
 
     def GetChildren(self):
@@ -831,7 +836,7 @@ class PrimaryExpression(Node):
     def __init__(self, Type, Child, Loc=None):
         self.Type = Type
         self.Child = Child
-        self.Loc = Loc
+        self.Loc = GetLoc(Loc)
 
     def GetChildren(self):
         Children = []
@@ -866,7 +871,7 @@ class CompoundStatement(Node):
     def __init__(self, DecList = None, StmtList = None, Loc=None):
         self.DecList = DecList
         self.StmtList = StmtList
-        self.Loc = Loc
+        self.Loc = GetLoc(Loc)
 
     def GetChildren(self):
         Children = []
@@ -1093,7 +1098,7 @@ class SelectionStatement(Node):
         self.IfExpression = IfExpression
         self.ThenBlock = ThenBlock
         self.ElseBlock = ElseBlock
-        self.Loc = Loc
+        self.Loc = GetLoc(Loc)
 
         if self.ThenBlock is not None: self.ElseLabel = Label.DispenseTicket()
 
@@ -1118,6 +1123,7 @@ class IterationStatement(Node):
         self.IterativeExpression = IterativeExpression
         self.Statement = Statement
         self.Production = Production
+        self.Loc = GetLoc(Production)
 
         if self.ConditionalExpression is not None: self.StartLabel = Label.DispenseTicket()
         if self.Statement is not None: self.EndLabel = Label.DispenseTicket()
@@ -1244,7 +1250,7 @@ class ArrayAccess(Node):
 class ReturnNode(Node):
     def __init__(self, ReturnExpression=None, Loc = None, Production=None):
         self.ReturnExpression = ReturnExpression
-        self.Loc = Loc
+        self.Loc = GetLoc(Production)
         self.Production = Production
 
     def GetChildren(self):

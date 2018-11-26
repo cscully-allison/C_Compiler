@@ -120,14 +120,14 @@ class Parser():
 
         def p_declaration_1(p):
             'declaration :  declaration_specifiers SEMI'
-            p[0] = Declaration(Left=p[1])
+            p[0] = Declaration(Left=p[1], Loc = p)
             if self.DebugProd == True:
                 self.DebugPrint("declaration -->  declaration_specifiers SEMI", p)
             return
 
         def p_declaration_2(p):
             'declaration :  declaration_specifiers init_declarator_list SEMI'
-            p[0] = Declaration(Left=p[1], Right=p[2])
+            p[0] = Declaration(Left=p[1], Right=p[2], Loc = p)
 
             if self.DebugProd == True:
                 self.DebugPrint("declaration -->  declaration_specifiers init_declarator_list SEMI", p)
@@ -174,35 +174,35 @@ class Parser():
 
         def p_declaration_specifiers_2(p):
             'declaration_specifiers :  storage_class_specifier declaration_specifiers'
-            p[0] = DeclarationSpecifiers(SCSpec=p[1], DeclSpec=p[2])
+            p[0] = DeclarationSpecifiers(SCSpec=p[1], DeclSpec=p[2], Loc = p)
             if self.DebugProd == True:
                 self.DebugPrint("declaration_specifiers -->  storage_class_specifier declaration_specifiers", p)
             return
 
         def p_declaration_specifiers_3(p):
             'declaration_specifiers :  type_specifier'
-            p[0] = DeclarationSpecifiers(TSpec=p[1])
+            p[0] = DeclarationSpecifiers(TSpec=p[1], Loc = p)
             if self.DebugProd == True:
                 self.DebugPrint("declaration_specifiers -->  type_specifier", p)
             return
 
         def p_declaration_specifiers_4(p):
             'declaration_specifiers :  type_specifier declaration_specifiers'
-            p[0] = DeclarationSpecifiers(TSpec=p[1], DeclSpec=p[2])
+            p[0] = DeclarationSpecifiers(TSpec=p[1], DeclSpec=p[2], Loc = p)
             if self.DebugProd == True:
                 self.DebugPrint("declaration_specifiers -->  type_specifier declaration_specifiers", p)
             return
 
         def p_declaration_specifiers_5(p):
             'declaration_specifiers :  type_qualifier'
-            p[0] = DeclarationSpecifiers(TQual=p[1])
+            p[0] = DeclarationSpecifiers(TQual=p[1], Loc = p)
             if self.DebugProd == True:
                 self.DebugPrint("declaration_specifiers -->  type_qualifier", p)
             return
 
         def p_declaration_specifiers_6(p):
             'declaration_specifiers :  type_qualifier declaration_specifiers'
-            p[0] = DeclarationSpecifiers(TQual=p[1], DeclSpec=p[2])
+            p[0] = DeclarationSpecifiers(TQual=p[1], DeclSpec=p[2], Loc = p)
             if self.DebugProd == True:
                 self.DebugPrint("declaration_specifiers -->  type_qualifier declaration_specifiers", p)
             return
@@ -400,7 +400,7 @@ class Parser():
 
         def p_init_declarator_list_1(p):
             'init_declarator_list :  init_declarator'
-            p[0] = InitDeclList(Decl=p[1])
+            p[0] = InitDeclList(Decl=p[1], Loc = p)
 
             if self.DebugProd == True:
                 self.DebugPrint("init_declarator_list -->  init_declarator", p)
@@ -408,7 +408,7 @@ class Parser():
 
         def p_init_declarator_list_2(p):
             'init_declarator_list :  init_declarator_list COMMA init_declarator'
-            p[0] = InitDeclList(DeclList=p[1], Decl=p[3])
+            p[0] = InitDeclList(DeclList=p[1], Decl=p[3], Loc = p)
 
 
             if self.DebugProd == True:
@@ -674,7 +674,7 @@ class Parser():
 
         def p_parameter_declaration_1(p):
             'parameter_declaration :  declaration_specifiers declarator'
-            p[0] = Declaration(p[1], p[2])
+            p[0] = Declaration(p[1], p[2], Loc = p)
             if self.DebugProd == True:
                 self.DebugPrint("parameter_declaration -->  declaration_specifiers declarator", p)
             return
@@ -913,28 +913,28 @@ class Parser():
 
         def p_compound_statement_1(p):
             'compound_statement :  OPENBRACE CLOSEBRACE'
-            p[0] = CompoundStatement()
+            p[0] = CompoundStatement(Loc=p)
             if self.DebugProd == True:
                 self.DebugPrint("compound_statement -->  OPENBRACE CLOSEBRACE", p)
             return
 
         def p_compound_statement_2(p):
             'compound_statement :  OPENBRACE push_scope_e statement_list pop_scope_e CLOSEBRACE'
-            p[0] = CompoundStatement(StmtList=p[3])
+            p[0] = CompoundStatement(StmtList=p[3], Loc=p)
             if self.DebugProd == True:
                 self.DebugPrint("compound_statement -->  OPENBRACE statement_list CLOSEBRACE", p)
             return
 
         def p_compound_statement_3(p):
             'compound_statement :  OPENBRACE push_scope_e declaration_list pop_scope_e CLOSEBRACE'
-            p[0] = CompoundStatement(DecList=p[3])
+            p[0] = CompoundStatement(DecList=p[3], Loc=p)
             if self.DebugProd == True:
                 self.DebugPrint("compound_statement -->  OPENBRACE declaration_list CLOSEBRACE", p)
             return
 
         def p_compound_statement_4(p):
             'compound_statement :  OPENBRACE push_scope_e declaration_list statement_list insert_mode_e pop_scope_e CLOSEBRACE'
-            p[0] = CompoundStatement(DecList=p[3], StmtList=p[4])
+            p[0] = CompoundStatement(DecList=p[3], StmtList=p[4], Loc=p)
             if self.DebugProd == True:
                 self.DebugPrint("compound_statement -->  OPENBRACE declaration_list statement_list CLOSEBRACE", p)
             return
@@ -956,7 +956,7 @@ class Parser():
         def p_selection_statement_1(p):
             'selection_statement :  IF OPENPAREN expression CLOSEPAREN statement'
 
-            p[0] = SelectionStatement(IfExpression=p[3], ThenBlock=p[5])
+            p[0] = SelectionStatement(IfExpression=p[3], ThenBlock=p[5], Loc=p)
 
             if self.DebugProd == True:
                 self.DebugPrint("selection_statement -->  IF OPENPAREN expression CLOSEPAREN statement", p)
@@ -965,7 +965,7 @@ class Parser():
         def p_selection_statement_2(p):
             'selection_statement :  IF OPENPAREN expression CLOSEPAREN statement ELSE statement'
 
-            p[0] = SelectionStatement(IfExpression=p[3], ThenBlock=p[5], ElseBlock=p[7])
+            p[0] = SelectionStatement(IfExpression=p[3], ThenBlock=p[5], ElseBlock=p[7], Loc=p)
 
             if self.DebugProd == True:
                 self.DebugPrint("selection_statement -->  IF OPENPAREN expression CLOSEPAREN statement ELSE statement", p)
@@ -1572,7 +1572,7 @@ class Parser():
         def p_primary_expression_1(p):
             'primary_expression :  identifier'
 
-            p[0] = PrimaryExpression('identifier', p[1])
+            p[0] = PrimaryExpression('identifier', p[1], Loc = p)
 
             if self.DebugProd == True:
                 self.DebugPrint("primary_expression -->  identifier", p)
@@ -1580,7 +1580,7 @@ class Parser():
 
         def p_primary_expression_2(p):
             'primary_expression :  constant'
-            p[0] = PrimaryExpression('constant', p[1])
+            p[0] = PrimaryExpression('constant', p[1], Loc = p)
 
             if self.DebugProd == True:
                 self.DebugPrint("primary_expression -->  constant", p)
@@ -1588,7 +1588,7 @@ class Parser():
 
         def p_primary_expression_3(p):
             'primary_expression :  string'
-            p[0] = PrimaryExpression('string', p[1])
+            p[0] = PrimaryExpression('string', p[1], Loc = p)
 
             if self.DebugProd == True:
                 self.DebugPrint("primary_expression -->  string", p)
@@ -1596,7 +1596,7 @@ class Parser():
 
         def p_primary_expression_4(p):
             'primary_expression :  OPENPAREN expression CLOSEPAREN'
-            p[0] = PrimaryExpression('expression', p[2])
+            p[0] = PrimaryExpression('expression', p[2], Loc = p)
 
             if self.DebugProd == True:
                 self.DebugPrint("primary_expression -->  OPENPAREN expression CLOSEPAREN", p)
@@ -1620,35 +1620,35 @@ class Parser():
 
         def p_constant_1(p):
             'constant :  INTEGER_CONSTANT'
-            p[0]=Constant('int', p[1])
+            p[0]=Constant('int', p[1], Loc = p)
             if self.DebugProd == True:
                 self.DebugPrint("constant -->  INTEGER_CONSTANT", p)
             return
 
         def p_constant_2(p):
             'constant :  CHARACTER_CONSTANT'
-            p[0]=Constant('char', p[1])
+            p[0]=Constant('char', p[1], Loc = p)
             if self.DebugProd == True:
                 self.DebugPrint("constant -->  CHARACTER_CONSTANT", p)
             return
 
         def p_constant_3(p):
             'constant :  FLOATING_CONSTANT'
-            p[0]=Constant('float', p[1])
+            p[0]=Constant('float', p[1], Loc = p)
             if self.DebugProd == True:
                 self.DebugPrint("constant -->  FLOATING_CONSTANT", p)
             return
 
         def p_constant_4(p):
             'constant :  ENUMERATION_CONSTANT'
-            p[0]=Constant('enum', p[1])
+            p[0]=Constant('enum', p[1], Loc = p)
             if self.DebugProd == True:
                 self.DebugPrint("constant -->  ENUMERATION_CONSTANT", p)
             return
 
         def p_string_1(p):
             'string :  STRING_LITERAL'
-            p[0]=Constant('char*', p[1])
+            p[0]=Constant('char*', p[1], Loc = p)
             if self.DebugProd == True:
                 self.DebugPrint("string -->  STRING_LITERAL", p)
             return
