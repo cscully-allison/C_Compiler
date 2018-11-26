@@ -446,7 +446,22 @@ class CodeGenerator(object):
         self.Load3AC(Instruction = "ENDPROC")
         self.Load3AC(Instruction = "RETURN")
 
-    
+    def UnaryExpression(self, Subtree):
+        Op = Subtree.Op
+        RHS = self.Output3AC(Subtree.Child)
+        print ("DOGS")
+        print Op
+        print RHS
+        self.Load3AC(Instruction = )
+        self.Load3AC()
+        self.Load3AC()
+
+    def UnaryPostfixExpression(self, Subtree):
+        Op = Subtree.Op
+        LHS = self.Output3AC(Subtree.Child)
+        print ("DOGSPostfix")
+        print Op
+        print LHS
 
 
     def Output3AC(self, Subtree):
@@ -481,6 +496,8 @@ class CodeGenerator(object):
             SideEffect = self.ArrayAccess(Subtree)
         elif self.IsNodeType(Subtree, "UnaryExpression"):
             SideEffect = self.UnaryExpression(Subtree)
+        elif self.IsNodeType(Subtree, "UnaryPostfixExpression"):
+            SideEffect = self.UnaryPostfixExpression(Subtree)
         else:
             for Child in Subtree.GetChildren():
                 SideEffect = self.Output3AC(Child)
