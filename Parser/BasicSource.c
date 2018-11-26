@@ -16,6 +16,9 @@ int main(const int arg1, char arg2){
     int var5;
     float var10;
     int arr1[10];
+
+    var10 = arr1[1] + 3;
+
     {
       char var7;
     }

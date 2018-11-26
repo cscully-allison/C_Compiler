@@ -451,7 +451,10 @@ class FunctionCall(Node):
         self.Arguments = self.FetchArguments(self.ArgumentList)
         if self.IdPtr is not False:
             self.IdPtr = self.IdPtr
-            self.FunctionPrototypeArgs = self.IdPtr['Arguments']
+            if 'Arguments' in self.IdPtr:
+                self.FunctionPrototypeArgs = self.IdPtr['Arguments']
+            else:
+                self.FunctionPrototypeArgs = []
         else:
             return
         pass
@@ -751,7 +754,7 @@ class ArrayDeclaration(Node):
             for Child in Subtree.GetChildren():
                 if Child.__class__.__name__ == 'Constant':
                     if Child.DataType is not 'int':
-                        ErrManager.AddError(PrettyErrorPrint("Size of array \"{}\" has non-integer type.".format(self.Label), self.Id['TokenLocation'][0], self.Id['TokenLocation'][2], self.Production.lexer.lexdata))
+                        ErrManager.AddError(PrettyErrorPrint("Size of array declaration \"{}\" has non-integer type.".format(self.Label), self.Id['TokenLocation'][0], self.Id['TokenLocation'][2], self.Production.lexer.lexdata))
 
                     if 'Array Size' not in self.Id:
                         self.Id['Array Size'] = [Child.Child]
@@ -1092,8 +1095,7 @@ class SelectionStatement(Node):
         self.ElseBlock = ElseBlock
         self.Loc = Loc
 
-        if self.ThenBlock is not None: self.ThenLabel = Label.DispenseTicket()
-        if self.ElseBlock is not None: self.ElseLabel = Label.DispenseTicket()
+        if self.ThenBlock is not None: self.ElseLabel = Label.DispenseTicket()
 
         self.End = Label.DispenseTicket()
 
@@ -1154,20 +1156,13 @@ class ArrayAccess(Node):
 
        
         if self.Label is not False:
-            self.SymbolLocation = ST.FindSymbolInTable(self.Label)[0]
-        self.CurrentOffset += self.GetIndex(ArrayOffset)
+            self.SymbolLocation = ST.RecoverMostRecentID(self.Label)
 
-        self.TempSizes = []
-
-        #self.SymbolLocation[0]["TokenLocation"][0]
-        if self.SymbolLocation is not None:
-            i=0
-            while i < len(self.SymbolLocation[1]["Array Size"]):
-                self.TempSizes.append(self.SymbolLocation[1]["Array Size"][i])
-                i = i+1
+        self.CurrentOffset += self.GetIndex(ArrayName) + self.GetIndex(ArrayOffset)
 
         if self.SymbolLocation is not None:
-            self.ArrayType = self.SymbolLocation[1]["Type"]
+            self.ArrayType = self.SymbolLocation["Type"]
+
         self.RunSemanticAnalysis()
 
    # def DigForChecks(self, Subtree, ArrayLevel):
@@ -1187,29 +1182,34 @@ class ArrayAccess(Node):
 
 
     def GetIndex(self, Subtree):
-        if Subtree is None: return
-        if not IsNode(Subtree): return
-        if Subtree.GetChildren() is None: return
+        if Subtree is None: return []
+        if not IsNode(Subtree): return []
+        if Subtree.GetChildren() is None: return []
+
+        RunnningTotal = []
 
         for Child in Subtree.GetChildren():
-            if Child.__class__.__name__ == 'Constant':
+            if Child.__class__.__name__ == 'ArrayAccess':
+                RunnningTotal += Child.CurrentOffset
+            elif Child.__class__.__name__ == 'Constant':
                 if Child.DataType is not 'int':
                     ErrManager.AddError(PrettyErrorPrint("Access of array \"{}\" has non-integer type.".format(self.Label), self.Loc[0], self.Loc[2], self.Production.lexer.lexdata))
                     pass
-                return Child.Child
-            if Child.__class__.__name__ == 'Identifier':
-                return Child.Name
+                RunnningTotal += Child.Child
+            elif Child.__class__.__name__ == 'Identifier' and not SafeCheckDict(Child.STPtr, 'Subtype', 'Array'):
+                RunnningTotal += Child.Name
+            else:
+                RunnningTotal += self.GetIndex(Child)
 
-            return self.GetIndex(Child)
-
+        return RunnningTotal
 
 
     def GetChildren(self):
         Children = []
         if self.ArrayOffset is not None: Children.append(self.ArrayOffset)
         if self.ArrayName is not None: Children.append(self.ArrayName)
-        if self.TempSizes is not None: Children.append(self.TempSizes)
-        if self.CurrentOffset is not None: Children.append(self.CurrentOffset)
+        # if self.TempSizes is not None: Children.append(self.TempSizes)
+        # if self.CurrentOffset is not None: Children.append(self.CurrentOffset)
         return Children
 
     def FetchId(self, Subtree):
@@ -1217,20 +1217,42 @@ class ArrayAccess(Node):
         if not IsNode(Subtree): return False
         if Subtree.GetChildren() is None: return False
 
-        if Subtree.__class__.__name__ == 'Identifier':
+        if Subtree.__class__.__name__ == 'Identifier' and SafeCheckDict(Subtree.STPtr, 'Subtype', 'Array'):
             return Subtree.Name
-
+        elif Subtree.__class__.__name__ == 'ArrayAccess':
+            return Subtree.Label
         else:
             for Child in Subtree.GetChildren():
-                if Child.__class__.__name__ == 'Identifier':
+                if Child.__class__.__name__ == 'Identifier' and SafeCheckDict(Child.STPtr, 'Subtype', 'Array'):
                     return Child.Name
+                elif Child.__class__.__name__ == 'ArrayAccess':
+                    return Subtree.Label
                 else:
                     return(self.FetchId(Child))
+
+    def CheckCorrectArgNumber(self, Depth):
+        return True
 
 
     def RunSemanticAnalysis(self):
         #if self.DigForChecks(self.SymbolLocation, 0) == False:
             #ErrManager.AddError("Row:{} Col:{} Array Acces out of bounds of allocated array memory")
+
+        pass
+
+
+class ReturnNode(Node):
+    def __init__(self, ReturnExpression=None, Loc = None, Production=None):
+        self.ReturnExpression = ReturnExpression
+        self.Loc = Loc
+        self.Production = Production
+
+    def GetChildren(self):
+        Children = []
+        if self.ReturnExpression is not None: Children.append(self.ReturnExpression)
+        return Children
+
+    def RunSemanticAnalysis(self):
         pass
 
 
