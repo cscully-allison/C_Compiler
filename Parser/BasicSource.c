@@ -8,9 +8,10 @@ int fun1(int[10], char);
 
 int main(const int arg1, char arg2){
   int var2, var3, var4;
+  float dog;
   char bark;
-  ++var2;
-  var2++;
+  --dog;
+  dog++;
   var2 = arg1 + 3;
   //fun1(var2, var1);
 
