@@ -4,12 +4,14 @@ from Utils import GetBytesFromId, SafeCheckDict
 from copy import deepcopy
 
 
+
 class CodeGenerator(object):
     def __init__(self, AST, File):
         self.AST = AST
         self.File = File
         self.Output = []
         self.PostDeclaration = False
+        self.Source = ST_G.SourceFile
         ST_G.PushNewScope()
         self.Output3AC(AST)
 
@@ -36,8 +38,20 @@ class CodeGenerator(object):
 
     def PrettyPrint3AC(self):
         Pads = self.GetPads()
+        LineNo = -1
+
+
+
         print("%s %s %s %s" % ('Instruction'.ljust(Pads[0]), 'Destination'.ljust(Pads[1]), 'Operand A'.ljust(Pads[2]), 'Operand B'.ljust(Pads[3])))
         for line in self.Output:
+            if line['LineNo'] > LineNo:
+                LineNo = line['LineNo']
+                #print line
+                with open(self.Source) as file:
+                    for i in range(0,LineNo):
+                        source = file.readline()
+                print('#' + source)
+
             print("%s %s %s %s" % ( line['Instruction'].ljust(Pads[0]), line['Dest'].ljust(Pads[1]), line['OpA'].ljust(Pads[2]), line['OpB'].ljust(Pads[3]) ) )
 
 
@@ -214,12 +228,12 @@ class CodeGenerator(object):
                     # assign and make register
                     PriorReg = IntRegister.DispenseTicket()
                     ScalarOp = "const " + str(Scalar)
-                    self.Load3AC(Instruction = "ASSIGN", Dest=PriorReg, OperandB=ScalarOp)
+                    self.Load3AC(Instruction = "ASSIGN", Dest=PriorReg, OperandB=ScalarOp, LineNo=Subtree.Loc[0])
                 else:
                     # multiply with prior reg and assign
                     TReg = IntRegister.DispenseTicket()
                     ScalarOp = "const " + str(Scalar)
-                    self.Load3AC(Instruction = "MULT", Dest=TReg, OperandA=PriorReg, OperandB=ScalarOp)
+                    self.Load3AC(Instruction = "MULT", Dest=TReg, OperandA=PriorReg, OperandB=ScalarOp, LineNo=Subtree.Loc[0])
                     PriorReg = TReg
 
             # we are still calulating dimensional offsets
@@ -228,14 +242,14 @@ class CodeGenerator(object):
                 # multiply the size offset with the actual offset value
                 OffsetReg = IntRegister.DispenseTicket()
                 Offset = self.GetFormattedOperand(RHS)
-                self.Load3AC(Instruction = "MULT", Dest=OffsetReg, OperandA=PriorReg, OperandB=Offset)
+                self.Load3AC(Instruction = "MULT", Dest=OffsetReg, OperandA=PriorReg, OperandB=Offset, LineNo=Subtree.Loc[0])
 
                 #add with remaining offsets to get our total offset
                 if 'Subtype' not in LHS:
                     RemainingOffsets = self.GetFormattedOperand(LHS)
-                    self.Load3AC(Instruction = "ADD", Dest=ArrayAccessRegister, OperandA=RemainingOffsets, OperandB=OffsetReg)
+                    self.Load3AC(Instruction = "ADD", Dest=ArrayAccessRegister, OperandA=RemainingOffsets, OperandB=OffsetReg, LineNo=Subtree.Loc[0])
                 else:
-                    self.Load3AC(Instruction = "ASSIGN", Dest=ArrayAccessRegister, OperandB=OffsetReg)
+                    self.Load3AC(Instruction = "ASSIGN", Dest=ArrayAccessRegister, OperandB=OffsetReg, LineNo=Subtree.Loc[0])
 
             # we are not still calculating dimensional offsets
             else:
@@ -245,10 +259,10 @@ class CodeGenerator(object):
                 if 'Subtype' not in LHS:
                     FinalOffsetReg = IntRegister.DispenseTicket()
                     RemainingOffsets = self.GetFormattedOperand(LHS)
-                    self.Load3AC(Instruction = "ADD", Dest=FinalOffsetReg, OperandA=RemainingOffsets, OperandB=Offset)
+                    self.Load3AC(Instruction = "ADD", Dest=FinalOffsetReg, OperandA=RemainingOffsets, OperandB=Offset, LineNo=Subtree.Loc[0])
                 else:
                     FinalOffsetReg = IntRegister.DispenseTicket()
-                    self.Load3AC(Instruction = "ASSIGN", Dest=FinalOffsetReg, OperandB=Offset)
+                    self.Load3AC(Instruction = "ASSIGN", Dest=FinalOffsetReg, OperandB=Offset, LineNo=Subtree.Loc[0])
 
                 #load address of our current array into temp
                 # add int to the address in array
@@ -257,8 +271,8 @@ class CodeGenerator(object):
                 OffsetInBytes = IntRegister.DispenseTicket()
                 Bytes = 'const ' + str(CM.TypeToBytes(ID['Type']))
 
-                self.Load3AC(Instruction = "MULT", Dest=OffsetInBytes, OperandA=Bytes, OperandB=FinalOffsetReg)
-                self.Load3AC(Instruction = "ASSIGN", Dest=ArrayAccessRegister, OperandA=OffsetInBytes, OperandB=self.GetFormattedOperand(ID))
+                self.Load3AC(Instruction = "MULT", Dest=OffsetInBytes, OperandA=Bytes, OperandB=FinalOffsetReg, LineNo=Subtree.Loc[0])
+                self.Load3AC(Instruction = "ASSIGN", Dest=ArrayAccessRegister, OperandA=OffsetInBytes, OperandB=self.GetFormattedOperand(ID), LineNo=Subtree.Loc[0])
 
 
             return ArrayAccessRegister
@@ -488,8 +502,8 @@ class CodeGenerator(object):
         #do while loop
         if Subtree.IsDo == 'True':
             #set label to go back to the comparison for a for or while loop
-            self.Load3AC(Instruction = "LABEL", Dest=Subtree.StartLabel)          
-            
+            self.Load3AC(Instruction = "LABEL", Dest=Subtree.StartLabel)
+
             #perform statement prior to conditional expression
             if Subtree.Statement is not None:
                 self.Output3AC(Subtree.Statement)
@@ -509,10 +523,10 @@ class CodeGenerator(object):
             #if for loop include the initial assignment statement
             if Subtree.AssignmentExpression is not None:
                 self.Output3AC(Subtree.AssignmentExpression)
-            
+
             #set label to go back to the comparison for a for or while loop
             self.Load3AC(Instruction = "LABEL", Dest=Subtree.StartLabel)
-            
+
             #if there is a conditional expression, swap the format of it and include the jump label
             if Subtree.ConditionalExpression is not None:
                 self.Output3AC(Subtree.ConditionalExpression)
