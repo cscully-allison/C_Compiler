@@ -1,8 +1,7 @@
-int main(int arg1)
+int main()
 {
-	int a = 3;
-
-	do {
-		a = 3;
-	} while (a);
+	int a;
+	do{
+		a=5;
+	} while (a < 3);
 }
