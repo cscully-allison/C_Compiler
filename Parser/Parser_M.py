@@ -986,7 +986,7 @@ class Parser():
 
         def p_iteration_statement_2(p):
             'iteration_statement :  DO statement WHILE OPENPAREN expression CLOSEPAREN SEMI'
-            p[0] = IterationStatement(ConditionalExpression = p[5], Statement = p[2], Production = p)
+            p[0] = IterationStatement(ConditionalExpression = p[5], Statement = p[2], Production = p, IsDo = 'True')
             if self.DebugProd == True:
                 self.DebugPrint("iteration_statement -->  DO statement WHILE OPENPAREN expression CLOSEPAREN SEMI", p)
             return

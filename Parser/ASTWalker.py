@@ -149,7 +149,6 @@ class CodeGenerator(object):
         Ins = self.GetInverseComparator(Quad.get('Instruction'))
         Quad['Instruction'] = Ins
         Quad['Dest'] = self.FormatLabel(Label)
-
         return Quad
 
     def GetArrayOffsetInfo(self, Array, Depth):
@@ -480,11 +479,59 @@ class CodeGenerator(object):
         else:
             AssignRegister = IntRegister.DispenseTicket()
         #load into register
-        self.Load3AC(Instruction = "Load", Dest = AssignRegister, OperandA = LHS)
+        self.Load3AC(Instruction = "LOAD", Dest = AssignRegister, OperandA = LHS)
         self.Load3AC(Instruction = Op, Dest=AssignRegister, OperandA = AssignRegister, OperandB = "const " + str(1))
-        self.Load3AC(Instruction = "Return", Dest = LHS, OperandA = AssignRegister)
+        self.Load3AC(Instruction = "STORE", Dest = LHS, OperandA = AssignRegister)
+        return AssignRegister
 
+    def IterationStatement(self, Subtree):
+        #do while loop
+        if Subtree.IsDo == 'True':
+            #set label to go back to the comparison for a for or while loop
+            self.Load3AC(Instruction = "LABEL", Dest=Subtree.StartLabel)          
+            
+            #perform statement prior to conditional expression
+            if Subtree.Statement is not None:
+                self.Output3AC(Subtree.Statement)
 
+            #if there is a conditional expression, swap the format of it and include the jump label
+            #jump to start statement if not true
+            if Subtree.ConditionalExpression is not None:
+                self.Output3AC(Subtree.ConditionalExpression)
+                NewConditionalQuad = self.GetJumpStatement(self.Output.pop(), Subtree.EndLabel)
+                self.Output.append(NewConditionalQuad)
+
+            self.Load3AC(Instruction = "JUMP", Dest = Subtree.StartLabel)
+            self.Load3AC(Instruction = "LABEL", Dest=Subtree.EndLabel)
+
+        #for or while loop
+        else:
+            #if for loop include the initial assignment statement
+            if Subtree.AssignmentExpression is not None:
+                self.Output3AC(Subtree.AssignmentExpression)
+            
+            #set label to go back to the comparison for a for or while loop
+            self.Load3AC(Instruction = "LABEL", Dest=Subtree.StartLabel)
+            
+            #if there is a conditional expression, swap the format of it and include the jump label
+            if Subtree.ConditionalExpression is not None:
+                self.Output3AC(Subtree.ConditionalExpression)
+                NewConditionalQuad = self.GetJumpStatement(self.Output.pop(), Subtree.EndLabel)
+                self.Output.append(NewConditionalQuad)
+
+            #perform statement if conditional expression is not met if there is a statement
+            if Subtree.Statement is not None:
+                self.Output3AC(Subtree.Statement)
+
+            #do postfix iteration if one exists
+            if Subtree.IterativeExpression is not None:
+                self.Output3AC(Subtree.IterativeExpression)
+
+            #jump back to conditional expression
+            self.Load3AC(Instruction = "JUMP", Dest = self.FormatLabel(Subtree.StartLabel))
+
+            #set end of loop label for conditional to jump to once met
+            self.Load3AC(Instruction = "LABEL", Dest=Subtree.EndLabel)
 
     def Output3AC(self, Subtree):
         # Base Case
@@ -520,6 +567,8 @@ class CodeGenerator(object):
             SideEffect = self.UnaryExpression(Subtree)
         elif self.IsNodeType(Subtree, "UnaryPostfixExpression"):
             SideEffect = self.UnaryPostfixExpression(Subtree)
+        elif self.IsNodeType(Subtree, "IterationStatement"):
+            self.IterationStatement(Subtree)
         else:
             for Child in Subtree.GetChildren():
                 SideEffect = self.Output3AC(Child)

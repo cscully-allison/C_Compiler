@@ -1137,14 +1137,14 @@ class SelectionStatement(Node):
 
 
 class IterationStatement(Node):
-    def __init__(self, AssignmentExpression = None, ConditionalExpression = None, IterativeExpression = None, Statement = None, Production = None):
+    def __init__(self, AssignmentExpression = None, ConditionalExpression = None, IterativeExpression = None, Statement = None, Production = None, IsDo = None):
         self.AssignmentExpression = AssignmentExpression
         self.ConditionalExpression = ConditionalExpression
         self.IterativeExpression = IterativeExpression
         self.Statement = Statement
         self.Production = Production
         self.Loc = GetLoc(Production)
-
+        self.IsDo = IsDo
         if self.ConditionalExpression is not None: self.StartLabel = Label.DispenseTicket()
         if self.Statement is not None: self.EndLabel = Label.DispenseTicket()
 
@@ -1154,6 +1154,7 @@ class IterationStatement(Node):
         if self.ConditionalExpression is not None: Children.append(self.ConditionalExpression)
         if self.IterativeExpression is not None: Children.append(self.IterativeExpression)
         if self.Statement is not None: Children.append(self.Statement)
+        Children.append(self.IsDo)
         #if self.Production is not None: Children.append(self.Production)
         return Children
 
