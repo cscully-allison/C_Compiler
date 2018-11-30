@@ -292,12 +292,14 @@ class CodeGenerator(object):
 
         #call generate 3AC on then block
         self.Output3AC(Subtree.ThenBlock)
-
+        self.Load3AC(Instruction="Jump", Dest = Subtree.End)
         #print jump Label
         self.Load3AC(Instruction = "LABEL", Dest=Subtree.ElseLabel)
 
         if Subtree.ElseBlock is not None:
             self.Output3AC(Subtree.ElseBlock)
+
+        self.Load3AC(Instruction = "LABEL", Dest = Subtree.End)
 
         pass
 
@@ -538,6 +540,8 @@ class CodeGenerator(object):
         if Subtree is None: return None
         if not self.IsNode(Subtree): return None
         if Subtree.GetChildren() is None: return None
+
+
 
         SideEffect = None
 

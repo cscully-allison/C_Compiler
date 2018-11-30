@@ -1,7 +1,7 @@
-int main(int arg1)
+int main()
 {
 	int a = 1;
-	if(0)
+	if(0 > 2)
 	{
 		a = 0;
 	}
@@ -9,8 +9,5 @@ int main(int arg1)
 	{
 		a = 1;
 	}
-	while (a)
-	{
-		a = 2;
-	}
+	
 }
