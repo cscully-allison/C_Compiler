@@ -59,6 +59,10 @@ All other dependencies that are used are listed in requirements.txt
 	pytest - gives access to automated testing
 
 	ply - gives access to a lexical analyzer and parser similar to yacc/bison
+	
+	graphviz
+
+	anytree
 
 If python is not installed run the following in the command line in a Linux environment:
 ```
