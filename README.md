@@ -20,7 +20,7 @@
 [Project Wiki](https://www.github.com/cscully-allison/C_Compilier/wiki/CS-660:-Connor-Scully-Allison-and-Kurt-Andersen) <br>
 [Symbol Table README](./SymbolTable/) <br>
 [Lexical Analyzer README](./LexicalAnalizer/) <br>
-[Parser README / Abstract Syantx Tree](./Parser/) <br>
+[Parser README / Abstract Syntax Tree / 3AC](./Parser/) <br>
 
 <a name="language"/>
 
