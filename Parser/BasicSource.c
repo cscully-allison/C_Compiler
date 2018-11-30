@@ -1,27 +1,52 @@
-int funct(){
+int var0;
+char var1;
 
-}
+// int a, b, c;
+// // char d;
+int fun1(int[10], char);
+// int fun2(int, int);
 
-int main(int g){
-    char a, d;
-    // $!PDO
-    int arr[8][10];
-    // $!PDF
+int main(const int arg1, char arg2){
+  int var2, var3, var4;
+  float dog;
+  char bark;
+  var2 = arg1 + 3;
+  //fun1(var2, var1);
 
-    if(a < d){
-      int a4;
+  if (1 < 3)
+  {
+     var2 = 3;
+  }
+  else{
+    var3 = 2;
+  }
+  for (var2=0; var2 < 5; var2++)
+  {
+    int var5;
+    float var10;
+    int arr1[10];
 
+    var10 = arr1[1] + 3;
 
-    } else {
-      int b6;
-      b6 = 4 + 2;
-    }
-
-
-    for (a = 4; ; )
     {
-      int q;
+      char var7;
     }
+  }
+  var2 = 100;
+}
+//
+int fun1(int arg3[10], char arg4){
+    int var2;
+    char var3;
+    float var6;
+    int arr[10][10], arrb;
 
-    $!ST1
+    10 + 2;
+    var2 = 3 * (3.2 * var2);
+
+    if( (4 > var0) < var1 ){
+          fun1(arg3, 'a');
+
+        $!ST1
+    }
 }

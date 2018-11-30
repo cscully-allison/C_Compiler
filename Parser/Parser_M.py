@@ -1,27 +1,19 @@
 import sys
 sys.path.append("LexicalAnalizer/")
 sys.path.append("../LexicalAnalizer/")
-from Globals import ErrManager
+from Globals import ErrManager, ST_G
 from Utils import PrettyErrorPrint, FindColumn
 from LexicalAnalizer import LexicalAnalizer
 from SymbolTable import SymbolTable
-from ASTBuilder import Identifier, ArrayDeclaration, PassUpNode, SelectionStatement, DeclarationSpecifiers, DeclList, Declaration, PrimaryExpression, UnaryExpression, Constant, FunctionDefintion, CompoundStatement, AssignmentExpression, InitDeclList, BinOp, IterationStatement
-
+from ASTBuilder import ReturnNode, FunctionPrototype, FunctionCall, Identifier, ArrayDeclaration, PassUpNode, SelectionStatement, DeclarationSpecifiers, DeclList, Declaration, PrimaryExpression, UnaryExpression, Constant, FunctionDefintion, CompoundStatement, AssignmentExpression, InitDeclList, BinOp, IterationStatement, ArrayAccess, UnaryPostfixExpression
 import ply.yacc as yacc
-# import logging
-# logging.basicConfig(
-#     level = logging.DEBUG,
-#     filename = "parselog.txt",
-#     filemode = "w",
-#     format = "%(filename)10s:%(lineno)4d:%(message)s"
-# )
-# log = logging.getLogger()
+
 
 class Parser():
 
     #Constructor for parser class
     def __init__(self, SourceFile = None, DebugArgs = None):
-        self.ST = SymbolTable(SourceFile)
+        self.ST = ST_G
         self.SourceFile = SourceFile
         self.LA = LexicalAnalizer(self.ST, SourceFile=SourceFile, DebugArgs = DebugArgs)
         self.Parser = None
@@ -50,12 +42,12 @@ class Parser():
         return
 
     def RunParser(self):
-        try:
-            with open(self.SourceFile) as file:
-                s = file.read()
-            self.Parser.parse(s, debug=0)
-        except Exception as e:
-            raise e
+        # try:
+        with open(self.SourceFile) as file:
+            s = file.read()
+        self.Parser.parse(s, debug=0)
+        # except Exception as e:
+        #     raise e
 
         return self.AST
 
@@ -68,42 +60,44 @@ class Parser():
     def BuildParser(self):
         def p_translation_unit_1(p):
             'translation_unit :  external_declaration'
-            self.AST = PassUpNode("TranslationUnit", [ p[1] ])
+            p[0] = p[1]
+            self.AST = p[0]
             if self.DebugProd == True:
                 self.DebugPrint("translation_unit -->  external_declaration", p)
             return
 
         def p_translation_unit_2(p):
             'translation_unit :  translation_unit external_declaration'
-            self.AST = PassUpNode("TranslationUnit", [p[1], p[2]])
+            p[0] = PassUpNode("TranslationUnit", [p[1], p[2]])
+            self.AST = p[0]
             if self.DebugProd == True:
                 self.DebugPrint("translation_unit -->  translation_unit external_declaration", p)
             return
 
         def p_external_declaration_1(p):
-            'external_declaration :  function_definition'
-            p[0] = PassUpNode("ExternalDeclaration", [p[1]])
+            'external_declaration : insert_mode_e function_definition'
+            p[0] = p[2]
             if self.DebugProd == True:
                 self.DebugPrint("external_declaration -->  function_definition", p)
             return
 
         def p_external_declaration_2(p):
-            'external_declaration :  declaration'
-            p[0] = PassUpNode("ExternalDeclaration", [p[1]])
+            'external_declaration : insert_mode_e declaration'
+            p[0] = p[2]
             if self.DebugProd == True:
                 self.DebugPrint("external_declaration -->  declaration", p)
             return
 
         def p_function_definition_1(p):
             'function_definition :  declarator compound_statement'
-            p[0] = FunctionDefintion(Declarator = p[1], Statement = p[2])
+            p[0] = FunctionDefintion(Declarator = p[1], Statement = p[2], Production=p)
             if self.DebugProd == True:
                 self.DebugPrint("function_definition -->  declarator compound_statement", p)
             return
 
         def p_function_definition_2(p):
             'function_definition :  declarator declaration_list compound_statement'
-            p[0] = FunctionDefintion(Declarator = p[1], DeclarationList = p[2], Statement = p[3])
+            p[0] = FunctionDefintion(Declarator = p[1], DeclarationList = p[2], Statement = p[3], Production=p)
 
             if self.DebugProd == True:
                 self.DebugPrint("function_definition -->  declarator declaration_list compound_statement", p)
@@ -111,14 +105,14 @@ class Parser():
 
         def p_function_definition_3(p):
             'function_definition :  declaration_specifiers declarator compound_statement'
-            p[0] = FunctionDefintion(ReturnDeclarator = p[1], Declarator = p[2], Statement = p[3])
+            p[0] = FunctionDefintion(ReturnDeclarator = p[1], Declarator = p[2], Statement = p[3], Production=p)
             if self.DebugProd == True:
                 self.DebugPrint("function_definition -->  declaration_specifiers declarator compound_statement", p)
             return
 
         def p_function_definition_4(p):
             'function_definition :  declaration_specifiers declarator declaration_list compound_statement'
-            p[0] = FunctionDefintion(ReturnDeclarator = p[1], Declarator = p[2], DeclarationList = p[3], Statement = p[4])
+            p[0] = FunctionDefintion(ReturnDeclarator = p[1], Declarator = p[2], DeclarationList = p[3], Statement = p[4], Production=p)
 
             if self.DebugProd == True:
                 self.DebugPrint("function_definition -->  declaration_specifiers declarator declaration_list compound_statement", p)
@@ -126,14 +120,14 @@ class Parser():
 
         def p_declaration_1(p):
             'declaration :  declaration_specifiers SEMI'
-            p[0] = Declaration(Left=p[1])
+            p[0] = Declaration(Left=p[1], Loc = p)
             if self.DebugProd == True:
                 self.DebugPrint("declaration -->  declaration_specifiers SEMI", p)
             return
 
         def p_declaration_2(p):
             'declaration :  declaration_specifiers init_declarator_list SEMI'
-            p[0] = Declaration(Left=p[1], Right=p[2])
+            p[0] = Declaration(Left=p[1], Right=p[2], Loc = p)
 
             if self.DebugProd == True:
                 self.DebugPrint("declaration -->  declaration_specifiers init_declarator_list SEMI", p)
@@ -180,35 +174,35 @@ class Parser():
 
         def p_declaration_specifiers_2(p):
             'declaration_specifiers :  storage_class_specifier declaration_specifiers'
-            p[0] = DeclarationSpecifiers(SCSpec=p[1], DeclSpec=p[2])
+            p[0] = DeclarationSpecifiers(SCSpec=p[1], DeclSpec=p[2], Loc = p)
             if self.DebugProd == True:
                 self.DebugPrint("declaration_specifiers -->  storage_class_specifier declaration_specifiers", p)
             return
 
         def p_declaration_specifiers_3(p):
             'declaration_specifiers :  type_specifier'
-            p[0] = DeclarationSpecifiers(TSpec=p[1])
+            p[0] = DeclarationSpecifiers(TSpec=p[1], Loc = p)
             if self.DebugProd == True:
                 self.DebugPrint("declaration_specifiers -->  type_specifier", p)
             return
 
         def p_declaration_specifiers_4(p):
             'declaration_specifiers :  type_specifier declaration_specifiers'
-            p[0] = DeclarationSpecifiers(TSpec=p[1], DeclSpec=p[2])
+            p[0] = DeclarationSpecifiers(TSpec=p[1], DeclSpec=p[2], Loc = p)
             if self.DebugProd == True:
                 self.DebugPrint("declaration_specifiers -->  type_specifier declaration_specifiers", p)
             return
 
         def p_declaration_specifiers_5(p):
             'declaration_specifiers :  type_qualifier'
-            p[0] = DeclarationSpecifiers(TQual=p[1])
+            p[0] = DeclarationSpecifiers(TQual=p[1], Loc = p)
             if self.DebugProd == True:
                 self.DebugPrint("declaration_specifiers -->  type_qualifier", p)
             return
 
         def p_declaration_specifiers_6(p):
             'declaration_specifiers :  type_qualifier declaration_specifiers'
-            p[0] = DeclarationSpecifiers(TQual=p[1], DeclSpec=p[2])
+            p[0] = DeclarationSpecifiers(TQual=p[1], DeclSpec=p[2], Loc = p)
             if self.DebugProd == True:
                 self.DebugPrint("declaration_specifiers -->  type_qualifier declaration_specifiers", p)
             return
@@ -406,7 +400,7 @@ class Parser():
 
         def p_init_declarator_list_1(p):
             'init_declarator_list :  init_declarator'
-            p[0] = InitDeclList(Decl=p[1])
+            p[0] = InitDeclList(Decl=p[1], Loc = p)
 
             if self.DebugProd == True:
                 self.DebugPrint("init_declarator_list -->  init_declarator", p)
@@ -414,7 +408,7 @@ class Parser():
 
         def p_init_declarator_list_2(p):
             'init_declarator_list :  init_declarator_list COMMA init_declarator'
-            p[0] = InitDeclList(DeclList=p[1], Decl=p[3])
+            p[0] = InitDeclList(DeclList=p[1], Decl=p[3], Loc = p)
 
 
             if self.DebugProd == True:
@@ -544,7 +538,7 @@ class Parser():
         def p_declarator_1(p):
             'declarator : direct_declarator'
             #pass up the identifier
-            p[0] = PassUpNode("Declarator", [p[1]])
+            p[0] = p[1]
 
             if self.DebugProd == True:
                 self.DebugPrint("declarator -->  direct_declarator", p)
@@ -560,7 +554,7 @@ class Parser():
 
         def p_direct_declarator_1(p):
             'direct_declarator :  identifier'
-            p[0] = PassUpNode("DirectDeclarator", [p[1]])
+            p[0] = p[1]
 
             if self.DebugProd == True:
                 self.DebugPrint("direct_declarator -->  identifier", p)
@@ -568,7 +562,7 @@ class Parser():
 
         def p_direct_declarator_2(p):
             'direct_declarator :  OPENPAREN declarator CLOSEPAREN'
-            p[0] = PassUpNode("DirectDeclarator", [p[2]])
+            p[0] = p[2]
 
             if self.DebugProd == True:
                 self.DebugPrint("direct_declarator -->  OPENPAREN declarator CLOSEPAREN", p)
@@ -577,21 +571,21 @@ class Parser():
 ##################Arrays and function declarations#####################
         def p_direct_declarator_3(p):
             'direct_declarator :  direct_declarator OPENBRACKET CLOSEBRACKET'
-            p[0] = ArrayDeclaration(p[1], None)
+            p[0] = ArrayDeclaration(p[1], None, p)
             if self.DebugProd == True:
                 self.DebugPrint("direct_declarator -->  direct_declarator OPENBRACKET CLOSEBRACKET", p)
             return
 
         def p_direct_declarator_4(p):
             'direct_declarator :  direct_declarator OPENBRACKET constant_expression CLOSEBRACKET'
-            p[0] = ArrayDeclaration(p[1], p[3])
+            p[0] = ArrayDeclaration(p[1], p[3], p)
             if self.DebugProd == True:
                 self.DebugPrint("direct_declarator -->  direct_declarator OPENBRACKET constant_expression CLOSEBRACKET", p)
             return
 
         def p_direct_declarator_5(p):
             'direct_declarator :  direct_declarator OPENPAREN CLOSEPAREN'
-            p[0] = PassUpNode("DirectDeclarator", [p[1]])
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("direct_declarator -->  direct_declarator OPENPAREN CLOSEPAREN", p)
             return
@@ -599,7 +593,7 @@ class Parser():
         def p_direct_declarator_6(p):
             'direct_declarator :  direct_declarator OPENPAREN parameter_type_list CLOSEPAREN'
             #this should assign some things as well
-            p[0] = PassUpNode("DirectDeclarator", [p[1],p[3]])
+            p[0] = FunctionPrototype(DirectDeclarator=p[1], ParameterTypeList=p[3], Production=p)
 
             if self.DebugProd == True:
                 self.DebugPrint("direct_declarator -->  direct_declarator OPENPAREN parameter_type_list CLOSEPAREN", p)
@@ -638,7 +632,7 @@ class Parser():
 
         def p_type_qualifier_list_1(p):
             'type_qualifier_list :  type_qualifier'
-            p[0] = PassUpNode("TypeQualifierList", [p[1]])
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("type_qualifier_list -->  type_qualifier", p)
             return
@@ -652,7 +646,7 @@ class Parser():
 
         def p_parameter_type_list_1(p):
             'parameter_type_list :  parameter_list'
-            p[0] = PassUpNode("ParameterTypeList", [p[1]])
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("parameter_type_list -->  parameter_list", p)
             return
@@ -666,7 +660,7 @@ class Parser():
 
         def p_parameter_list_1(p):
             'parameter_list :  parameter_declaration'
-            p[0] = PassUpNode("ParameterList", [p[1]])
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("parameter_list -->  parameter_declaration", p)
             return
@@ -680,21 +674,21 @@ class Parser():
 
         def p_parameter_declaration_1(p):
             'parameter_declaration :  declaration_specifiers declarator'
-            p[0] = PassUpNode("ParameterDeclaration", [p[1], p[2]])
+            p[0] = Declaration(p[1], p[2], Loc = p)
             if self.DebugProd == True:
                 self.DebugPrint("parameter_declaration -->  declaration_specifiers declarator", p)
             return
 
         def p_parameter_declaration_2(p):
             'parameter_declaration :  declaration_specifiers'
-            p[0] = PassUpNode("ParameterDeclaration", [p[1]])
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("parameter_declaration -->  declaration_specifiers", p)
             return
 
         def p_parameter_declaration_3(p):
             'parameter_declaration :  declaration_specifiers abstract_declarator'
-            p[0] = PassUpNode("ParameterDeclaration", [p[1]])
+            p[0] = PassUpNode("ParameterDeclaration", [p[1], p[2]])
             if self.DebugProd == True:
                 self.DebugPrint("parameter_declaration -->  declaration_specifiers abstract_declarator", p)
             return
@@ -761,6 +755,7 @@ class Parser():
 
         def p_abstract_declarator_2(p):
             'abstract_declarator :  direct_abstract_declarator'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("abstract_declarator -->  direct_abstract_declarator", p)
             return
@@ -779,24 +774,28 @@ class Parser():
 
         def p_direct_abstract_declarator_2(p):
             'direct_abstract_declarator :  OPENBRACKET CLOSEBRACKET'
+            p[0] = PassUpNode("DirectAbstractDeclarator", [])
             if self.DebugProd == True:
                 self.DebugPrint("direct_abstract_declarator -->  OPENBRACKET CLOSEBRACKET", p)
             return
 
         def p_direct_abstract_declarator_3(p):
             'direct_abstract_declarator :  OPENBRACKET constant_expression CLOSEBRACKET'
+            p[0] = p[2]
             if self.DebugProd == True:
                 self.DebugPrint("direct_abstract_declarator -->  OPENBRACKET constant_expression CLOSEBRACKET", p)
             return
 
         def p_direct_abstract_declarator_4(p):
             'direct_abstract_declarator :  direct_abstract_declarator OPENBRACKET CLOSEBRACKET'
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("direct_abstract_declarator -->  direct_abstract_declarator OPENBRACKET CLOSEBRACKET", p)
             return
 
         def p_direct_abstract_declarator_5(p):
             'direct_abstract_declarator :  direct_abstract_declarator OPENBRACKET constant_expression CLOSEBRACKET'
+            p[0] = PassUpNode("DirectAbstractDeclarator", [p[1], p[3]])
             if self.DebugProd == True:
                 self.DebugPrint("direct_abstract_declarator -->  direct_abstract_declarator OPENBRACKET constant_expression CLOSEBRACKET", p)
             return
@@ -827,42 +826,42 @@ class Parser():
 
         def p_statement_1(p):
             'statement :  labeled_statement'
-            p[0] = PassUpNode("Statement", [p[1]])
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("statement -->  labeled_statement", p)
             return
 
         def p_statement_2(p):
             'statement :  compound_statement'
-            p[0] = PassUpNode("Statement", [p[1]])
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("statement -->  compound_statement", p)
             return
 
         def p_statement_3(p):
             'statement :  expression_statement'
-            p[0] = PassUpNode("Statement", [p[1]])
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("statement -->  expression_statement", p)
             return
 
         def p_statement_4(p):
             'statement :  selection_statement'
-            p[0] = PassUpNode("Statement", [p[1]])
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("statement -->  selection_statement", p)
             return
 
         def p_statement_5(p):
             'statement :  iteration_statement'
-            p[0] = PassUpNode("Statement", [p[1]])
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("statement -->  iteration_statement", p)
             return
 
         def p_statement_6(p):
             'statement :  jump_statement'
-            p[0] = PassUpNode("Statement", [p[1]])
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("statement -->  jump_statement", p)
             return
@@ -914,35 +913,35 @@ class Parser():
 
         def p_compound_statement_1(p):
             'compound_statement :  OPENBRACE CLOSEBRACE'
-            p[0] = CompoundStatement()
+            p[0] = CompoundStatement(Loc=p)
             if self.DebugProd == True:
                 self.DebugPrint("compound_statement -->  OPENBRACE CLOSEBRACE", p)
             return
 
         def p_compound_statement_2(p):
             'compound_statement :  OPENBRACE push_scope_e statement_list pop_scope_e CLOSEBRACE'
-            p[0] = CompoundStatement(StmtList=p[3])
+            p[0] = CompoundStatement(StmtList=p[3], Loc=p)
             if self.DebugProd == True:
                 self.DebugPrint("compound_statement -->  OPENBRACE statement_list CLOSEBRACE", p)
             return
 
         def p_compound_statement_3(p):
             'compound_statement :  OPENBRACE push_scope_e declaration_list pop_scope_e CLOSEBRACE'
-            p[0] = CompoundStatement(DecList=p[3])
+            p[0] = CompoundStatement(DecList=p[3], Loc=p)
             if self.DebugProd == True:
                 self.DebugPrint("compound_statement -->  OPENBRACE declaration_list CLOSEBRACE", p)
             return
 
         def p_compound_statement_4(p):
             'compound_statement :  OPENBRACE push_scope_e declaration_list statement_list insert_mode_e pop_scope_e CLOSEBRACE'
-            p[0] = CompoundStatement(DecList=p[3], StmtList=p[4])
+            p[0] = CompoundStatement(DecList=p[3], StmtList=p[4], Loc=p)
             if self.DebugProd == True:
                 self.DebugPrint("compound_statement -->  OPENBRACE declaration_list statement_list CLOSEBRACE", p)
             return
 
         def p_statement_list_1(p):
             'statement_list : read_mode_e statement'
-            p[0] = PassUpNode("StatementList", [p[2]])
+            p[0] = p[2]
             if self.DebugProd == True:
                 self.DebugPrint("statement_list -->  statement", p)
             return
@@ -957,7 +956,7 @@ class Parser():
         def p_selection_statement_1(p):
             'selection_statement :  IF OPENPAREN expression CLOSEPAREN statement'
 
-            p[0] = SelectionStatement(IfExpression=p[3], ThenBlock=p[5])
+            p[0] = SelectionStatement(IfExpression=p[3], ThenBlock=p[5], Loc=p)
 
             if self.DebugProd == True:
                 self.DebugPrint("selection_statement -->  IF OPENPAREN expression CLOSEPAREN statement", p)
@@ -966,7 +965,7 @@ class Parser():
         def p_selection_statement_2(p):
             'selection_statement :  IF OPENPAREN expression CLOSEPAREN statement ELSE statement'
 
-            p[0] = SelectionStatement(IfExpression=p[3], ThenBlock=p[5], ElseBlock=p[7])
+            p[0] = SelectionStatement(IfExpression=p[3], ThenBlock=p[5], ElseBlock=p[7], Loc=p)
 
             if self.DebugProd == True:
                 self.DebugPrint("selection_statement -->  IF OPENPAREN expression CLOSEPAREN statement ELSE statement", p)
@@ -987,7 +986,7 @@ class Parser():
 
         def p_iteration_statement_2(p):
             'iteration_statement :  DO statement WHILE OPENPAREN expression CLOSEPAREN SEMI'
-            p[0] = IterationStatement(ConditionalExpression = p[5], Statement = p[2], Production = p)
+            p[0] = IterationStatement(ConditionalExpression = p[5], Statement = p[2], Production = p, IsDo = 'True')
             if self.DebugProd == True:
                 self.DebugPrint("iteration_statement -->  DO statement WHILE OPENPAREN expression CLOSEPAREN SEMI", p)
             return
@@ -1068,19 +1067,21 @@ class Parser():
 
         def p_jump_statement_4(p):
             'jump_statement :  RETURN SEMI'
+            p[0] = ReturnNode(Production=p)
             if self.DebugProd == True:
                 self.DebugPrint("jump_statement -->  RETURN SEMI", p)
             return
 
         def p_jump_statement_5(p):
             'jump_statement :  RETURN expression SEMI'
+            p[0] = ReturnNode(ReturnExpression=p[2],Production=p)
             if self.DebugProd == True:
                 self.DebugPrint("jump_statement -->  RETURN expression SEMI", p)
             return
 
         def p_expression_1(p):
             'expression :  assignment_expression'
-            p[0] = PassUpNode("Expression", [p[1]])
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("expression -->  assignment_expression", p)
             return
@@ -1094,7 +1095,7 @@ class Parser():
 
         def p_assignment_expression_1(p):
             'assignment_expression :  conditional_expression'
-            p[0] = PassUpNode("AssignmentExpression", [p[1]])
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("assignment_expression -->  conditional_expression", p)
             return
@@ -1187,7 +1188,7 @@ class Parser():
 
         def p_conditional_expression_1(p):
             'conditional_expression :  logical_or_expression'
-            p[0] = PassUpNode("ConditionalExpression",[p[1]])
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("conditional_expression -->  logical_or_expression", p)
             return
@@ -1200,182 +1201,182 @@ class Parser():
 
         def p_constant_expression_1(p):
             'constant_expression :  conditional_expression'
-            p[0] = PassUpNode("ConstantExpression",[p[1]])
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("constant_expression -->  conditional_expression", p)
             return
 
         def p_logical_or_expression_1(p):
             'logical_or_expression :  logical_and_expression'
-            p[0] = PassUpNode("LogicalOrExpression",[p[1]])
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("logical_or_expression -->  logical_and_expression", p)
             return
 
         def p_logical_or_expression_2(p):
             'logical_or_expression :  logical_or_expression OR_OP logical_and_expression'
-            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3], Production=p)
             if self.DebugProd == True:
                 self.DebugPrint("logical_or_expression -->  logical_or_expression OR_OP logical_and_expression", p)
             return
 
         def p_logical_and_expression_1(p):
             'logical_and_expression :  inclusive_or_expression'
-            p[0] = PassUpNode("LogicalAndExpression",[p[1]])
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("logical_and_expression -->  inclusive_or_expression", p)
             return
 
         def p_logical_and_expression_2(p):
             'logical_and_expression :  logical_and_expression AND_OP inclusive_or_expression'
-            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3], Production=p)
             if self.DebugProd == True:
                 self.DebugPrint("logical_and_expression -->  logical_and_expression AND_OP inclusive_or_expression", p)
             return
 
         def p_inclusive_or_expression_1(p):
             'inclusive_or_expression :  exclusive_or_expression'
-            p[0] = PassUpNode("InclusiveOrExpression",[p[1]])
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("inclusive_or_expression -->  exclusive_or_expression", p)
             return
 
         def p_inclusive_or_expression_2(p):
             'inclusive_or_expression :  inclusive_or_expression PIPE exclusive_or_expression'
-            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3], Production=p)
             if self.DebugProd == True:
                 self.DebugPrint("inclusive_or_expression -->  inclusive_or_expression PIPE exclusive_or_expression", p)
             return
 
         def p_exclusive_or_expression_1(p):
             'exclusive_or_expression :  and_expression'
-            p[0] = PassUpNode("ExclusiveOrExpression",[p[1]])
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("exclusive_or_expression -->  and_expression", p)
             return
 
         def p_exclusive_or_expression_2(p):
             'exclusive_or_expression :  exclusive_or_expression CARAT and_expression'
-            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3], Production=p)
             if self.DebugProd == True:
                 self.DebugPrint("exclusive_or_expression -->  exclusive_or_expression CARAT and_expression", p)
             return
 
         def p_and_expression_1(p):
             'and_expression :  equality_expression'
-            p[0] = PassUpNode("AndExpression",[p[1]])
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("and_expression -->  equality_expression", p)
             return
 
         def p_and_expression_2(p):
             'and_expression :  and_expression AMPERSAND equality_expression'
-            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3], Production=p)
             if self.DebugProd == True:
                 self.DebugPrint("and_expression -->  and_expression AMPERSAND equality_expression", p)
             return
 
         def p_equality_expression_1(p):
             'equality_expression :  relational_expression'
-            p[0] = PassUpNode("EqalityExpression",[p[1]])
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("equality_expression -->  relational_expression", p)
             return
 
         def p_equality_expression_2(p):
             'equality_expression :  equality_expression EQ_OP relational_expression'
-            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3], Production=p)
             if self.DebugProd == True:
                 self.DebugPrint("equality_expression -->  equality_expression EQ_OP relational_expression", p)
             return
 
         def p_equality_expression_3(p):
             'equality_expression :  equality_expression NE_OP relational_expression'
-            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3], Production=p)
             if self.DebugProd == True:
                 self.DebugPrint("equality_expression -->  equality_expression NE_OP relational_expression", p)
             return
 
         def p_relational_expression_1(p):
             'relational_expression :  shift_expression'
-            p[0] = PassUpNode("ShiftExpression",[p[1]])
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("relational_expression -->  shift_expression", p)
             return
 
         def p_relational_expression_2(p):
             'relational_expression :  relational_expression LE shift_expression'
-            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3], Production=p)
             if self.DebugProd == True:
                 self.DebugPrint("relational_expression -->  relational_expression LE shift_expression", p)
             return
 
         def p_relational_expression_3(p):
             'relational_expression :  relational_expression GT shift_expression'
-            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3], Production=p)
             if self.DebugProd == True:
                 self.DebugPrint("relational_expression -->  relational_expression GT shift_expression", p)
             return
 
         def p_relational_expression_4(p):
             'relational_expression :  relational_expression LE_OP shift_expression'
-            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3], Production=p)
             if self.DebugProd == True:
                 self.DebugPrint("relational_expression -->  relational_expression LE_OP shift_expression", p)
             return
 
         def p_relational_expression_5(p):
             'relational_expression :  relational_expression GE_OP shift_expression'
-            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3], Production=p)
             if self.DebugProd == True:
                 self.DebugPrint("relational_expression -->  relational_expression GE_OP shift_expression", p)
             return
 
         def p_shift_expression_1(p):
             'shift_expression :  additive_expression'
-            p[0] = PassUpNode("ShiftExpression",[p[1]])
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("shift_expression -->  additive_expression", p)
             return
 
         def p_shift_expression_2(p):
             'shift_expression :  shift_expression LEFT_OP additive_expression'
-            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3], Production=p)
             if self.DebugProd == True:
                 self.DebugPrint("shift_expression -->  shift_expression LEFT_OP additive_expression", p)
             return
 
         def p_shift_expression_3(p):
             'shift_expression :  shift_expression RIGHT_OP additive_expression'
-            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3], Production=p)
             if self.DebugProd == True:
                 self.DebugPrint("shift_expression -->  shift_expression RIGHT_OP additive_expression", p)
             return
 
         def p_additive_expression_1(p):
             'additive_expression :  multiplicative_expression'
-            p[0] = PassUpNode("AdditiveExpression",[p[1]])
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("additive_expression -->  multiplicative_expression", p)
             return
 
         def p_additive_expression_2(p):
             'additive_expression :  additive_expression PLUS multiplicative_expression'
-            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3], Production=p)
             if self.DebugProd == True:
                 self.DebugPrint("additive_expression -->  additive_expression PLUS multiplicative_expression", p)
             return
 
         def p_additive_expression_3(p):
             'additive_expression :  additive_expression MINUS multiplicative_expression'
-            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3], Production=p)
             if self.DebugProd == True:
                 self.DebugPrint("additive_expression -->  additive_expression MINUS multiplicative_expression", p)
             return
 
         def p_multiplicative_expression_1(p):
             'multiplicative_expression :  cast_expression'
-            p[0] = PassUpNode("MultiplicativeExpression",[p[1]])
+            p[0] = p[1]
 
             if self.DebugProd == True:
                 self.DebugPrint("multiplicative_expression -->  cast_expression", p)
@@ -1383,28 +1384,28 @@ class Parser():
 
         def p_multiplicative_expression_2(p):
             'multiplicative_expression :  multiplicative_expression ASTERISK cast_expression'
-            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3], Production=p)
             if self.DebugProd == True:
                 self.DebugPrint("multiplicative_expression -->  multiplicative_expression ASTERISK cast_expression", p)
             return
 
         def p_multiplicative_expression_3(p):
             'multiplicative_expression :  multiplicative_expression DIV cast_expression'
-            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3], Production=p)
             if self.DebugProd == True:
                 self.DebugPrint("multiplicative_expression -->  multiplicative_expression DIV cast_expression", p)
             return
 
         def p_multiplicative_expression_4(p):
             'multiplicative_expression :  multiplicative_expression PERCENT cast_expression'
-            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3])
+            p[0] = BinOp(Op=p[2], Left=p[1], Right=p[3], Production=p)
             if self.DebugProd == True:
                 self.DebugPrint("multiplicative_expression -->  multiplicative_expression PERCENT cast_expression", p)
             return
 
         def p_cast_expression_1(p):
             'cast_expression :  unary_expression'
-            p[0] = PassUpNode("CastExpression",[p[1]])
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("cast_expression -->  unary_expression", p)
             return
@@ -1418,7 +1419,7 @@ class Parser():
 
         def p_unary_expression_1(p):
             'unary_expression :  postfix_expression'
-            p[0] = PassUpNode("UnaryExpression",[p[1]])
+            p[0] = p[1]
 
             if self.DebugProd == True:
                 self.DebugPrint("unary_expression -->  postfix_expression", p)
@@ -1515,27 +1516,28 @@ class Parser():
         #This is array access and function calls, will definately need to modify
         def p_postfix_expression_1(p):
             'postfix_expression :  primary_expression'
-            p[0] = PassUpNode("PostfixExpression",[p[1]])
+            p[0] = p[1]
             if self.DebugProd == True:
                 self.DebugPrint("postfix_expression -->  primary_expression", p)
             return
 
         def p_postfix_expression_2(p):
             'postfix_expression :  postfix_expression OPENBRACKET expression CLOSEBRACKET'
-            p[0] = PassUpNode("PostfixExpression",[p[1], p[3]])
+            p[0] = ArrayAccess(ArrayName=p[1], ArrayOffset=p[3], ST=self.ST, Production = p)
             if self.DebugProd == True:
                 self.DebugPrint("postfix_expression -->  postfix_expression OPENBRACKET expression CLOSEBRACKET", p)
             return
 
         def p_postfix_expression_3(p):
             'postfix_expression :  postfix_expression OPENPAREN CLOSEPAREN'
-            p[0] = PassUpNode("PostfixExpression",[p[1]])
+            p[0] = FunctionCall(IdentifierSubtree=p[1], Production=p, ST=self.ST)
             if self.DebugProd == True:
                 self.DebugPrint("postfix_expression -->  postfix_expression OPENPAREN CLOSEPAREN", p)
             return
 
         def p_postfix_expression_4(p):
             'postfix_expression :  postfix_expression OPENPAREN argument_expression_list CLOSEPAREN'
+            p[0] = FunctionCall(p[1], p[3], p, self.ST)
             if self.DebugProd == True:
                 self.DebugPrint("postfix_expression -->  postfix_expression OPENPAREN argument_expression_list CLOSEPAREN", p)
             return
@@ -1554,7 +1556,7 @@ class Parser():
 
         def p_postfix_expression_7(p):
             'postfix_expression :  postfix_expression INC_OP'
-            p[0] = p[1]
+            p[0] = UnaryPostfixExpression(Child=p[1], Op=p[2], Loc=p)
             if self.DebugProd == True:
                 self.DebugPrint("postfix_expression -->  postfix_expression INC_OP", p)
             return
@@ -1570,7 +1572,7 @@ class Parser():
         def p_primary_expression_1(p):
             'primary_expression :  identifier'
 
-            p[0] = PrimaryExpression('identifier', p[1])
+            p[0] = PrimaryExpression('identifier', p[1], Loc = p)
 
             if self.DebugProd == True:
                 self.DebugPrint("primary_expression -->  identifier", p)
@@ -1578,7 +1580,7 @@ class Parser():
 
         def p_primary_expression_2(p):
             'primary_expression :  constant'
-            p[0] = PrimaryExpression('constant', p[1])
+            p[0] = PrimaryExpression('constant', p[1], Loc = p)
 
             if self.DebugProd == True:
                 self.DebugPrint("primary_expression -->  constant", p)
@@ -1586,7 +1588,7 @@ class Parser():
 
         def p_primary_expression_3(p):
             'primary_expression :  string'
-            p[0] = PrimaryExpression('string', P[1])
+            p[0] = PrimaryExpression('string', p[1], Loc = p)
 
             if self.DebugProd == True:
                 self.DebugPrint("primary_expression -->  string", p)
@@ -1594,7 +1596,7 @@ class Parser():
 
         def p_primary_expression_4(p):
             'primary_expression :  OPENPAREN expression CLOSEPAREN'
-            p[0] = PrimaryExpression('expression', P[2])
+            p[0] = PrimaryExpression('expression', p[2], Loc = p)
 
             if self.DebugProd == True:
                 self.DebugPrint("primary_expression -->  OPENPAREN expression CLOSEPAREN", p)
@@ -1602,6 +1604,7 @@ class Parser():
 
         def p_argument_expression_list_1(p):
             'argument_expression_list :  assignment_expression'
+            p[0] = p[1]
 
             if self.DebugProd == True:
                 self.DebugPrint("argument_expression_list -->  assignment_expression", p)
@@ -1609,41 +1612,43 @@ class Parser():
 
         def p_argument_expression_list_2(p):
             'argument_expression_list :  argument_expression_list COMMA assignment_expression'
+            p[0] = PassUpNode("ArgumentExpressionList",[p[1],p[3]])
+
             if self.DebugProd == True:
                 self.DebugPrint("argument_expression_list -->  argument_expression_list COMMA assignment_expression", p)
             return
 
         def p_constant_1(p):
             'constant :  INTEGER_CONSTANT'
-            p[0]=Constant('int', p[1])
+            p[0]=Constant('int', p[1], Loc = p)
             if self.DebugProd == True:
                 self.DebugPrint("constant -->  INTEGER_CONSTANT", p)
             return
 
         def p_constant_2(p):
             'constant :  CHARACTER_CONSTANT'
-            p[0]=Constant('char', p[1])
+            p[0]=Constant('char', p[1], Loc = p)
             if self.DebugProd == True:
                 self.DebugPrint("constant -->  CHARACTER_CONSTANT", p)
             return
 
         def p_constant_3(p):
             'constant :  FLOATING_CONSTANT'
-            p[0]=Constant('float', p[1])
+            p[0]=Constant('float', p[1], Loc = p)
             if self.DebugProd == True:
                 self.DebugPrint("constant -->  FLOATING_CONSTANT", p)
             return
 
         def p_constant_4(p):
             'constant :  ENUMERATION_CONSTANT'
-            p[0]=Constant('enum', p[1])
+            p[0]=Constant('enum', p[1], Loc = p)
             if self.DebugProd == True:
                 self.DebugPrint("constant -->  ENUMERATION_CONSTANT", p)
             return
 
         def p_string_1(p):
             'string :  STRING_LITERAL'
-            p[0]=Constant('char*', p[1])
+            p[0]=Constant('char*', p[1], Loc = p)
             if self.DebugProd == True:
                 self.DebugPrint("string -->  STRING_LITERAL", p)
             return
@@ -1653,8 +1658,7 @@ class Parser():
             #passing up the identifier
             # p[0] = p[1]
 
-            IdPtr = self.ST.InsertSymbol(p[1]['lexeme'], {'TokenLocation': p[1]['additional']['TokenLocation']})
-
+            IdPtr = self.ST.InsertSymbol(p[1]['lexeme'], {'Label': p[1]['lexeme'], 'TokenLocation': p[1]['additional']['TokenLocation']})
             p[0] = Identifier(p[1]['lexeme'], IdPtr, p[1]['additional']['TokenLocation'], self.ST, p)
 
             if self.DebugProd == True:
@@ -1699,7 +1703,10 @@ class Parser():
             return
 
         def p_error(p):
-            ErrManager.AddError(PrettyErrorPrint("Syntax Error. Did you possibly forget a semicolon somewhere?", p.lexer.lineno, FindColumn(p.lexer.lexdata, p.lexer), p.lexer.lexdata))
+            if p ==  None:
+                ErrManager.AddError("Syntax error. Did you miss a close brace?")
+            else:
+                ErrManager.AddError(PrettyErrorPrint("Syntax Error. Did you possibly forget a semicolon somewhere?", p.lexer.lineno, FindColumn(p.lexer.lexdata, p.lexer), p.lexer.lexdata))
             return
 
 
