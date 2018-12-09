@@ -5,15 +5,12 @@ int main(){
   float b[10][10];
   float c[10][10];
 
-<<<<<<< HEAD
   if( i < j){
     c[j][i][k];
   }
   else {
     i = 1;
   }
-=======
->>>>>>> master
 
   for(i=0; i < 10; i++){
     for(j=0; j < 10; j++){
