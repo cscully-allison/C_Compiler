@@ -8,7 +8,7 @@
 [Main Project Page](https://github.com/cscully-allison/C_Compilier)<br>
 [Project Wiki](https://github.com/cscully-allison/C_Compilier/wiki/CS-660:-Connor-Scully-Allison-and-Kurt-Andersen)<br>
 [Lexical Analyzer](../LexicalAnalizer)<br>
-[Parser README / Abstract Syantx Tree](./Parser/) <br>
+[Parser README / Abstract Syntax Tree / 3AC](./Parser/) <br>
 
 
 

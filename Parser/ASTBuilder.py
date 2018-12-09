@@ -867,6 +867,26 @@ class UnaryExpression(Node):
                 ErrManager.AddError("Row:{1} Col:{2} Attempted increment of constant.".format('{0}', self.Loc[0], self.Loc[1]))
         pass
 
+class UnaryPostfixExpression(Node):
+    def __init__(self, Child, Op, Loc=None):
+        self.Loc = Loc
+        self.Op = Op
+        self.Child = Child
+
+        self.RunSemanticAnalysis()
+
+    def GetChildren(self):
+        Children = []
+        Children.append(self.Child)
+        return Children
+
+    def RunSemanticAnalysis(self):
+        if (self.Child.Type == 'constant' or
+        self.Child.Type == 'string') and (self.Op == "++" or
+        self.Op == "--" ):
+                ErrManager.AddError("Row:{1} Col:{2} Attempted increment of constant.".format('{0}', self.Loc[0], self.Loc[1]))
+        pass
+
 class CompoundStatement(Node):
     def __init__(self, DecList = None, StmtList = None, Loc=None):
         self.DecList = DecList
@@ -1117,14 +1137,14 @@ class SelectionStatement(Node):
 
 
 class IterationStatement(Node):
-    def __init__(self, AssignmentExpression = None, ConditionalExpression = None, IterativeExpression = None, Statement = None, Production = None):
+    def __init__(self, AssignmentExpression = None, ConditionalExpression = None, IterativeExpression = None, Statement = None, Production = None, IsDo = None):
         self.AssignmentExpression = AssignmentExpression
         self.ConditionalExpression = ConditionalExpression
         self.IterativeExpression = IterativeExpression
         self.Statement = Statement
         self.Production = Production
         self.Loc = GetLoc(Production)
-
+        self.IsDo = IsDo
         if self.ConditionalExpression is not None: self.StartLabel = Label.DispenseTicket()
         if self.Statement is not None: self.EndLabel = Label.DispenseTicket()
 
@@ -1134,6 +1154,7 @@ class IterationStatement(Node):
         if self.ConditionalExpression is not None: Children.append(self.ConditionalExpression)
         if self.IterativeExpression is not None: Children.append(self.IterativeExpression)
         if self.Statement is not None: Children.append(self.Statement)
+        Children.append(self.IsDo)
         #if self.Production is not None: Children.append(self.Production)
         return Children
 

@@ -5,7 +5,7 @@ from Globals import ErrManager, ST_G
 from Utils import PrettyErrorPrint, FindColumn
 from LexicalAnalizer import LexicalAnalizer
 from SymbolTable import SymbolTable
-from ASTBuilder import ReturnNode, FunctionPrototype, FunctionCall, Identifier, ArrayDeclaration, PassUpNode, SelectionStatement, DeclarationSpecifiers, DeclList, Declaration, PrimaryExpression, UnaryExpression, Constant, FunctionDefintion, CompoundStatement, AssignmentExpression, InitDeclList, BinOp, IterationStatement, ArrayAccess
+from ASTBuilder import ReturnNode, FunctionPrototype, FunctionCall, Identifier, ArrayDeclaration, PassUpNode, SelectionStatement, DeclarationSpecifiers, DeclList, Declaration, PrimaryExpression, UnaryExpression, Constant, FunctionDefintion, CompoundStatement, AssignmentExpression, InitDeclList, BinOp, IterationStatement, ArrayAccess, UnaryPostfixExpression
 import ply.yacc as yacc
 
 
@@ -986,7 +986,7 @@ class Parser():
 
         def p_iteration_statement_2(p):
             'iteration_statement :  DO statement WHILE OPENPAREN expression CLOSEPAREN SEMI'
-            p[0] = IterationStatement(ConditionalExpression = p[5], Statement = p[2], Production = p)
+            p[0] = IterationStatement(ConditionalExpression = p[5], Statement = p[2], Production = p, IsDo = 'True')
             if self.DebugProd == True:
                 self.DebugPrint("iteration_statement -->  DO statement WHILE OPENPAREN expression CLOSEPAREN SEMI", p)
             return
@@ -1556,7 +1556,7 @@ class Parser():
 
         def p_postfix_expression_7(p):
             'postfix_expression :  postfix_expression INC_OP'
-            p[0] = p[1]
+            p[0] = UnaryPostfixExpression(Child=p[1], Op=p[2], Loc=p)
             if self.DebugProd == True:
                 self.DebugPrint("postfix_expression -->  postfix_expression INC_OP", p)
             return
