@@ -1,6 +1,7 @@
 int var0;
 char var1;
 
+int funct1(int);
 
 int main(const int arg1, char arg2){
   int var2, var4;
@@ -12,3 +13,9 @@ int main(const int arg1, char arg2){
 
 }
 //
+
+funct1(int a){}
+  a++;
+
+  return a;
+}
