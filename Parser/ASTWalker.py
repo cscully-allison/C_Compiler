@@ -209,11 +209,16 @@ class CodeGenerator(object):
     '''
 
     def Identifier(self, Subtree):
+        print("Identifier Name:", Subtree.Name)
         ID = ST_G.RecoverMostRecentID(Subtree.Name)
+        print("Identifier:", ID)
         return ID
 
     def Constant(self, Subtree):
         return {'Type': [Subtree.DataType], 'Value': Subtree.Child, 'Type Qualifier': ['const']}
+
+    # def FunctionCall(self, Subtree):
+
 
     def ArrayAccess(self, Subtree, Depth = 0):
         Returned = None
@@ -221,8 +226,11 @@ class CodeGenerator(object):
 
         if self.IsNodeType(Subtree, "PrimaryExpression"):
             Returned = self.PrimaryExpression(Subtree)
+            print("ArrayAccess Returned: ", Returned)
             return Returned
+
         elif self.IsNodeType(Subtree, "ArrayAccess"):
+            print("Array Access: ", Subtree)
             # variables
             ArraySizes = Subtree.SymbolLocation['Array Size']
             ID = Subtree.SymbolLocation
@@ -231,6 +239,7 @@ class CodeGenerator(object):
 
 
             LHS = self.ArrayAccess(Subtree.ArrayName, Depth + 1)
+            print(Subtree.ArrayName, LHS)
 
             # check if we have a recusrive element in the array access area
             if self.IsNodeType(Subtree.ArrayOffset, "ArrayAccess"):
@@ -269,6 +278,7 @@ class CodeGenerator(object):
                 self.Load3AC(Instruction = "MULT", Dest=OffsetReg, OperandA=PriorReg, OperandB=Offset, LineNo=Subtree.Loc[0])
 
                 #add with remaining offsets to get our total offset
+
                 if 'Subtype' not in LHS:
                     RemainingOffsets = self.GetFormattedOperand(LHS)
                     self.Load3AC(Instruction = "ADD", Dest=ArrayAccessRegister, OperandA=RemainingOffsets, OperandB=OffsetReg, LineNo=Subtree.Loc[0])
@@ -406,22 +416,24 @@ class CodeGenerator(object):
             RHSOp = self.GetFormattedOperand(RHS)
 
 
-            if 'addr' in LHSOp:
-                TempOp = IntRegister.DispenseTicket()
-                self.Load3AC(Instruction = 'LOAD', Dest=TempOp, OperandB = LHSOp)
-                LHSOp = TempOp
-            elif 'faddr' in LHSOp:
+            if 'faddr' in LHSOp:
                 TempOp = FloatRegister.DispenseTicket()
                 self.Load3AC(Instruction = 'LOAD', Dest=TempOp, OperandB = LHSOp)
                 LHSOp = TempOp
-            if 'addr' in RHSOp:
+            elif 'addr' in LHSOp:
+                TempOp = IntRegister.DispenseTicket()
+                self.Load3AC(Instruction = 'LOAD', Dest=TempOp, OperandB = LHSOp)
+                LHSOp = TempOp
+
+            if 'faddr' in RHSOp:
+                TempOp = FloatRegister.DispenseTicket()
+                self.Load3AC(Instruction = 'LOAD', Dest=TempOp, OperandB = RHSOp)
+                RHSOp = TempOp
+            elif 'addr' in RHSOp:
                 TempOp = IntRegister.DispenseTicket()
                 self.Load3AC(Instruction = 'LOAD', Dest=TempOp, OperandB = RHSOp)
                 RHSOp = TempOp
-            elif 'faddr' in RHSOp:
-                TempOp = FloatRegister.DispenseTicket()
-                self.Load3AC(Instruction = 'LOAD', Dest=TempOp, OperandB = RHSOp)
-                THSOp = TempOp
+
 
 
             self.Load3AC(Instruction = Ins, Dest=Subtree.Register, OperandA = LHSOp, OperandB = RHSOp)
@@ -485,6 +497,7 @@ class CodeGenerator(object):
 
             ArgsSize += Arg['Size In Bytes']
 
+
         # fetch stack frame size from locals
         for Child in FunctSubtree.GetChildren():
             if self.IsNodeType(Child, 'CompoundStatement'):
@@ -496,7 +509,8 @@ class CodeGenerator(object):
         self.Load3AC(Instruction = "PROCENTRY", Dest=self.FormatLabel(FunctSubtree.IDPtr['Label']), OperandA = StackFrameSize, OperandB = ArgsSize)
 
 
-        ST_G.WriteSymbolTableToFile("walkerst.out")
+
+        ST_G.WriteSymbolTableToFile("walkerb.out")
 
         #recursively call Output 3AC on CompoundStatement to maintain correct scoping in ST
         Statement = self.GetStatementRoot(FunctSubtree)
@@ -637,6 +651,8 @@ class CodeGenerator(object):
         else:
             for Child in Subtree.GetChildren():
                 SideEffect = self.Output3AC(Child)
+
+        print("From 3AC:", SideEffect)
 
         return SideEffect
 
