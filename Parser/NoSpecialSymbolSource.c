@@ -1,6 +1,3 @@
-
-int a, b;
-
 int main(int a, char b){
     char c;
     float d;

@@ -1,5 +1,5 @@
 # CS 660
-# Parser / Abstract Syntax Tree
+# Parser / Abstract Syntax Tree / 3AC
 
 # Connor Scully-Allison and Kurt Andersen
 ### October 19, 2018
