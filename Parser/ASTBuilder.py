@@ -957,7 +957,6 @@ class AssignmentExpression(Node):
         RDT = self.GetBinOpDataType(self.Right)
 
 
-
         #set the overall type of the expression
         DominantType = self.EvalDataType(LDT, RDT)
         if DominantType is 'Equal':
@@ -1043,6 +1042,8 @@ class BinOp(Node):
         LDT = self.GetBinOpDataType(self.Left)
         RDT = self.GetBinOpDataType(self.Right)
 
+        print("BinopDataTypes: ", LDT, RDT)
+
         #set the overall type of the expression
         DominantType = self.EvalDataType(LDT, RDT)
         if DominantType is 'Equal':
@@ -1066,24 +1067,43 @@ class BinOp(Node):
         else:
             self.Register = IntRegister.DispenseTicket()
 
+    def GetArrayDataType(self, Subtree):
+        if Subtree is None: return
+        if not IsNode(Subtree): return
+        if Subtree.GetChildren() is None: return
 
+        Type = None
+
+        for Child in Subtree.GetChildren():
+            if Child.__class__.__name__ == 'Identifier':
+                if SafeCheckDict(Child.STPtr, 'Type'):
+                    Type = Child.STPtr['Type']
+                else:
+                    raise ValueError("Fatal compilation error, see logs below.")
+            else:
+                Type = self.GetArrayDataType(Child)
+
+        return Type
 
     def GetBinOpDataType(self, Subtree):
         if Subtree is None: return
         if not IsNode(Subtree): return
         if Subtree.GetChildren() is None: return
 
+        # for case where subtree is array itself
+        if Subtree.__class__.__name__ == 'ArrayAccess':
+            return self.GetArrayDataType(Subtree)
+
         for Child in Subtree.GetChildren():
-            # if Child.__class__.__name__ == "BinOp":
-            #     # if Child.ExprDataType is not None:
-            #     #     return Child.ExprDataType
+            if Child.__class__.__name__ == 'ArrayAccess':
+                return self.GetArrayDataType(Child)
             if Child.__class__.__name__ == 'Constant':
                 return [Child.DataType]
             if Child.__class__.__name__ == 'Identifier':
                 if SafeCheckDict(Child.STPtr, 'Type'):
                     return Child.STPtr['Type']
                 else:
-                    raise ValueError("Fatal error, see logs below.")
+                    raise ValueError("Fatal compilation error, see logs below.")
             if Child.__class__.__name__ == "BinOp":
                 # print(Child.Left, Child.Right)
                 LDT = self.GetBinOpDataType(Child.Left)
@@ -1181,7 +1201,7 @@ class ArrayAccess(Node):
                     if len(child) < 2:
                         self.CurrentOffset += child
 
-       
+
         if self.Label is not False:
             self.SymbolLocation = ST.RecoverMostRecentID(self.Label)
 

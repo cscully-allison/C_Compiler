@@ -153,7 +153,10 @@ class CodeGenerator(object):
             if 'addr' in Operand or 'faddr' in Operand:
                 Opcode = Operand
             elif 'temp' not in Operand:
-                Opcode = 'temp ' + Operand
+                if 'FR' in Operand:
+                    Opcode = 'ftemp ' + Operand
+                else:
+                    Opcode = 'temp ' + Operand
             else:
                 Opcode = Operand
 
@@ -167,6 +170,16 @@ class CodeGenerator(object):
 
     def FormatLabel(self, Label):
         return('label ' + Label)
+
+    def GetTypeString(self, TypeArr):
+        Type = ''
+
+        for Value in TypeArr:
+            Type += Value + ' '
+
+        Type = Type[:-1]
+
+        return Type
 
     def FormatConstant(self, Const):
         if type(Const) is not type({}):
@@ -209,15 +222,38 @@ class CodeGenerator(object):
     '''
 
     def Identifier(self, Subtree):
-        print("Identifier Name:", Subtree.Name)
         ID = ST_G.RecoverMostRecentID(Subtree.Name)
-        print("Identifier:", ID)
         return ID
 
     def Constant(self, Subtree):
         return {'Type': [Subtree.DataType], 'Value': Subtree.Child, 'Type Qualifier': ['const']}
 
-    # def FunctionCall(self, Subtree):
+    def CastNode(self, Subtree):
+
+        # call more 3AC gen after being called
+        CastedReg = self.Output3AC(Subtree.SubExpression)
+
+        CastType = self.GetTypeString(Subtree.CastTo)
+
+        # get dest register
+        if 'float' in Subtree.CastTo:
+            CastToReg = FloatRegister.DispenseTicket()
+        else:
+            CastToReg = IntRegister.DispenseTicket()
+
+        self.Load3AC(Instruction = "CONVERT", Dest=CastToReg, OperandA='type ' + CastType, OperandB=CastedReg)
+
+        return CastToReg
+
+
+
+    def FunctionCall(self, Subtree):
+        print(Subtree.Label, Subtree.Arguments)
+
+        for Arg in Subtree.Arguments:
+            print(CM.TypeToBytes(Arg['Type']))
+
+        pass
 
 
     def ArrayAccess(self, Subtree, Depth = 0):
@@ -226,11 +262,9 @@ class CodeGenerator(object):
 
         if self.IsNodeType(Subtree, "PrimaryExpression"):
             Returned = self.PrimaryExpression(Subtree)
-            print("ArrayAccess Returned: ", Returned)
             return Returned
 
         elif self.IsNodeType(Subtree, "ArrayAccess"):
-            print("Array Access: ", Subtree)
             # variables
             ArraySizes = Subtree.SymbolLocation['Array Size']
             ID = Subtree.SymbolLocation
@@ -239,7 +273,6 @@ class CodeGenerator(object):
 
 
             LHS = self.ArrayAccess(Subtree.ArrayName, Depth + 1)
-            print(Subtree.ArrayName, LHS)
 
             # check if we have a recusrive element in the array access area
             if self.IsNodeType(Subtree.ArrayOffset, "ArrayAccess"):
@@ -330,6 +363,7 @@ class CodeGenerator(object):
             ReturnOp = self.GetFormattedOperand(Return)
             #load in special reserved register
             self.Load3AC(Instruction = "LOAD", Dest=ReturnRegister_Const, OperandB=ReturnOp)
+            self.Load3AC(Instruction = "RETURN")
 
 
     def SelectionStatement(self, Subtree):
@@ -390,7 +424,7 @@ class CodeGenerator(object):
 
         elif self.IsNodeType(Subtree, "CastNode"):
             # this wil be replaced with a cast node output thing
-            return self.BinOp(Subtree.SubExpression)
+            return self.CastNode(Subtree)
 
         elif self.IsNodeType(Subtree, 'ArrayAccess'):
             return self.ArrayAccess(Subtree)
@@ -424,7 +458,6 @@ class CodeGenerator(object):
                 TempOp = IntRegister.DispenseTicket()
                 self.Load3AC(Instruction = 'LOAD', Dest=TempOp, OperandB = LHSOp)
                 LHSOp = TempOp
-
             if 'faddr' in RHSOp:
                 TempOp = FloatRegister.DispenseTicket()
                 self.Load3AC(Instruction = 'LOAD', Dest=TempOp, OperandB = RHSOp)
@@ -648,11 +681,12 @@ class CodeGenerator(object):
             SideEffect = self.UnaryPostfixExpression(Subtree)
         elif self.IsNodeType(Subtree, "IterationStatement"):
             self.IterationStatement(Subtree)
+        elif self.IsNodeType(Subtree, "FunctionCall"):
+            self.FunctionCall(Subtree)
         else:
             for Child in Subtree.GetChildren():
                 SideEffect = self.Output3AC(Child)
 
-        print("From 3AC:", SideEffect)
 
         return SideEffect
 
