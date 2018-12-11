@@ -1,6 +1,7 @@
 from Globals import ErrManager, ST_G
 from Parser_M import Parser
 from ASTWalker import ASTWalker, CodeGenerator
+from AssemblyGenerator import AssemblyGenerator
 import sys
 
 def driver():
@@ -42,6 +43,8 @@ def driver():
     ICG = CodeGenerator(AST, "intermediate.3AC")
 
     ICG.PrettyPrint3AC()
+
+    Assembly = AssemblyGenerator(ThreeAC = ICG.Output)
 
 
 driver()
