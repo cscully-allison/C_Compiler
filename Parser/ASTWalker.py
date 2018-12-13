@@ -12,6 +12,7 @@ class CodeGenerator(object):
         self.Output = []
         self.PostDeclaration = False
         self.Source = ST_G.SourceFile
+        self.LineNo = 0
         ST_G.PushNewScope()
         self.Output3AC(AST)
 
@@ -44,7 +45,7 @@ class CodeGenerator(object):
 
         print("%s %s %s %s" % ('Instruction'.ljust(Pads[0]), 'Destination'.ljust(Pads[1]), 'Operand A'.ljust(Pads[2]), 'Operand B'.ljust(Pads[3])))
         for line in self.Output:
-            if line['LineNo'] > LineNo:
+            if line['LineNo'] is not None and line['LineNo'] > LineNo:
                 LineNo = line['LineNo']
                 #print line
                 with open(self.Source) as file:
@@ -213,7 +214,10 @@ class CodeGenerator(object):
         if OperandB is not None: OperandB = self.GetFormattedOperand(OperandB)
         if Dest is not None: Dest = self.GetFormattedOperand(Dest)
 
-        self.Output.append({'Instruction': Instruction, 'Dest': Dest, 'OpA': OperandA, 'OpB': OperandB, 'LineNo': LineNo})
+
+
+        self.Output.append({'Instruction': Instruction, 'Dest': Dest, 'OpA': OperandA, 'OpB': OperandB, 'LineNo': LineNo, '3ACLineNo': self.LineNo})
+        self.LineNo += 1;
 
     '''
     **********************
@@ -248,6 +252,9 @@ class CodeGenerator(object):
 
 
     def FunctionCall(self, Subtree):
+
+        Return = self.AllocateRegister(Subtree.IdPtr)
+
         ArgSize = 0
         for Arg in Subtree.Arguments:
             ArgSize += CM.TypeToBytes(Arg['Type'])
@@ -274,7 +281,11 @@ class CodeGenerator(object):
 
         self.Load3AC(Instruction="CALL", Dest='label ' + Subtree.IdLabel)
 
+        Return = self.GetFormattedOperand(Return)
 
+        self.Load3AC(Instruction="LOAD", Dest=Return, OperandB="const return")
+
+        return Return
         pass
 
 
@@ -666,6 +677,7 @@ class CodeGenerator(object):
             self.Load3AC(Instruction = "LABEL", Dest= self.FormatLabel(Subtree.EndLabel))
 
     def Output3AC(self, Subtree):
+        print(Subtree)
         # Base Case
         if Subtree is None: return None
         if not self.IsNode(Subtree): return None
@@ -704,7 +716,7 @@ class CodeGenerator(object):
         elif self.IsNodeType(Subtree, "IterationStatement"):
             self.IterationStatement(Subtree)
         elif self.IsNodeType(Subtree, "FunctionCall"):
-            self.FunctionCall(Subtree)
+            SideEffect = self.FunctionCall(Subtree)
         else:
             for Child in Subtree.GetChildren():
                 SideEffect = self.Output3AC(Child)

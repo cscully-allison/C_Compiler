@@ -368,8 +368,8 @@ class FunctionDefintion(Node):
 
     def MismachedTypes(self, Prototype):
         returns = []
-        if 'Return Type' in Prototype:
-            if Prototype['Return Type'] != self.ReturnType['Type']:
+        if 'Type' in Prototype:
+            if Prototype['Type'] != self.ReturnType['Type']:
                 returns.append('Return')
         if 'Arguments' in Prototype:
             if len(Prototype['Arguments']) != len(self.FunctionArguments):
@@ -416,8 +416,8 @@ class FunctionDefintion(Node):
         self.CheckArray(self.IDPtr)
 
 
-        if 'Return Type' not in self.IDPtr and self.ReturnType == None:
-            self.IDPtr['Return Type'] = ['int']
+        if 'Type' not in self.IDPtr and self.ReturnType == None:
+            self.IDPtr['Type'] = ['int']
             print("Warning: Line: {} Col: {} No return type defined for function '{}', default to int.".format(self.IDPtr['TokenLocation'][0], self.IDPtr['TokenLocation'][2], self.Label))
 
 
@@ -690,7 +690,7 @@ class Declaration(Node):
                 self.IDCtr += 1;
                 # inserting for function prototypes
                 if 'Subtype' in DeclList.STPtr and DeclList.STPtr['Subtype'] == 'Function Prototype':
-                    DeclList.STPtr['Return Type'] = self.DeclSpecs['Type']
+                    DeclList.STPtr['Type'] = self.DeclSpecs['Type']
                 else:
                     DeclList.STPtr['Type'] = self.DeclSpecs['Type']
 
@@ -708,7 +708,7 @@ class Declaration(Node):
                     self.IDCtr += 1;
                     # inserting for function prototypes
                     if 'Subtype' in Child.STPtr and Child.STPtr['Subtype'] == 'Function Prototype':
-                        Child.STPtr['Return Type'] = self.DeclSpecs['Type']
+                        Child.STPtr['Type'] = self.DeclSpecs['Type']
                     else:
                         Child.STPtr['Type'] = self.DeclSpecs['Type']
 
@@ -989,6 +989,7 @@ class AssignmentExpression(Node):
                     return [Child.DataType]
                 if Child.__class__.__name__ == 'Identifier':
                     return Child.STPtr["Type"]
+
                 if Child.__class__.__name__ == "BinOp":
                     LDT = self.GetBinOpDataType(Child.Left)
                     RDT = self.GetBinOpDataType(Child.Right)

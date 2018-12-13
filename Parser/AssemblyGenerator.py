@@ -2,13 +2,26 @@ from RegisterTable import RegisterTable
 from ASTWalker import CodeGenerator
 
 class AssemblyGenerator():
-	def __init__ (self, RegisterTable = None, AddressTable = None, ThreeAC = None, Filename = None):
-		self.RegisterTable = RegisterTable
+	def __init__ (self, AddressTable = None, ThreeAC = None, Filename = None):
+		self.RegisterTable = RegisterTable("TargetMachine.config")
 		self.AddressTable = AddressTable
 		self.ThreeAC = ThreeAC
 		self.Filename = Filename
+		self.Output = []
+		self.PriorIns = None
 		for items in self.ThreeAC:
 			self.GenerateAssemblyCode(items)
+			self.PriorIns = items['Instruction']
+
+		with open(Filename, 'w') as Asmout:
+			for Line in self.Output:
+				Asmout.write(Line + '\n')
+
+
+	def AddLineToASM(self, line):
+		self.Output.append(line)
+		print(line)
+
 
 	def GenerateAssemblyCode(self, ThreeACLine):
 		if (ThreeACLine['Instruction'] == 'LABEL'):
@@ -25,6 +38,8 @@ class AssemblyGenerator():
 			self.ENDPROC(ThreeACLine)
 		elif (ThreeACLine['Instruction'] == 'RETURN'):
 			self.RETURN(ThreeACLine)
+		elif (ThreeACLine['Instruction'] == 'GLOBAL'):
+			self.GLOBAL(ThreeACLine)
 		elif (ThreeACLine['Instruction'] == 'ADD'):
 			self.ADD(ThreeACLine)
 		elif (ThreeACLine['Instruction'] == 'SUB'):
@@ -64,25 +79,83 @@ class AssemblyGenerator():
 
 
 	def LABEL(self, ThreeACLine):
-		print ("in label")
+		Template = "%s:"
+		Template = Template % ThreeACLine['Dest'].replace('label ', '')
+
+		self.AddLineToASM(Template)
 
 	def JUMP(self, ThreeACLine):
 		print ("in jump")
 
 	def LOAD(self, ThreeACLine):
+		#move condition
+
+		#load word condition
 		print ("in load")
 
 	def STORE(self, ThreeACLine):
+		if 'temp' in ThreeACLine['OpB']:
+			VReg = ThreeACLine['OpB']
+			Reg = self.RegisterTable.FindRegisterWithVReg(VReg)
+			if Reg is None:
+				Reg = self.RegisterTable.GetFirstOpenRegister('t')
+				self.RegisterTable.SetRegisterData(Reg, VReg)
+
+		#case for floating point constant
+		if 'const' in ThreeACLine['OpB']:
+			#get a register
+			Reg = self.RegisterTable.GetFirstOpenRegister('t')
+			LoadImmediate = "li {} {}"
+			LoadImmediate = LoadImmediate.format( Reg, ThreeACLine['OpB'].replace('const ', ''))
+			self.AddLineToASM(LoadImmediate)
+
+		#user register to STORE
+		Store = "sw {} {}"
+		Deref = "{}({})"
+		WordLoc = ThreeACLine['Dest'].replace('local ', '')
+		StackPtr = self.RegisterTable.GetStackPtr()['assembly name']
+		Store = Store.format(Reg, Deref.format(WordLoc, StackPtr))
+		self.AddLineToASM(Store)
+
+
+		#blow away register
+
 		print ("in store")
 
 	def PROCENTRY(self, ThreeACLine):
-		print ("in procentry")
+		# if self.PriorIns is not None and self.PriorIns == 'GLOBAL':
+		self.AddLineToASM('.text')
+
+		#declare the function name
+		Template = "%s:"
+		Template = Template % ThreeACLine['Dest'].replace('label ', '')
+		self.AddLineToASM(Template)
+
+		#incrment the stack pointer
+		StackUpdate =  'sub {}, {}, {}'
+		StackPtr = self.RegisterTable.GetStackPtr()
+		Reg = StackPtr['assembly name']
+		Offset = int(ThreeACLine['OpA']) + int(ThreeACLine['OpB'])
+
+		StackUpdate = StackUpdate.format(Reg, Reg, Offset)
+		self.RegisterTable.PushStackPtr(Offset)
+		self.AddLineToASM(StackUpdate)
+
 
 	def ENDPROC(self, ThreeACLine):
 		print ("in endproc")
 
 	def RETURN(self, ThreeACLine):
 		print ("in home")
+
+	def GLOBAL(self, ThreeACLine):
+		if ThreeACLine['3ACLineNo'] is 0:
+			self.AddLineToASM('.data')
+
+		GlobalLine = "{}: {} {}"
+		if ThreeACLine['OpA'] == '4':
+			GlobalLine = GlobalLine.format(ThreeACLine['Dest'].replace('label ', ''), '.word', "")
+			self.AddLineToASM(GlobalLine)
 
 	def ADD(self, ThreeACLine):
 		print ("in add")
@@ -134,5 +207,3 @@ class AssemblyGenerator():
 
 	def BRGT(self, ThreeACLine):
 		print ("in brgt")
-
-	
