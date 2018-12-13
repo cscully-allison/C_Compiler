@@ -1,15 +1,23 @@
 
 int main(){
   int i, j, k;
-  float a[10][10];
-  float b[10][10];
-  float c[10][10];
+  float a[4][4];
+  float b[4][4];
+  float c[4][4];
+  int aval, bval;
 
-  if( i < j){
-    c[j][i][k];
-  }
-  else {
-    i = 1;
+  aval = 1;
+  bval = 2;
+
+  for(i=0; i < 10; i++){
+    for(j=0; j < 10; j++){
+      a[i][j] = aval;
+      b[i][j] = bval;
+      c[i][j] = 0.0;
+
+      aval++;
+      bval++;
+    }
   }
 
   for(i=0; i < 10; i++){

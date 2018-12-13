@@ -1042,8 +1042,6 @@ class BinOp(Node):
         LDT = self.GetBinOpDataType(self.Left)
         RDT = self.GetBinOpDataType(self.Right)
 
-        print("BinopDataTypes: ", LDT, RDT)
-
         #set the overall type of the expression
         DominantType = self.EvalDataType(LDT, RDT)
         if DominantType is 'Equal':

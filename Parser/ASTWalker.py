@@ -248,10 +248,32 @@ class CodeGenerator(object):
 
 
     def FunctionCall(self, Subtree):
-        print(Subtree.Label, Subtree.Arguments)
-
+        ArgSize = 0
         for Arg in Subtree.Arguments:
-            print(CM.TypeToBytes(Arg['Type']))
+            ArgSize += CM.TypeToBytes(Arg['Type'])
+
+        self.Load3AC(Instruction="ARGS", Dest='const ' + str(ArgSize))
+
+
+        Arguments = []
+
+        for Argument in Subtree.ArgumentList.GetChildren():
+            if Argument is not None:
+                Arguments.append(self.Output3AC(Argument))
+
+        for Argument in Arguments:
+            Op = self.GetFormattedOperand(Argument)
+            if 'const' in Op:
+                self.Load3AC(Instruction="VALOUT", Dest=Op )
+            if 'local' in Op:
+                self.Load3AC(Instruction="VALOUT", Dest=Op )
+            elif 'faddr' in Op:
+                self.Load3AC(Instruction="REFOUT", Dest=Op )
+
+
+
+        self.Load3AC(Instruction="CALL", Dest='label ' + Subtree.IdLabel)
+
 
         pass
 
