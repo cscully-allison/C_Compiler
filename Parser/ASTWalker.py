@@ -677,7 +677,6 @@ class CodeGenerator(object):
             self.Load3AC(Instruction = "LABEL", Dest= self.FormatLabel(Subtree.EndLabel))
 
     def Output3AC(self, Subtree):
-        print(Subtree)
         # Base Case
         if Subtree is None: return None
         if not self.IsNode(Subtree): return None

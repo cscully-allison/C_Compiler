@@ -99,12 +99,13 @@ class AssemblyGenerator():
 			Reg = self.RegisterTable.FindRegisterWithVReg(VReg)
 			if Reg is None:
 				Reg = self.RegisterTable.GetFirstOpenRegister('t')
-				self.RegisterTable.SetRegisterData(Reg, VReg)
+				self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=VReg)
 
 		#case for floating point constant
 		if 'const' in ThreeACLine['OpB']:
 			#get a register
 			Reg = self.RegisterTable.GetFirstOpenRegister('t')
+			self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=ThreeACLine['OpB'])
 			LoadImmediate = "li {} {}"
 			LoadImmediate = LoadImmediate.format( Reg, ThreeACLine['OpB'].replace('const ', ''))
 			self.AddLineToASM(LoadImmediate)
@@ -119,8 +120,8 @@ class AssemblyGenerator():
 
 
 		#blow away register
+		self.RegisterTable.ClearRegister(Reg)
 
-		print ("in store")
 
 	def PROCENTRY(self, ThreeACLine):
 		# if self.PriorIns is not None and self.PriorIns == 'GLOBAL':
