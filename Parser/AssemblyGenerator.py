@@ -40,6 +40,8 @@ class AssemblyGenerator():
 			self.RETURN(ThreeACLine)
 		elif (ThreeACLine['Instruction'] == 'GLOBAL'):
 			self.GLOBAL(ThreeACLine)
+		elif (ThreeACLine['Instruction'] == 'CONVERT'):
+			self.CONVERT(ThreeACLine)
 		elif (ThreeACLine['Instruction'] == 'ADD'):
 			self.ADD(ThreeACLine)
 		elif (ThreeACLine['Instruction'] == 'SUB'):
@@ -94,6 +96,9 @@ class AssemblyGenerator():
 		print ("in load")
 
 	def STORE(self, ThreeACLine):
+		# if local then do thing
+		Reg = ''
+
 		if 'temp' in ThreeACLine['OpB']:
 			VReg = ThreeACLine['OpB']
 			Reg = self.RegisterTable.FindRegisterWithVReg(VReg)
