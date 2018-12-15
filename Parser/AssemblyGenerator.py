@@ -164,16 +164,132 @@ class AssemblyGenerator():
 			self.AddLineToASM(GlobalLine)
 
 	def ADD(self, ThreeACLine):
-		print ("in add")
+		addi = "addi {}, {}, {}"
+
+		#find register location for where its getting stored
+
+		if 'const' in ThreeACLine['OpA']:
+			OpA = ThreeACLine['OpA']
+			OpAOut = OpA.replace('const ', '')
+
+		elif 'local' in ThreeACLine['OpA']:
+			OpA = ThreeACLine['OpA']
+			OpA = OpA.replace('local ', '')
+			OpAout = "{}({})"
+			SP = self.RegisterTable.GetStackPtr()['assembly name']
+			OpAout = OpAout.format(OpA, SP)
+			
+		if 'const' in ThreeACLine['OpB']:
+			OpB = ThreeACLine['OpB']
+			OpBout = OpB.replace('const ', '')
+
+		elif 'local' in ThreeACLine['OpB']:
+			OpB = ThreeACLine['OpB']
+			OpB = OpB.replace('local ', '')
+			OpAout = "{}({})"
+			SP = self.RegisterTable.GetStackPtr()['assembly name']
+			OpAout = OpBout.format(OpB, SP)
+
+		addi = addi.format("destination", OpAout, OpBout)
+		self.AddLineToASM(addi)
+			
+
 
 	def SUB(self, ThreeACLine):
-		print ("in sub")
+		sub = "sub {}, {}, {}"
+
+		#find register location for where its getting stored
+
+		if 'const' in ThreeACLine['OpA']:
+			OpA = ThreeACLine['OpA']
+			OpAOut = OpA.replace('const ', '')
+
+		elif 'local' in ThreeACLine['OpA']:
+			OpA = ThreeACLine['OpA']
+			OpA = OpA.replace('local ', '')
+			OpAout = "{}({})"
+			SP = self.RegisterTable.GetStackPtr()['assembly name']
+			OpAout = OpAout.format(OpA, SP)
+			
+		if 'const' in ThreeACLine['OpB']:
+			OpB = ThreeACLine['OpB']
+			OpBout = OpB.replace('const ', '')
+
+		elif 'local' in ThreeACLine['OpB']:
+			OpB = ThreeACLine['OpB']
+			OpB = OpB.replace('local ', '')
+			OpAout = "{}({})"
+			SP = self.RegisterTable.GetStackPtr()['assembly name']
+			OpAout = OpBout.format(OpB, SP)
+		
+		sub = sub.format("destination", OpAout, OpBout)
+		self.AddLineToASM(sub)
 
 	def MULT(self, ThreeACLine):
-		print ("in mult")
+		mult = "mult {}, {}"
+		mflo = "mflo {}"
+
+		#find register location for where its getting stored
+
+		if 'const' in ThreeACLine['OpA']:
+			OpA = ThreeACLine['OpA']
+			OpAOut = OpA.replace('const ', '')
+
+		elif 'local' in ThreeACLine['OpA']:
+			OpA = ThreeACLine['OpA']
+			OpA = OpA.replace('local ', '')
+			OpAout = "{}({})"
+			SP = self.RegisterTable.GetStackPtr()['assembly name']
+			OpAout = OpAout.format(OpA, SP)
+			
+		if 'const' in ThreeACLine['OpB']:
+			OpB = ThreeACLine['OpB']
+			OpBout = OpB.replace('const ', '')
+
+		elif 'local' in ThreeACLine['OpB']:
+			OpB = ThreeACLine['OpB']
+			OpB = OpB.replace('local ', '')
+			OpAout = "{}({})"
+			SP = self.RegisterTable.GetStackPtr()['assembly name']
+			OpAout = OpBout.format(OpB, SP)
+		
+		mult = mult.format(OpAout, OpBout)
+		mflo = mflo.format("destination")
+		self.AddLineToASM(mult)
+		self.AddLineToASM(mflo)		
 
 	def DIV(self, ThreeACLine):
-		print ("in div")
+		div = "div {}, {}"
+		mflo = "mflo {}"
+
+		#find register location for where its getting stored
+
+		if 'const' in ThreeACLine['OpA']:
+			OpA = ThreeACLine['OpA']
+			OpAOut = OpA.replace('const ', '')
+
+		elif 'local' in ThreeACLine['OpA']:
+			OpA = ThreeACLine['OpA']
+			OpA = OpA.replace('local ', '')
+			OpAout = "{}({})"
+			SP = self.RegisterTable.GetStackPtr()['assembly name']
+			OpAout = OpAout.format(OpA, SP)
+			
+		if 'const' in ThreeACLine['OpB']:
+			OpB = ThreeACLine['OpB']
+			OpBout = OpB.replace('const ', '')
+
+		elif 'local' in ThreeACLine['OpB']:
+			OpB = ThreeACLine['OpB']
+			OpB = OpB.replace('local ', '')
+			OpAout = "{}({})"
+			SP = self.RegisterTable.GetStackPtr()['assembly name']
+			OpAout = OpBout.format(OpB, SP)
+		
+		div = div.format(OpAout, OpBout)
+		mflo = mflo.format("destination")
+		self.AddLineToASM(div)
+		self.AddLineToASM(mflo)
 
 	def EQ(self, ThreeACLine):
 		print ("in eq")
