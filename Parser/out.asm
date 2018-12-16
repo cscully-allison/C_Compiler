@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 .text                         \#PROCENTRY   label main   212   0
 main:                         
 sub $sp, $sp, 212             
@@ -51,18 +50,18 @@ lw False, 140($sp)            \#ADD   faddr IR38   temp IR40   local 140
 add $t9, $t8, False           
 li $t8 f0.0                   \#STORE   faddr IR38   None   fconst 0.0  
 sw $t8 faddr IR38($sp)        
-                              \#LOAD   temp IR42   None   local 204  
+lw $t8 204($sp)               \#LOAD   temp IR42   None   local 204  
 add $t8, $t8, 1               \#ADD   temp IR42   temp IR42   const 1  
 sw $t8 204($sp)               \#STORE   local 204   None   temp IR42  
-                              \#LOAD   temp IR43   None   local 208  
+lw $t8 208($sp)               \#LOAD   temp IR43   None   local 208  
 add $t8, $t8, 1               \#ADD   temp IR43   temp IR43   const 1  
 sw $t8 208($sp)               \#STORE   local 208   None   temp IR43  
-                              \#LOAD   temp IR44   None   local 4  
+lw $t8 4($sp)                 \#LOAD   temp IR44   None   local 4  
 add $t8, $t8, 1               \#ADD   temp IR44   temp IR44   const 1  
 sw $t8 4($sp)                 \#STORE   local 4   None   temp IR44  
 j L1                          \#JUMP   label L1   None   None  
 L2:                           \#LABEL   label L2   None   None  
-                              \#LOAD   temp IR45   None   local 0  
+lw $t8 0($sp)                 \#LOAD   temp IR45   None   local 0  
 add $t8, $t8, 1               \#ADD   temp IR45   temp IR45   const 1  
 sw $t8 0($sp)                 \#STORE   local 0   None   temp IR45  
 j L3                          \#JUMP   label L3   None   None  
@@ -109,48 +108,24 @@ mult 4, None                  \#MULT   temp IR66   const 4   temp IR65
 mflo False                    
 lw False, 140($sp)            \#ADD   faddr IR64   temp IR66   local 140  
 add False, None, False        
-                              \#LOAD   ftemp FR2   None   faddr IR58  
-                              \#LOAD   ftemp FR3   None   faddr IR64  
+lw {} {}({})                  \#LOAD   ftemp FR2   None   faddr IR58  
+lw {} {}({})                  \#LOAD   ftemp FR3   None   faddr IR64  
 mult False, None              \#MULT   ftemp FR1   ftemp FR2   ftemp FR3  
 mflo False                    
 sw False faddr IR52($sp)      \#STORE   faddr IR52   None   ftemp FR1  
-                              \#LOAD   temp IR68   None   local 8  
+lw False 8($sp)               \#LOAD   temp IR68   None   local 8  
 add False, None, 1            \#ADD   temp IR68   temp IR68   const 1  
 sw False 8($sp)               \#STORE   local 8   None   temp IR68  
 j L5                          \#JUMP   label L5   None   None  
 L6:                           \#LABEL   label L6   None   None  
-                              \#LOAD   temp IR69   None   local 4  
+lw False 4($sp)               \#LOAD   temp IR69   None   local 4  
 add False, None, 1            \#ADD   temp IR69   temp IR69   const 1  
 sw False 4($sp)               \#STORE   local 4   None   temp IR69  
 j L7                          \#JUMP   label L7   None   None  
 L8:                           \#LABEL   label L8   None   None  
-                              \#LOAD   temp IR70   None   local 0  
+lw False 0($sp)               \#LOAD   temp IR70   None   local 0  
 add False, None, 1            \#ADD   temp IR70   temp IR70   const 1  
 sw False 0($sp)               \#STORE   local 0   None   temp IR70  
 j L9                          \#JUMP   label L9   None   None  
 L10:                          \#LABEL   label L10   None   None  
 li False 0                    \#LOAD   return   None   const 0  
-=======
-.text
-main:
-sub $sp, $sp, 20
-li $t0 3
-sw $t0 4($sp)
-lw $t1, 4($sp)
-add $t0, $t1, 3
-sw $t0 8($sp)
-li $t1, 16
-lw $t2, 8($sp)
-sub $t0, $t1, $t2
-sw $t0 12($sp)
-li $t1, 5
-li $t2, 10
-mult $t1, $t2
-mflo $t0
-sw $t0 16($sp)
-lw $t1, 16($sp)
-lw $t2, 12($sp)
-div $t1, $t2
-mflo $t0
-sw $t0 4($sp)
->>>>>>> kurt
