@@ -164,13 +164,26 @@ class AssemblyGenerator():
 			self.AddLineToASM(GlobalLine)
 
 	def ADD(self, ThreeACLine):
-		addi = "addi {}, {}, {}"
+		add = "add {}, {}, {}"
+		storeA = "lw {}, {}"
+		storeB = "lw {}, {}"
+		RegA = None
+		RegB = None
 
 		#find register location for where its getting stored
+		if 'IR' in ThreeACLine['Dest'] or 'FR' in ThreeACLine['Dest']:
+			VReg = ThreeACLine['Dest']
+			Reg = self.RegisterTable.FindRegisterWithVReg(VReg)
+			if Reg is None:
+				Reg = self.RegisterTable.GetFirstOpenRegister('t')
+				self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=VReg)
 
+
+
+		#Operaton A set string
 		if 'const' in ThreeACLine['OpA']:
 			OpA = ThreeACLine['OpA']
-			OpAOut = OpA.replace('const ', '')
+			OpAout = OpA.replace('const ', '')
 
 		elif 'local' in ThreeACLine['OpA']:
 			OpA = ThreeACLine['OpA']
@@ -178,7 +191,16 @@ class AssemblyGenerator():
 			OpAout = "{}({})"
 			SP = self.RegisterTable.GetStackPtr()['assembly name']
 			OpAout = OpAout.format(OpA, SP)
+			RegA = self.RegisterTable.GetFirstOpenRegister('t')
+			self.RegisterTable.SetRegisterData(AssemblyName=RegA, NewValue=ThreeACLine['OpA'])
+			storeA = storeA.format(RegA, OpAout)
+			self.AddLineToASM(storeA)
+			OpAout = RegA
+
+		elif 'IR' in ThreeACLine['OpA'] or 'FR' in ThreeACLine['OpA']:
+			OpAout = self.RegisterTable.FindRegisterWithVReg(ThreeACLine['OpA'])
 			
+		#Operation B set string
 		if 'const' in ThreeACLine['OpB']:
 			OpB = ThreeACLine['OpB']
 			OpBout = OpB.replace('const ', '')
@@ -186,23 +208,48 @@ class AssemblyGenerator():
 		elif 'local' in ThreeACLine['OpB']:
 			OpB = ThreeACLine['OpB']
 			OpB = OpB.replace('local ', '')
-			OpAout = "{}({})"
+			OpBout = "{}({})"
 			SP = self.RegisterTable.GetStackPtr()['assembly name']
-			OpAout = OpBout.format(OpB, SP)
+			OpBout = OpBout.format(OpB, SP)
+			RegB = self.RegisterTable.GetFirstOpenRegister('t')
+			self.RegisterTable.SetRegisterData(AssemblyName=RegB, NewValue=ThreeACLine['OpB'])
+			storeB = storeB.format(RegB, OpBout)
+			self.AddLineToASM(storeB)
+			OpBout = RegB
 
-		addi = addi.format("destination", OpAout, OpBout)
-		self.AddLineToASM(addi)
+		elif 'IR' in ThreeACLine['OpB'] or 'FR' in ThreeACLine['OpB']:
+			OpBout = self.RegisterTable.FindRegisterWithVReg(ThreeACLine['OpB'])
+
+
+		add = add.format(Reg, OpAout, OpBout)
+		self.AddLineToASM(add)
+
+		#clear registers from temp stores after operation is done
+		if RegA is not None:
+			self.RegisterTable.ClearRegister(RegA)
+		if RegB is not None:
+			self.RegisterTable.ClearRegister(RegB)
 			
 
 
 	def SUB(self, ThreeACLine):
 		sub = "sub {}, {}, {}"
+		storeA = "lw {}, {}"
+		storeB = "lw {}, {}"
+		RegA = None
+		RegB = None
 
 		#find register location for where its getting stored
+		if 'IR' in ThreeACLine['Dest'] or 'FR' in ThreeACLine['Dest']:
+			VReg = ThreeACLine['Dest']
+			Reg = self.RegisterTable.FindRegisterWithVReg(VReg)
+			if Reg is None:
+				Reg = self.RegisterTable.GetFirstOpenRegister('t')
+				self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=VReg)
 
 		if 'const' in ThreeACLine['OpA']:
 			OpA = ThreeACLine['OpA']
-			OpAOut = OpA.replace('const ', '')
+			OpAout = OpA.replace('const ', '')
 
 		elif 'local' in ThreeACLine['OpA']:
 			OpA = ThreeACLine['OpA']
@@ -210,6 +257,14 @@ class AssemblyGenerator():
 			OpAout = "{}({})"
 			SP = self.RegisterTable.GetStackPtr()['assembly name']
 			OpAout = OpAout.format(OpA, SP)
+			RegA = self.RegisterTable.GetFirstOpenRegister('t')
+			self.RegisterTable.SetRegisterData(AssemblyName=RegA, NewValue=ThreeACLine['OpA'])
+			storeA = storeA.format(RegA, OpAout)
+			self.AddLineToASM(storeA)
+			OpAout = RegA
+
+		elif 'IR' in ThreeACLine['OpA'] or 'FR' in ThreeACLine['OpA']:
+			OpAout = self.RegisterTable.FindRegisterWithVReg(ThreeACLine['OpA'])
 			
 		if 'const' in ThreeACLine['OpB']:
 			OpB = ThreeACLine['OpB']
@@ -218,22 +273,47 @@ class AssemblyGenerator():
 		elif 'local' in ThreeACLine['OpB']:
 			OpB = ThreeACLine['OpB']
 			OpB = OpB.replace('local ', '')
-			OpAout = "{}({})"
+			OpBout = "{}({})"
 			SP = self.RegisterTable.GetStackPtr()['assembly name']
-			OpAout = OpBout.format(OpB, SP)
-		
-		sub = sub.format("destination", OpAout, OpBout)
+			OpBout = OpBout.format(OpB, SP)
+			RegB = self.RegisterTable.GetFirstOpenRegister('t')
+			self.RegisterTable.SetRegisterData(AssemblyName=RegB, NewValue=ThreeACLine['OpB'])
+			storeB = storeB.format(RegB, OpBout)
+			self.AddLineToASM(storeB)
+			OpBout = RegB
+
+		elif 'IR' in ThreeACLine['OpB'] or 'FR' in ThreeACLine['OpB']:
+			OpBout = self.RegisterTable.FindRegisterWithVReg(ThreeACLine['OpB'])
+
+		#do subtraction line
+		sub = sub.format(Reg, OpAout, OpBout)
 		self.AddLineToASM(sub)
+
+		#clear registers from temp stores after operation is done
+		if RegA is not None:
+			self.RegisterTable.ClearRegister(RegA)
+		if RegB is not None:
+			self.RegisterTable.ClearRegister(RegB)
 
 	def MULT(self, ThreeACLine):
 		mult = "mult {}, {}"
 		mflo = "mflo {}"
+		storeA = "lw {}, {}"
+		storeB = "lw {}, {}"
+		RegA = None
+		RegB = None
 
 		#find register location for where its getting stored
+		if 'IR' in ThreeACLine['Dest'] or 'FR' in ThreeACLine['Dest']:
+			VReg = ThreeACLine['Dest']
+			Reg = self.RegisterTable.FindRegisterWithVReg(VReg)
+			if Reg is None:
+				Reg = self.RegisterTable.GetFirstOpenRegister('t')
+				self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=VReg)
 
 		if 'const' in ThreeACLine['OpA']:
 			OpA = ThreeACLine['OpA']
-			OpAOut = OpA.replace('const ', '')
+			OpAout = OpA.replace('const ', '')
 
 		elif 'local' in ThreeACLine['OpA']:
 			OpA = ThreeACLine['OpA']
@@ -241,6 +321,14 @@ class AssemblyGenerator():
 			OpAout = "{}({})"
 			SP = self.RegisterTable.GetStackPtr()['assembly name']
 			OpAout = OpAout.format(OpA, SP)
+			RegA = self.RegisterTable.GetFirstOpenRegister('t')
+			self.RegisterTable.SetRegisterData(AssemblyName=RegA, NewValue=ThreeACLine['OpA'])
+			storeA = storeA.format(RegA, OpAout)
+			self.AddLineToASM(storeA)
+			OpAout = RegA
+
+		elif 'IR' in ThreeACLine['OpA'] or 'FR' in ThreeACLine['OpA']:
+			OpAout = self.RegisterTable.FindRegisterWithVReg(ThreeACLine['OpA'])
 			
 		if 'const' in ThreeACLine['OpB']:
 			OpB = ThreeACLine['OpB']
@@ -249,24 +337,48 @@ class AssemblyGenerator():
 		elif 'local' in ThreeACLine['OpB']:
 			OpB = ThreeACLine['OpB']
 			OpB = OpB.replace('local ', '')
-			OpAout = "{}({})"
+			OpBout = "{}({})"
 			SP = self.RegisterTable.GetStackPtr()['assembly name']
-			OpAout = OpBout.format(OpB, SP)
+			OpBout = OpBout.format(OpB, SP)
+			RegB = self.RegisterTable.GetFirstOpenRegister('t')
+			self.RegisterTable.SetRegisterData(AssemblyName=RegB, NewValue=ThreeACLine['OpB'])
+			storeB = storeB.format(RegB, OpBout)
+			self.AddLineToASM(storeB)
+			OpBout = RegB
+
+		elif 'IR' in ThreeACLine['OpB'] or 'FR' in ThreeACLine['OpB']:
+			OpBout = self.RegisterTable.FindRegisterWithVReg(ThreeACLine['OpB'])
 		
 		mult = mult.format(OpAout, OpBout)
-		mflo = mflo.format("destination")
+		mflo = mflo.format(Reg)
 		self.AddLineToASM(mult)
-		self.AddLineToASM(mflo)		
+		self.AddLineToASM(mflo)
+
+		#clear registers from temp stores after operation is done
+		if RegA is not None:
+			self.RegisterTable.ClearRegister(RegA)
+		if RegB is not None:
+			self.RegisterTable.ClearRegister(RegB)	
 
 	def DIV(self, ThreeACLine):
 		div = "div {}, {}"
 		mflo = "mflo {}"
+		storeA = "lw {}, {}"
+		storeB = "lw {}, {}"
+		RegA = None
+		RegB = None
 
 		#find register location for where its getting stored
+		if 'IR' in ThreeACLine['Dest'] or 'FR' in ThreeACLine['Dest']:
+			VReg = ThreeACLine['Dest']
+			Reg = self.RegisterTable.FindRegisterWithVReg(VReg)
+			if Reg is None:
+				Reg = self.RegisterTable.GetFirstOpenRegister('t')
+				self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=VReg)
 
 		if 'const' in ThreeACLine['OpA']:
 			OpA = ThreeACLine['OpA']
-			OpAOut = OpA.replace('const ', '')
+			OpAout = OpA.replace('const ', '')
 
 		elif 'local' in ThreeACLine['OpA']:
 			OpA = ThreeACLine['OpA']
@@ -274,6 +386,14 @@ class AssemblyGenerator():
 			OpAout = "{}({})"
 			SP = self.RegisterTable.GetStackPtr()['assembly name']
 			OpAout = OpAout.format(OpA, SP)
+			RegA = self.RegisterTable.GetFirstOpenRegister('t')
+			self.RegisterTable.SetRegisterData(AssemblyName=RegA, NewValue=ThreeACLine['OpA'])
+			storeA = storeA.format(RegA, OpAout)
+			self.AddLineToASM(storeA)
+			OpAout = RegA
+
+		elif 'IR' in ThreeACLine['OpA'] or 'FR' in ThreeACLine['OpA']:
+			OpAout = self.RegisterTable.FindRegisterWithVReg(ThreeACLine['OpA'])
 			
 		if 'const' in ThreeACLine['OpB']:
 			OpB = ThreeACLine['OpB']
@@ -282,14 +402,28 @@ class AssemblyGenerator():
 		elif 'local' in ThreeACLine['OpB']:
 			OpB = ThreeACLine['OpB']
 			OpB = OpB.replace('local ', '')
-			OpAout = "{}({})"
+			OpBout = "{}({})"
 			SP = self.RegisterTable.GetStackPtr()['assembly name']
-			OpAout = OpBout.format(OpB, SP)
+			OpBout = OpBout.format(OpB, SP)
+			RegB = self.RegisterTable.GetFirstOpenRegister('t')
+			self.RegisterTable.SetRegisterData(AssemblyName=RegB, NewValue=ThreeACLine['OpB'])
+			storeB = storeB.format(RegB, OpBout)
+			self.AddLineToASM(storeB)
+			OpBout = RegB
+
+		elif 'IR' in ThreeACLine['OpB'] or 'FR' in ThreeACLine['OpB']:
+			OpBout = self.RegisterTable.FindRegisterWithVReg(ThreeACLine['OpB'])
 		
 		div = div.format(OpAout, OpBout)
-		mflo = mflo.format("destination")
+		mflo = mflo.format(Reg)
 		self.AddLineToASM(div)
 		self.AddLineToASM(mflo)
+
+		#clear registers from temp stores after operation is done
+		if RegA is not None:
+			self.RegisterTable.ClearRegister(RegA)
+		if RegB is not None:
+			self.RegisterTable.ClearRegister(RegB)
 
 	def EQ(self, ThreeACLine):
 		print ("in eq")

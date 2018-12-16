@@ -1,8 +1,8 @@
 int main(int arg1)
 {
-	int arr[3][3];
-	int a;
-	a=1;
-	arr[2][a] = 9;
+	int a[4];
+	a[0] = 5;
+	a[3] = 8;
+	a[1] = a[0] + a[3];
 }
 
