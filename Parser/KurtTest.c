@@ -1,8 +1,14 @@
 int main(int arg1)
 {
-	int a[4];
-	a[0] = 5;
-	a[3] = 8;
-	a[1] = a[0] + a[3];
+	int a;
+	int b;
+	int c;
+	int d;
+	a = 3;
+
+	b = a + 3;
+	c = 16 - b;
+	d = 5 * 10;
+	a = d / c;
 }
 

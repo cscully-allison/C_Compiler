@@ -293,8 +293,18 @@ class AssemblyGenerator():
 
 		#if the first operand is a const, remove the const
 		if 'const' in ThreeACLine['OpA']:
+			#a constant value cant be in the first position, so we place it in a register
+			#then send that register out
+			storeA = "li {}, {}"
 			OpA = ThreeACLine['OpA']
 			OpAout = OpA.replace('const ', '')
+			RegA = self.RegisterTable.GetFirstOpenRegister('t')
+			self.RegisterTable.SetRegisterData(AssemblyName=RegA, NewValue=OpA)
+			storeA = storeA.format(RegA, OpAout)
+			self.AddLineToASM(storeA)
+
+			#set the register name to the main output of the function
+			OpAout = RegA
 
 		#if the first operand is a local variable, load it into a register for use
 		elif 'local' in ThreeACLine['OpA']:
@@ -378,8 +388,18 @@ class AssemblyGenerator():
 
 		#if the first operand is a const, remove the const
 		if 'const' in ThreeACLine['OpA']:
+			#a constant value cant be in the first position, so we place it in a register
+			#then send that register out
+			storeA = "li {}, {}"
 			OpA = ThreeACLine['OpA']
 			OpAout = OpA.replace('const ', '')
+			RegA = self.RegisterTable.GetFirstOpenRegister('t')
+			self.RegisterTable.SetRegisterData(AssemblyName=RegA, NewValue=OpA)
+			storeA = storeA.format(RegA, OpAout)
+			self.AddLineToASM(storeA)
+
+			#set the register name to the main output of the function
+			OpAout = RegA
 
 		#if the first operand is a local variable, load it into a register for use
 		elif 'local' in ThreeACLine['OpA']:
@@ -459,8 +479,18 @@ class AssemblyGenerator():
 
 		#if the first operand is a const, remove the const
 		if 'const' in ThreeACLine['OpA']:
+			#a constant value cant be in the first position, so we place it in a register
+			#then send that register out
+			storeA = "li {}, {}"
 			OpA = ThreeACLine['OpA']
 			OpAout = OpA.replace('const ', '')
+			RegA = self.RegisterTable.GetFirstOpenRegister('t')
+			self.RegisterTable.SetRegisterData(AssemblyName=RegA, NewValue=OpA)
+			storeA = storeA.format(RegA, OpAout)
+			self.AddLineToASM(storeA)
+
+			#set the register name to the main output of the function
+			OpAout = RegA
 
 		#if the first operand is a local variable, load it into a register for use
 		elif 'local' in ThreeACLine['OpA']:
@@ -489,8 +519,18 @@ class AssemblyGenerator():
 
 		#if the first operand is a const, remove the const
 		if 'const' in ThreeACLine['OpB']:
+			#a constant value cant be in the first position, so we place it in a register
+			#then send that register out
+			storeB = "li {}, {}"
 			OpB = ThreeACLine['OpB']
 			OpBout = OpB.replace('const ', '')
+			RegB = self.RegisterTable.GetFirstOpenRegister('t')
+			self.RegisterTable.SetRegisterData(AssemblyName=RegB, NewValue=OpB)
+			storeB = storeB.format(RegB, OpBout)
+			self.AddLineToASM(storeB)
+
+			#set the register name to the main output of the function
+			OpBout = RegB
 
 		#if the first operand is a local variable, load it into a register for use
 		elif 'local' in ThreeACLine['OpB']:
@@ -546,8 +586,18 @@ class AssemblyGenerator():
 
 		#if the first operand is a const, remove the const
 		if 'const' in ThreeACLine['OpA']:
+			#a constant value cant be in the first position, so we place it in a register
+			#then send that register out
+			storeA = "li {}, {}"
 			OpA = ThreeACLine['OpA']
 			OpAout = OpA.replace('const ', '')
+			RegA = self.RegisterTable.GetFirstOpenRegister('t')
+			self.RegisterTable.SetRegisterData(AssemblyName=RegA, NewValue=OpA)
+			storeA = storeA.format(RegA, OpAout)
+			self.AddLineToASM(storeA)
+
+			#set the register name to the main output of the function
+			OpAout = RegA
 
 		#if the first operand is a local variable, load it into a register for use
 		elif 'local' in ThreeACLine['OpA']:
@@ -572,8 +622,18 @@ class AssemblyGenerator():
 
 		#if the first operand is a const, remove the const
 		if 'const' in ThreeACLine['OpB']:
+			#a constant value cant be in the second position, so we place it in a register
+			#then send that register out
+			storeB = "li {}, {}"
 			OpB = ThreeACLine['OpB']
 			OpBout = OpB.replace('const ', '')
+			RegB = self.RegisterTable.GetFirstOpenRegister('t')
+			self.RegisterTable.SetRegisterData(AssemblyName=RegB, NewValue=OpB)
+			storeB = storeB.format(RegB, OpBout)
+			self.AddLineToASM(storeB)
+
+			#set the register name to the main output of the function
+			OpBout = RegB
 
 		#if the first operand is a local variable, load it into a register for use
 		elif 'local' in ThreeACLine['OpB']:
