@@ -6,9 +6,9 @@ int main(int arg1)
 	int d;
 	a = 3;
 
-	b = a + 3;
-	c = 16 - b;
+	b = a * 3;
+	c = 16 * b;
 	d = 5 * 10;
-	a = d / c;
+	a = d * c;
 }
 

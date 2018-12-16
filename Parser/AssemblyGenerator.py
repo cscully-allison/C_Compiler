@@ -48,7 +48,9 @@ class AssemblyGenerator():
 
 
 	def GenerateAssemblyCode(self, ThreeACLine):
-		if (ThreeACLine['Instruction'] == 'LABEL'):
+		if (ThreeACLine['Instruction'] == 'COMMENT'):
+			self.AddLineToASM('\n' + ThreeACLine['Dest'])
+		elif (ThreeACLine['Instruction'] == 'LABEL'):
 			self.LABEL(ThreeACLine)
 		elif (ThreeACLine['Instruction'] == 'JUMP'):
 			self.JUMP(ThreeACLine)
@@ -183,10 +185,21 @@ class AssemblyGenerator():
 		Reg = ''
 		Store = "sw {} {}"
 		Deref = "{}({})"
+		FLI = "li.s {} {}"
+		LoadWord = "lw {} {}"
+
+		#floating point adressing
+		if 'f' in ThreeACLine['OpB']:
+				#case for floating point constant
+				if 'const' in ThreeACLine['OpB']:
+					#get a register
+					Reg = self.AssignRegister(ThreeACLine, 'OpB')
+					FLI = FLI.format( Reg, ThreeACLine['OpB'].replace('const ', ''))
+					self.AddLineToASM(FLI, ThreeACLine)
 
 		#case for storage from an address to an addr holding temp
-		if 'local' in ThreeACLine['OpB'] and 'addr' in ThreeACLine['Dest']:
-			LoadWord = "lw {} {}"
+		elif 'local' in ThreeACLine['OpB'] and 'addr' in ThreeACLine['Dest']:
+
 			WordLoc = ThreeACLine['OpB'].replace('local ', '')
 			StackPtr = self.RegisterTable.GetStackPtr()['assembly name']
 
@@ -220,9 +233,7 @@ class AssemblyGenerator():
 			#case for floating point constant
 			elif 'const' in ThreeACLine['OpB']:
 				#get a register
-				Reg = self.RegisterTable.GetFirstOpenRegister('t')
-				self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=ThreeACLine['OpB'])
-
+				Reg = self.AssignRegister(ThreeACLine, 'OpB')
 				LoadImmediate = "li {} {}"
 				LoadImmediate = LoadImmediate.format( Reg, ThreeACLine['OpB'].replace('const ', ''))
 				self.AddLineToASM(LoadImmediate, ThreeACLine)
@@ -330,7 +341,7 @@ class AssemblyGenerator():
 		#if the first operand is a const, remove the const
 		if 'const' in ThreeACLine['OpB']:
 			storeB = "li {}, {}"
-			OpB = ThreeACLine['OpA']
+			OpB = ThreeACLine['OpB']
 			OpBout = OpB.replace('const ', '')
 			RegB = self.RegisterTable.GetFirstOpenRegister('t')
 			self.RegisterTable.SetRegisterData(AssemblyName=RegB, NewValue=ThreeACLine['OpB'])
@@ -427,7 +438,7 @@ class AssemblyGenerator():
 		#if the first operand is a const, remove the const
 		if 'const' in ThreeACLine['OpB']:
 			storeB = "li {}, {}"
-			OpB = ThreeACLine['OpA']
+			OpB = ThreeACLine['OpB']
 			OpBout = OpB.replace('const ', '')
 			RegB = self.RegisterTable.GetFirstOpenRegister('t')
 			self.RegisterTable.SetRegisterData(AssemblyName=RegB, NewValue=ThreeACLine['OpB'])
@@ -517,12 +528,12 @@ class AssemblyGenerator():
 		#if the value is already in a register, find the register
 		elif 'IR' in ThreeACLine['OpA'] or 'FR' in ThreeACLine['OpA']:
 			OpAout = self.RegisterTable.FindRegisterWithVReg(ThreeACLine['OpA'])
-			OpA = OpAout
+			RegA = OpAout
 
 		#if the first operand is a const, remove the const
 		if 'const' in ThreeACLine['OpB']:
 			storeB = "li {}, {}"
-			OpB = ThreeACLine['OpA']
+			OpB = ThreeACLine['OpB']
 			OpBout = OpB.replace('const ', '')
 			RegB = self.RegisterTable.GetFirstOpenRegister('t')
 			self.RegisterTable.SetRegisterData(AssemblyName=RegB, NewValue=ThreeACLine['OpB'])
@@ -619,7 +630,7 @@ class AssemblyGenerator():
 		#if the first operand is a const, remove the const
 		if 'const' in ThreeACLine['OpB']:
 			storeB = "li {}, {}"
-			OpB = ThreeACLine['OpA']
+			OpB = ThreeACLine['OpB']
 			OpBout = OpB.replace('const ', '')
 			RegB = self.RegisterTable.GetFirstOpenRegister('t')
 			self.RegisterTable.SetRegisterData(AssemblyName=RegB, NewValue=ThreeACLine['OpB'])
