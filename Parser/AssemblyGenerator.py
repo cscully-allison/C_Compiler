@@ -191,7 +191,7 @@ class AssemblyGenerator():
 		#declare the function name
 		Template = "%s:"
 		Template = Template % ThreeACLine['Dest'].replace('label ', '')
-		self.AddLineToASM(Template, ThreeACLine)
+		self.AddLineToASM(Template)
 
 		#incrment the stack pointer
 		StackUpdate =  'sub {}, {}, {}'
@@ -201,7 +201,7 @@ class AssemblyGenerator():
 
 		StackUpdate = StackUpdate.format(Reg, Reg, Offset)
 		self.RegisterTable.PushStackPtr(Offset)
-		self.AddLineToASM(StackUpdate, ThreeACLine)
+		self.AddLineToASM(StackUpdate)
 
 
 	def ENDPROC(self, ThreeACLine):
