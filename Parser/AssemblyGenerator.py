@@ -164,6 +164,7 @@ class AssemblyGenerator():
 			self.AddLineToASM(GlobalLine)
 
 	def ADD(self, ThreeACLine):
+		#staging strings used for assembly generation
 		add = "add {}, {}, {}"
 		storeA = "lw {}, {}"
 		storeB = "lw {}, {}"
@@ -174,53 +175,68 @@ class AssemblyGenerator():
 		if 'IR' in ThreeACLine['Dest'] or 'FR' in ThreeACLine['Dest']:
 			VReg = ThreeACLine['Dest']
 			Reg = self.RegisterTable.FindRegisterWithVReg(VReg)
+			
+			#if the reister isnt already in use, find a new one to place data in
 			if Reg is None:
 				Reg = self.RegisterTable.GetFirstOpenRegister('t')
 				self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=VReg)
 
 
 
-		#Operaton A set string
+		#if the first operand is a const, remove the const
 		if 'const' in ThreeACLine['OpA']:
 			OpA = ThreeACLine['OpA']
 			OpAout = OpA.replace('const ', '')
 
+		#if the first operand is a local variable, load it into a register for use
 		elif 'local' in ThreeACLine['OpA']:
 			OpA = ThreeACLine['OpA']
 			OpA = OpA.replace('local ', '')
 			OpAout = "{}({})"
 			SP = self.RegisterTable.GetStackPtr()['assembly name']
+			
+			#loads data from stack pointer and puts it into register for later use
 			OpAout = OpAout.format(OpA, SP)
 			RegA = self.RegisterTable.GetFirstOpenRegister('t')
 			self.RegisterTable.SetRegisterData(AssemblyName=RegA, NewValue=ThreeACLine['OpA'])
 			storeA = storeA.format(RegA, OpAout)
 			self.AddLineToASM(storeA)
+			
+			#set the register name to the main output of the function
 			OpAout = RegA
 
+		#if the value is already in a register, find the register
 		elif 'IR' in ThreeACLine['OpA'] or 'FR' in ThreeACLine['OpA']:
 			OpAout = self.RegisterTable.FindRegisterWithVReg(ThreeACLine['OpA'])
 			
-		#Operation B set string
+		#if the first operand is a const, remove the const
 		if 'const' in ThreeACLine['OpB']:
 			OpB = ThreeACLine['OpB']
 			OpBout = OpB.replace('const ', '')
 
+		#if the first operand is a local variable, load it into a register for use
 		elif 'local' in ThreeACLine['OpB']:
 			OpB = ThreeACLine['OpB']
 			OpB = OpB.replace('local ', '')
 			OpBout = "{}({})"
 			SP = self.RegisterTable.GetStackPtr()['assembly name']
+			
+			#loads data from stack pointer and puts it into register for later use
 			OpBout = OpBout.format(OpB, SP)
 			RegB = self.RegisterTable.GetFirstOpenRegister('t')
 			self.RegisterTable.SetRegisterData(AssemblyName=RegB, NewValue=ThreeACLine['OpB'])
 			storeB = storeB.format(RegB, OpBout)
 			self.AddLineToASM(storeB)
+			
+			#set the register name to the main output of the function
 			OpBout = RegB
 
+		#if the value is already in a register, find the register
 		elif 'IR' in ThreeACLine['OpB'] or 'FR' in ThreeACLine['OpB']:
 			OpBout = self.RegisterTable.FindRegisterWithVReg(ThreeACLine['OpB'])
 
 
+		#format assembly function calls then send them off
 		add = add.format(Reg, OpAout, OpBout)
 		self.AddLineToASM(add)
 
@@ -233,6 +249,7 @@ class AssemblyGenerator():
 
 
 	def SUB(self, ThreeACLine):
+		#staging strings used for assembly generation
 		sub = "sub {}, {}, {}"
 		storeA = "lw {}, {}"
 		storeB = "lw {}, {}"
@@ -243,49 +260,65 @@ class AssemblyGenerator():
 		if 'IR' in ThreeACLine['Dest'] or 'FR' in ThreeACLine['Dest']:
 			VReg = ThreeACLine['Dest']
 			Reg = self.RegisterTable.FindRegisterWithVReg(VReg)
+			
+			#if the reister isnt already in use, find a new one to place data in
 			if Reg is None:
 				Reg = self.RegisterTable.GetFirstOpenRegister('t')
 				self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=VReg)
 
+		#if the first operand is a const, remove the const
 		if 'const' in ThreeACLine['OpA']:
 			OpA = ThreeACLine['OpA']
 			OpAout = OpA.replace('const ', '')
 
+		#if the first operand is a local variable, load it into a register for use
 		elif 'local' in ThreeACLine['OpA']:
 			OpA = ThreeACLine['OpA']
 			OpA = OpA.replace('local ', '')
 			OpAout = "{}({})"
 			SP = self.RegisterTable.GetStackPtr()['assembly name']
+			
+			#loads data from stack pointer and puts it into register for later use
 			OpAout = OpAout.format(OpA, SP)
 			RegA = self.RegisterTable.GetFirstOpenRegister('t')
 			self.RegisterTable.SetRegisterData(AssemblyName=RegA, NewValue=ThreeACLine['OpA'])
 			storeA = storeA.format(RegA, OpAout)
 			self.AddLineToASM(storeA)
+			
+			#set the register name to the main output of the function
 			OpAout = RegA
 
+		#if the value is already in a register, find the register
 		elif 'IR' in ThreeACLine['OpA'] or 'FR' in ThreeACLine['OpA']:
 			OpAout = self.RegisterTable.FindRegisterWithVReg(ThreeACLine['OpA'])
 			
+		#if the first operand is a const, remove the const
 		if 'const' in ThreeACLine['OpB']:
 			OpB = ThreeACLine['OpB']
 			OpBout = OpB.replace('const ', '')
 
+		#if the first operand is a local variable, load it into a register for use
 		elif 'local' in ThreeACLine['OpB']:
 			OpB = ThreeACLine['OpB']
 			OpB = OpB.replace('local ', '')
 			OpBout = "{}({})"
 			SP = self.RegisterTable.GetStackPtr()['assembly name']
+			
+			#loads data from stack pointer and puts it into register for later use
 			OpBout = OpBout.format(OpB, SP)
 			RegB = self.RegisterTable.GetFirstOpenRegister('t')
 			self.RegisterTable.SetRegisterData(AssemblyName=RegB, NewValue=ThreeACLine['OpB'])
 			storeB = storeB.format(RegB, OpBout)
 			self.AddLineToASM(storeB)
+			
+			#set the register name to the main output of the function
 			OpBout = RegB
 
+		#if the value is already in a register, find the register
 		elif 'IR' in ThreeACLine['OpB'] or 'FR' in ThreeACLine['OpB']:
 			OpBout = self.RegisterTable.FindRegisterWithVReg(ThreeACLine['OpB'])
 
-		#do subtraction line
+		#format assembly function calls then send them off
 		sub = sub.format(Reg, OpAout, OpBout)
 		self.AddLineToASM(sub)
 
@@ -296,6 +329,7 @@ class AssemblyGenerator():
 			self.RegisterTable.ClearRegister(RegB)
 
 	def MULT(self, ThreeACLine):
+		#staging strings used for assembly generation
 		mult = "mult {}, {}"
 		mflo = "mflo {}"
 		storeA = "lw {}, {}"
@@ -307,48 +341,65 @@ class AssemblyGenerator():
 		if 'IR' in ThreeACLine['Dest'] or 'FR' in ThreeACLine['Dest']:
 			VReg = ThreeACLine['Dest']
 			Reg = self.RegisterTable.FindRegisterWithVReg(VReg)
+
+			#if the reister isnt already in use, find a new one to place data in
 			if Reg is None:
 				Reg = self.RegisterTable.GetFirstOpenRegister('t')
 				self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=VReg)
 
+		#if the first operand is a const, remove the const
 		if 'const' in ThreeACLine['OpA']:
 			OpA = ThreeACLine['OpA']
 			OpAout = OpA.replace('const ', '')
 
+		#if the first operand is a local variable, load it into a register for use
 		elif 'local' in ThreeACLine['OpA']:
 			OpA = ThreeACLine['OpA']
 			OpA = OpA.replace('local ', '')
 			OpAout = "{}({})"
 			SP = self.RegisterTable.GetStackPtr()['assembly name']
+			
+			#loads data from stack pointer and puts it into register for later use
 			OpAout = OpAout.format(OpA, SP)
 			RegA = self.RegisterTable.GetFirstOpenRegister('t')
 			self.RegisterTable.SetRegisterData(AssemblyName=RegA, NewValue=ThreeACLine['OpA'])
 			storeA = storeA.format(RegA, OpAout)
 			self.AddLineToASM(storeA)
+
+			#set the register name to the main output of the function
 			OpAout = RegA
 
+		#if the value is already in a register, find the register
 		elif 'IR' in ThreeACLine['OpA'] or 'FR' in ThreeACLine['OpA']:
 			OpAout = self.RegisterTable.FindRegisterWithVReg(ThreeACLine['OpA'])
 			
+		#if the first operand is a const, remove the const
 		if 'const' in ThreeACLine['OpB']:
 			OpB = ThreeACLine['OpB']
 			OpBout = OpB.replace('const ', '')
 
+		#if the first operand is a local variable, load it into a register for use
 		elif 'local' in ThreeACLine['OpB']:
 			OpB = ThreeACLine['OpB']
 			OpB = OpB.replace('local ', '')
 			OpBout = "{}({})"
 			SP = self.RegisterTable.GetStackPtr()['assembly name']
 			OpBout = OpBout.format(OpB, SP)
+			
+			#loads data from stack pointer and puts it into register for later use
 			RegB = self.RegisterTable.GetFirstOpenRegister('t')
 			self.RegisterTable.SetRegisterData(AssemblyName=RegB, NewValue=ThreeACLine['OpB'])
 			storeB = storeB.format(RegB, OpBout)
 			self.AddLineToASM(storeB)
+
+			#set the register name to the main output of the function
 			OpBout = RegB
 
+		#if the value is already in a register, find the register
 		elif 'IR' in ThreeACLine['OpB'] or 'FR' in ThreeACLine['OpB']:
 			OpBout = self.RegisterTable.FindRegisterWithVReg(ThreeACLine['OpB'])
 		
+		#format assembly function calls then send them off
 		mult = mult.format(OpAout, OpBout)
 		mflo = mflo.format(Reg)
 		self.AddLineToASM(mult)
@@ -361,6 +412,7 @@ class AssemblyGenerator():
 			self.RegisterTable.ClearRegister(RegB)	
 
 	def DIV(self, ThreeACLine):
+		#staging strings used for assembly generation
 		div = "div {}, {}"
 		mflo = "mflo {}"
 		storeA = "lw {}, {}"
@@ -372,48 +424,65 @@ class AssemblyGenerator():
 		if 'IR' in ThreeACLine['Dest'] or 'FR' in ThreeACLine['Dest']:
 			VReg = ThreeACLine['Dest']
 			Reg = self.RegisterTable.FindRegisterWithVReg(VReg)
+			
+			#if the reister isnt already in use, find a new one to place data in
 			if Reg is None:
 				Reg = self.RegisterTable.GetFirstOpenRegister('t')
 				self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=VReg)
 
+		#if the first operand is a const, remove the const
 		if 'const' in ThreeACLine['OpA']:
 			OpA = ThreeACLine['OpA']
 			OpAout = OpA.replace('const ', '')
 
+		#if the first operand is a local variable, load it into a register for use
 		elif 'local' in ThreeACLine['OpA']:
 			OpA = ThreeACLine['OpA']
 			OpA = OpA.replace('local ', '')
 			OpAout = "{}({})"
 			SP = self.RegisterTable.GetStackPtr()['assembly name']
+			
+			#loads data from stack pointer and puts it into register for later use
 			OpAout = OpAout.format(OpA, SP)
 			RegA = self.RegisterTable.GetFirstOpenRegister('t')
 			self.RegisterTable.SetRegisterData(AssemblyName=RegA, NewValue=ThreeACLine['OpA'])
 			storeA = storeA.format(RegA, OpAout)
 			self.AddLineToASM(storeA)
+			
+			#set the register name to the main output of the function
 			OpAout = RegA
 
+		#if the value is already in a register, find the register
 		elif 'IR' in ThreeACLine['OpA'] or 'FR' in ThreeACLine['OpA']:
 			OpAout = self.RegisterTable.FindRegisterWithVReg(ThreeACLine['OpA'])
 			
+		#if the first operand is a const, remove the const
 		if 'const' in ThreeACLine['OpB']:
 			OpB = ThreeACLine['OpB']
 			OpBout = OpB.replace('const ', '')
 
+		#if the first operand is a local variable, load it into a register for use
 		elif 'local' in ThreeACLine['OpB']:
 			OpB = ThreeACLine['OpB']
 			OpB = OpB.replace('local ', '')
 			OpBout = "{}({})"
 			SP = self.RegisterTable.GetStackPtr()['assembly name']
+			
+			#loads data from stack pointer and puts it into register for later use
 			OpBout = OpBout.format(OpB, SP)
 			RegB = self.RegisterTable.GetFirstOpenRegister('t')
 			self.RegisterTable.SetRegisterData(AssemblyName=RegB, NewValue=ThreeACLine['OpB'])
 			storeB = storeB.format(RegB, OpBout)
 			self.AddLineToASM(storeB)
+			
+			#set the register name to the main output of the function
 			OpBout = RegB
 
+		#if the value is already in a register, find the register
 		elif 'IR' in ThreeACLine['OpB'] or 'FR' in ThreeACLine['OpB']:
 			OpBout = self.RegisterTable.FindRegisterWithVReg(ThreeACLine['OpB'])
 		
+		#format assembly function calls then send them off
 		div = div.format(OpAout, OpBout)
 		mflo = mflo.format(Reg)
 		self.AddLineToASM(div)
