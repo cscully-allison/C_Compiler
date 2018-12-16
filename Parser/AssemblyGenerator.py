@@ -39,7 +39,7 @@ class AssemblyGenerator():
 
 	def AddLineToASM(self, line, ThreeACLine=None):
 		if ThreeACLine is not None and ThreeACLine is not self.PriorLine:
-			self.Output.append(line.ljust(30) + '\#' + Format3ACLine(ThreeACLine))
+			self.Output.append(line.ljust(30) + '#' + Format3ACLine(ThreeACLine))
 			print(line.ljust(30) + '#' + Format3ACLine(ThreeACLine))
 		else:
 			self.Output.append(line.ljust(30))
