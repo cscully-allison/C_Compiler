@@ -486,11 +486,16 @@ class AssemblyGenerator():
 		#if the value is already in a register, find the register
 		elif 'IR' in ThreeACLine['OpA'] or 'FR' in ThreeACLine['OpA']:
 			OpAout = self.RegisterTable.FindRegisterWithVReg(ThreeACLine['OpA'])
+<<<<<<< HEAD
 
 			if OpAout is None:
 				OpAout = self.RegisterTable.GetFirstOpenRegister('t')
 				self.RegisterTable.SetRegisterData(AssemblyName=OpAout, NewValue=VReg)
 
+=======
+			OpA = OpAout
+			
+>>>>>>> kurt
 		#if the first operand is a const, remove the const
 		if 'const' in ThreeACLine['OpB']:
 			OpB = ThreeACLine['OpB']
@@ -516,7 +521,12 @@ class AssemblyGenerator():
 		#if the value is already in a register, find the register
 		elif 'IR' in ThreeACLine['OpB'] or 'FR' in ThreeACLine['OpB']:
 			OpBout = self.RegisterTable.FindRegisterWithVReg(ThreeACLine['OpB'])
+<<<<<<< HEAD
 
+=======
+			RegB = OpBout
+		
+>>>>>>> kurt
 		#format assembly function calls then send them off
 		mult = mult.format(OpAout, OpBout)
 		mflo = mflo.format(Reg)
