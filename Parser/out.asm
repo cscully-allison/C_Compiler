@@ -108,8 +108,8 @@ mult 4, None                  #MULT   temp IR66   const 4   temp IR65
 mflo False                    
 lw False, 140($sp)            #ADD   faddr IR64   temp IR66   local 140  
 add False, None, False        
-lw {} {}({})                  #LOAD   ftemp FR2   None   faddr IR58  
-lw {} {}({})                  #LOAD   ftemp FR3   None   faddr IR64  
+lwc1 False ($t9)              #LOAD   ftemp FR2   None   faddr IR58  
+lwc1 False (False)            #LOAD   ftemp FR3   None   faddr IR64  
 mult None, None               #MULT   ftemp FR1   ftemp FR2   ftemp FR3  
 mflo False                    
 sw False faddr IR52($sp)      #STORE   faddr IR52   None   ftemp FR1  

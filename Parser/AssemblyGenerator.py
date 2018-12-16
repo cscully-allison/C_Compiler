@@ -21,17 +21,16 @@ class AssemblyGenerator():
 
 	def AssignRegister(self, ThreeACLine, Op):
 		VReg = ThreeACLine[Op]
-
-		if 'f' not in VReg:
+		if 'f' in VReg and 'IR' not in VReg:
 			Reg = self.RegisterTable.FindRegisterWithVReg(VReg)
 			if Reg is None:
-				Reg = self.RegisterTable.GetFirstOpenRegister('t')
+				Reg = self.RegisterTable.GetFirstOpenRegister('f')
 				self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=VReg)
 			return Reg
 		else:
 			Reg = self.RegisterTable.FindRegisterWithVReg(VReg)
 			if Reg is None:
-				Reg = self.RegisterTable.GetFirstOpenRegister('f')
+				Reg = self.RegisterTable.GetFirstOpenRegister('t')
 				self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=VReg)
 			return Reg
 
