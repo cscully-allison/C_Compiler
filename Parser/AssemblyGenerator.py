@@ -295,8 +295,14 @@ class AssemblyGenerator():
 
 		#if the first operand is a const, remove the const
 		if 'const' in ThreeACLine['OpA']:
+			storeA = "li {}, {}"
 			OpA = ThreeACLine['OpA']
 			OpAout = OpA.replace('const ', '')
+			RegA = self.RegisterTable.GetFirstOpenRegister('t')
+			self.RegisterTable.SetRegisterData(AssemblyName=RegA, NewValue=ThreeACLine['OpA'])
+			storeA = storeA.format(RegA, OpAout)
+			self.AddLineToASM(storeA)
+			OpAout = RegA
 
 		#if the first operand is a local variable, load it into a register for use
 		elif 'local' in ThreeACLine['OpA']:
@@ -323,8 +329,14 @@ class AssemblyGenerator():
 
 		#if the first operand is a const, remove the const
 		if 'const' in ThreeACLine['OpB']:
-			OpB = ThreeACLine['OpB']
+			storeB = "li {}, {}"
+			OpB = ThreeACLine['OpA']
 			OpBout = OpB.replace('const ', '')
+			RegB = self.RegisterTable.GetFirstOpenRegister('t')
+			self.RegisterTable.SetRegisterData(AssemblyName=RegB, NewValue=ThreeACLine['OpB'])
+			storeB = storeB.format(RegB, OpBout)
+			self.AddLineToASM(storeB)
+			OpBout = RegB
 
 		#if the first operand is a local variable, load it into a register for use
 		elif 'local' in ThreeACLine['OpB']:
@@ -346,6 +358,7 @@ class AssemblyGenerator():
 		#if the value is already in a register, find the register
 		elif 'IR' in ThreeACLine['OpB'] or 'FR' in ThreeACLine['OpB']:
 			OpBout = self.RegisterTable.FindRegisterWithVReg(ThreeACLine['OpB'])
+			OpB = OpBout
 
 
 		#format assembly function calls then send them off
@@ -380,8 +393,14 @@ class AssemblyGenerator():
 
 		#if the first operand is a const, remove the const
 		if 'const' in ThreeACLine['OpA']:
+			storeA = "li {}, {}"
 			OpA = ThreeACLine['OpA']
 			OpAout = OpA.replace('const ', '')
+			RegA = self.RegisterTable.GetFirstOpenRegister('t')
+			self.RegisterTable.SetRegisterData(AssemblyName=RegA, NewValue=ThreeACLine['OpA'])
+			storeA = storeA.format(RegA, OpAout)
+			self.AddLineToASM(storeA)
+			OpAout = RegA
 
 		#if the first operand is a local variable, load it into a register for use
 		elif 'local' in ThreeACLine['OpA']:
@@ -403,11 +422,18 @@ class AssemblyGenerator():
 		#if the value is already in a register, find the register
 		elif 'IR' in ThreeACLine['OpA'] or 'FR' in ThreeACLine['OpA']:
 			OpAout = self.RegisterTable.FindRegisterWithVReg(ThreeACLine['OpA'])
+			OpA = OpAout
 
 		#if the first operand is a const, remove the const
 		if 'const' in ThreeACLine['OpB']:
-			OpB = ThreeACLine['OpB']
+			storeB = "li {}, {}"
+			OpB = ThreeACLine['OpA']
 			OpBout = OpB.replace('const ', '')
+			RegB = self.RegisterTable.GetFirstOpenRegister('t')
+			self.RegisterTable.SetRegisterData(AssemblyName=RegB, NewValue=ThreeACLine['OpB'])
+			storeB = storeB.format(RegB, OpBout)
+			self.AddLineToASM(storeB)
+			OpBout = RegB
 
 		#if the first operand is a local variable, load it into a register for use
 		elif 'local' in ThreeACLine['OpB']:
@@ -429,6 +455,7 @@ class AssemblyGenerator():
 		#if the value is already in a register, find the register
 		elif 'IR' in ThreeACLine['OpB'] or 'FR' in ThreeACLine['OpB']:
 			OpBout = self.RegisterTable.FindRegisterWithVReg(ThreeACLine['OpB'])
+			OpB = OpBout
 
 		#format assembly function calls then send them off
 		sub = sub.format(Reg, OpAout, OpBout)
@@ -461,8 +488,14 @@ class AssemblyGenerator():
 
 		#if the first operand is a const, remove the const
 		if 'const' in ThreeACLine['OpA']:
+			storeA = "li {}, {}"
 			OpA = ThreeACLine['OpA']
 			OpAout = OpA.replace('const ', '')
+			RegA = self.RegisterTable.GetFirstOpenRegister('t')
+			self.RegisterTable.SetRegisterData(AssemblyName=RegA, NewValue=ThreeACLine['OpA'])
+			storeA = storeA.format(RegA, OpAout)
+			self.AddLineToASM(storeA)
+			OpAout = RegA
 
 		#if the first operand is a local variable, load it into a register for use
 		elif 'local' in ThreeACLine['OpA']:
@@ -488,8 +521,14 @@ class AssemblyGenerator():
 
 		#if the first operand is a const, remove the const
 		if 'const' in ThreeACLine['OpB']:
-			OpB = ThreeACLine['OpB']
+			storeB = "li {}, {}"
+			OpB = ThreeACLine['OpA']
 			OpBout = OpB.replace('const ', '')
+			RegB = self.RegisterTable.GetFirstOpenRegister('t')
+			self.RegisterTable.SetRegisterData(AssemblyName=RegB, NewValue=ThreeACLine['OpB'])
+			storeB = storeB.format(RegB, OpBout)
+			self.AddLineToASM(storeB)
+			OpBout = RegB
 
 		#if the first operand is a local variable, load it into a register for use
 		elif 'local' in ThreeACLine['OpB']:
@@ -546,8 +585,14 @@ class AssemblyGenerator():
 
 		#if the first operand is a const, remove the const
 		if 'const' in ThreeACLine['OpA']:
+			storeA = "li {}, {}"
 			OpA = ThreeACLine['OpA']
 			OpAout = OpA.replace('const ', '')
+			RegA = self.RegisterTable.GetFirstOpenRegister('t')
+			self.RegisterTable.SetRegisterData(AssemblyName=RegA, NewValue=ThreeACLine['OpA'])
+			storeA = storeA.format(RegA, OpAout)
+			self.AddLineToASM(storeA)
+			OpAout = RegA
 
 		#if the first operand is a local variable, load it into a register for use
 		elif 'local' in ThreeACLine['OpA']:
@@ -569,11 +614,18 @@ class AssemblyGenerator():
 		#if the value is already in a register, find the register
 		elif 'IR' in ThreeACLine['OpA'] or 'FR' in ThreeACLine['OpA']:
 			OpAout = self.RegisterTable.FindRegisterWithVReg(ThreeACLine['OpA'])
+			OpA = OpAout
 
 		#if the first operand is a const, remove the const
 		if 'const' in ThreeACLine['OpB']:
-			OpB = ThreeACLine['OpB']
+			storeB = "li {}, {}"
+			OpB = ThreeACLine['OpA']
 			OpBout = OpB.replace('const ', '')
+			RegB = self.RegisterTable.GetFirstOpenRegister('t')
+			self.RegisterTable.SetRegisterData(AssemblyName=RegB, NewValue=ThreeACLine['OpB'])
+			storeB = storeB.format(RegB, OpBout)
+			self.AddLineToASM(storeB)
+			OpBout = RegB
 
 		#if the first operand is a local variable, load it into a register for use
 		elif 'local' in ThreeACLine['OpB']:
@@ -595,6 +647,7 @@ class AssemblyGenerator():
 		#if the value is already in a register, find the register
 		elif 'IR' in ThreeACLine['OpB'] or 'FR' in ThreeACLine['OpB']:
 			OpBout = self.RegisterTable.FindRegisterWithVReg(ThreeACLine['OpB'])
+			OpB = OpBout
 
 		#format assembly function calls then send them off
 		div = div.format(OpAout, OpBout)
