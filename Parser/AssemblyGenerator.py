@@ -9,6 +9,7 @@ class AssemblyGenerator():
 		self.ThreeAC = ThreeAC
 		self.Filename = Filename
 		self.Output = []
+		self.PriorLine = {}
 		self.PriorIns = None
 		for items in self.ThreeAC:
 			self.GenerateAssemblyCode(items)
@@ -20,16 +21,31 @@ class AssemblyGenerator():
 
 	def AssignRegister(self, ThreeACLine, Op):
 		VReg = ThreeACLine[Op]
-		Reg = self.RegisterTable.FindRegisterWithVReg(VReg)
-		if Reg is None:
-			Reg = self.RegisterTable.GetFirstOpenRegister('t')
-			self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=VReg)
-		return Reg
+
+		if 'f' not in Vreg:
+			Reg = self.RegisterTable.FindRegisterWithVReg(VReg)
+			if Reg is None:
+				Reg = self.RegisterTable.GetFirstOpenRegister('t')
+				self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=VReg)
+			return Reg
+		else:
+			Reg = self.RegisterTable.FindRegisterWithVReg(VReg)
+			if Reg is None:
+				Reg = self.RegisterTable.GetFirstOpenRegister('f')
+				self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=VReg)
+			return Reg
 
 
-	def AddLineToASM(self, line, ThreeACLine):
-		self.Output.append(line.ljust(30) + '\#' + Format3ACLine(ThreeACLine))
-		print(line.ljust(30) + '#' + Format3ACLine(ThreeACLine))
+
+	def AddLineToASM(self, line, ThreeACLine=None):
+		if ThreeACLine is not None and ThreeACLine is not self.PriorLine:
+			self.Output.append(line.ljust(30) + '\#' + Format3ACLine(ThreeACLine))
+			print(line.ljust(30) + '#' + Format3ACLine(ThreeACLine))
+		else:
+			self.Output.append(line.ljust(30))
+			print(line.ljust(30))
+
+		self.PriorLine = ThreeACLine
 
 
 	def GenerateAssemblyCode(self, ThreeACLine):
@@ -106,9 +122,19 @@ class AssemblyGenerator():
 	def LoadWord(self, ThreeACLine):
 		LW = 'lw {} {}({})'
 		DestReg = self.AssignRegister(ThreeACLine, 'Dest')
+		StackPtr = self.RegisterTable.GetStackPtr()['assembly name']
 
-		#if ThreeACLine['OpB'] =
-		return ''
+		if 'local' in ThreeACLine['OpB']:
+			StackOffset = ThreeACLine['OpB'].replace('local ', '')
+			LW = LW.format(DestReg, StackOffset, StackPtr)
+
+		elif 'f' in ThreeACLine['OpB']:
+			LW = LW.Format()
+
+		else:
+
+
+		return LW
 
 	def Move(self, ThreeACLine):
 		Move = 'move {} {}'
@@ -146,42 +172,68 @@ class AssemblyGenerator():
 		elif 'temp' in ThreeACLine['Dest'] and ('local' in ThreeACLine['OpB'] or 'addr' in ThreeACLine['OpB']):
 			AsmLine = self.LoadWord(ThreeACLine)
 
-		#load address
-
 
 		self.AddLineToASM(AsmLine, ThreeACLine)
+
 
 	def STORE(self, ThreeACLine):
 		# if local then do thing
 		Reg = ''
-
-		if 'temp' in ThreeACLine['OpB']:
-			VReg = ThreeACLine['OpB']
-			Reg = self.RegisterTable.FindRegisterWithVReg(VReg)
-			if Reg is None:
-				Reg = self.RegisterTable.GetFirstOpenRegister('t')
-				self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=VReg)
-
-		#case for floating point constant
-		if 'const' in ThreeACLine['OpB']:
-			#get a register
-			Reg = self.RegisterTable.GetFirstOpenRegister('t')
-			self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=ThreeACLine['OpB'])
-			LoadImmediate = "li {} {}"
-			LoadImmediate = LoadImmediate.format( Reg, ThreeACLine['OpB'].replace('const ', ''))
-			self.AddLineToASM(LoadImmediate, ThreeACLine)
-
-		#user register to STORE
 		Store = "sw {} {}"
 		Deref = "{}({})"
-		WordLoc = ThreeACLine['Dest'].replace('local ', '')
-		StackPtr = self.RegisterTable.GetStackPtr()['assembly name']
-		Store = Store.format(Reg, Deref.format(WordLoc, StackPtr))
-		self.AddLineToASM(Store, ThreeACLine)
+
+		#case for storage from an address to an addr holding temp
+		if 'local' in ThreeACLine['OpB'] and 'addr' in ThreeACLine['Dest']:
+			LoadWord = "lw {} {}"
+			WordLoc = ThreeACLine['OpB'].replace('local ', '')
+			StackPtr = self.RegisterTable.GetStackPtr()['assembly name']
+
+			#get register for the vlaue we are storing from
+			SrcReg = self.RegisterTable.GetFirstOpenRegister('t')
+			self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=ThreeACLine['OpB'])
+
+			#load word
+			LoadWord = LoadWord.format(SrcReg, Deref.format(WordLoc, StackPtr))
+			self.AddLineToASM(LoadWord, ThreeACLine)
 
 
-		#blow away register
-		self.RegisterTable.ClearRegister(Reg)
+			#load contents of SrcReg into addr of Reg
+			VReg = ThreeACLine['Dest']
+			Reg = self.RegisterTable.FindRegisterWithVReg(VReg)
+			Store = Store.format(SrcReg, Deref.format('', Reg))
+			self.AddLineToASM(Store)
+
+			self.RegisterTable.ClearRegister(SrcReg)
+
+
+		else:
+			#case for storage from a normal temp
+			if 'temp' in ThreeACLine['OpB']:
+				VReg = ThreeACLine['OpB']
+				Reg = self.RegisterTable.FindRegisterWithVReg(VReg)
+				if Reg is None:
+					Reg = self.RegisterTable.GetFirstOpenRegister('t')
+					self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=VReg)
+
+			#case for floating point constant
+			elif 'const' in ThreeACLine['OpB']:
+				#get a register
+				Reg = self.RegisterTable.GetFirstOpenRegister('t')
+				self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=ThreeACLine['OpB'])
+
+				LoadImmediate = "li {} {}"
+				LoadImmediate = LoadImmediate.format( Reg, ThreeACLine['OpB'].replace('const ', ''))
+				self.AddLineToASM(LoadImmediate, ThreeACLine)
+
+			#user register to STORE
+			WordLoc = ThreeACLine['Dest'].replace('local ', '')
+			StackPtr = self.RegisterTable.GetStackPtr()['assembly name']
+			Store = Store.format(Reg, Deref.format(WordLoc, StackPtr))
+			self.AddLineToASM(Store, ThreeACLine)
+
+
+			#blow away register
+			self.RegisterTable.ClearRegister(Reg)
 
 
 	def PROCENTRY(self, ThreeACLine):
@@ -263,7 +315,9 @@ class AssemblyGenerator():
 
 		#if the value is already in a register, find the register
 		elif 'IR' in ThreeACLine['OpA'] or 'FR' in ThreeACLine['OpA']:
-			OpAout = self.RegisterTable.FindRegisterWithVReg(ThreeACLine['OpA'])
+			RegA = self.RegisterTable.FindRegisterWithVReg(ThreeACLine['OpA'])
+			#set the register name to the main output of the function
+			OpAout = RegA
 
 		#if the first operand is a const, remove the const
 		if 'const' in ThreeACLine['OpB']:

@@ -142,6 +142,7 @@ class RegisterTable():
 				return True
 
 	def ClearRegister(self, RegisterToClear):
+		print("Cleared:", RegisterToClear)
 		for elem in self.Registers:
 			if elem['assembly name'] == RegisterToClear:
 				elem['value'] = None
