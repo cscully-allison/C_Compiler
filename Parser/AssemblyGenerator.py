@@ -121,7 +121,7 @@ class AssemblyGenerator():
 
 	def LoadWord(self, ThreeACLine):
 		LW = 'lw {} {}({})'
-		FLW = 'lwc1 {} {}'
+		FLW = 'lwc1 {} ({})'
 		DestReg = self.AssignRegister(ThreeACLine, 'Dest')
 		StackPtr = self.RegisterTable.GetStackPtr()['assembly name']
 
@@ -131,9 +131,8 @@ class AssemblyGenerator():
 
 		elif 'f' in ThreeACLine['OpB']:
 			if 'addr' in ThreeACLine['OpB']:
-				#Src =
-				# LW = FLW.Format(DestReg, )
-				pass
+				Src = self.AssignRegister(ThreeACLine, 'OpB')
+				LW = FLW.format(DestReg, Src)
 		else:
 			pass
 
