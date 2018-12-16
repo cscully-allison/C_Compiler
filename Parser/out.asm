@@ -1,29 +1,22 @@
 .text
 main:
 sub $sp, $sp, 20
-mult 4, None
+li $t0 3
+sw $t0 4($sp)
+lw $t1, 4($sp)
+add $t0, $t1, 3
+sw $t0 8($sp)
+li $t1, 16
+lw $t2, 8($sp)
+sub $t0, $t1, $t2
+sw $t0 12($sp)
+li $t1, 5
+li $t2, 10
+mult $t1, $t2
 mflo $t0
-lw $t2, 4($sp)
-add $t1, $t0, $t2
-li $t2 5
-sw $t2 addr IR5($sp)
-mult 4, None
-mflo $t2
-lw $t4, 4($sp)
-add $t3, $t2, $t4
-li $t4 8
-sw $t4 addr IR9($sp)
-mult 4, None
-mflo $t4
-lw $t6, 4($sp)
-add $t5, $t4, $t6
-mult 4, None
-mflo $t6
-lw $t8, 4($sp)
-add $t7, $t6, $t8
-mult 4, None
-mflo $t8
-lw False, 4($sp)
-add $t9, $t8, False
-add False, None, None
-sw False addr IR13($sp)
+sw $t0 16($sp)
+lw $t1, 16($sp)
+lw $t2, 12($sp)
+div $t1, $t2
+mflo $t0
+sw $t0 4($sp)
