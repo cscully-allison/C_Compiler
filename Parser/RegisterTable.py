@@ -60,7 +60,7 @@ class RegisterTable():
 				if things.tag == 'Number':
 					fNum = things.text
 					for i in range(int(fNum)):
-						self.Registers.append({'assembly name': regPrefix+f+str(i), 'value': None, 'data type' : 'Float'})
+						self.Registers.append({'assembly name': regPrefix+f+str(i), 'value': None, 'data type' : None})
 
 
 	def GetRegisterData(self, AssemblyName = None):
