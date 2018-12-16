@@ -56,7 +56,6 @@ class CodeGenerator(object):
             print("%s %s %s %s" % ( line['Instruction'].ljust(Pads[0]), line['Dest'].ljust(Pads[1]), line['OpA'].ljust(Pads[2]), line['OpB'].ljust(Pads[3]) ) )
 
 
-
     '''
     **********************
     Auxilary functions.
@@ -605,9 +604,9 @@ class CodeGenerator(object):
         else:
             AssignRegister = IntRegister.DispenseTicket()
         #load into register
-        self.Load3AC(Instruction = "LOAD", Dest = AssignRegister, OperandA = RHS)
+        self.Load3AC(Instruction = "LOAD", Dest = AssignRegister, OperandB = RHS)
         self.Load3AC(Instruction = Op, Dest=AssignRegister, OperandA = AssignRegister, OperandB = "const " + str(1))
-        self.Load3AC(Instruction = "RETURN", Dest = RHS, OperandA = AssignRegister)
+        self.Load3AC(Instruction = "RETURN", Dest = RHS, OperandB = AssignRegister)
 
 
     def UnaryPostfixExpression(self, Subtree):
@@ -622,9 +621,9 @@ class CodeGenerator(object):
         else:
             AssignRegister = IntRegister.DispenseTicket()
         #load into register
-        self.Load3AC(Instruction = "LOAD", Dest = AssignRegister, OperandA = LHS)
+        self.Load3AC(Instruction = "LOAD", Dest = AssignRegister, OperandB = LHS)
         self.Load3AC(Instruction = Op, Dest=AssignRegister, OperandA = AssignRegister, OperandB = "const " + str(1))
-        self.Load3AC(Instruction = "STORE", Dest = LHS, OperandA = AssignRegister)
+        self.Load3AC(Instruction = "STORE", Dest = LHS, OperandB = AssignRegister)
         return AssignRegister
 
     def IterationStatement(self, Subtree):

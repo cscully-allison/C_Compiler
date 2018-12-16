@@ -1,3 +1,27 @@
+
+def GetPads(line):
+    Pads = [1,1,1,1]
+
+    line['Dest'] = str(line['Dest'])
+    line['OpA'] = str(line['OpA'])
+    line['OpB'] = str(line['OpB'])
+
+    if len(line['Instruction']) > Pads[0]: Pads[0] = len(line['Instruction']) + 2
+    if len(line['Dest']) > Pads[1]: Pads[1] = len(line['Dest']) + 2
+    if len(line['OpA']) > Pads[2]: Pads[2] = len(line['OpA']) + 2
+    if len(line['OpB']) > Pads[3]: Pads[3] = len(line['OpB']) + 2
+
+    return Pads
+
+def Format3ACLine(Line):
+    FormatPads = GetPads(Line)
+
+    line = "%s %s %s %s" % ( Line['Instruction'].ljust(FormatPads[0]), Line['Dest'].ljust(FormatPads[1]), Line['OpA'].ljust(FormatPads[2]), Line['OpB'].ljust(FormatPads[3]) )
+    return line
+
+
+
+
 def SafeCheckDict(Dict, Key, Content = None):
     if Dict is None:
         return False
