@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 .text                         #PROCENTRY   label main   212   0
 main:                         
 sub $sp, $sp, 212             
@@ -21,86 +20,86 @@ lw $t3, 4($sp)                #ADD   temp IR25   temp IR22   local 4
 add $t1, $t2, $t3             
 mult 4, $t1                   #MULT   temp IR26   const 4   temp IR25  
 mflo $t2                      
-lw $t4, 12($sp)               #ADD   faddr IR24   temp IR26   local 12  
-add $t3, $t2, $t4             
+lw $t3, 12($sp)               #ADD   faddr IR24   temp IR26   local 12  
+add $t1, $t2, $t3             
 lw $t2 204($sp)               #STORE   faddr IR24   None   local 204  
-sw $t2 ($t3)                  
+sw $t2 ($t1)                  
 li $t2 4                      #LOAD   temp IR28   None   const 4  
-lw $t5, 0($sp)                #MULT   temp IR30   temp IR28   local 0  
-mult $t2, $t5                 
+lw $t4, 0($sp)                #MULT   temp IR30   temp IR28   local 0  
+mult $t2, $t4                 
+mflo $t3                      
+move $t4 $t3                  #LOAD   temp IR29   None   temp IR30  
+lw $t5, 4($sp)                #ADD   temp IR32   temp IR29   local 4  
+add $t3, $t4, $t5             
+mult 4, $t3                   #MULT   temp IR33   const 4   temp IR32  
 mflo $t4                      
-move $t5 $t4                  #LOAD   temp IR29   None   temp IR30  
-lw $t6, 4($sp)                #ADD   temp IR32   temp IR29   local 4  
-add $t4, $t5, $t6             
-mult 4, $t4                   #MULT   temp IR33   const 4   temp IR32  
+lw $t5, 76($sp)               #ADD   faddr IR31   temp IR33   local 76  
+add $t3, $t4, $t5             
+lw $t4 208($sp)               #STORE   faddr IR31   None   local 208  
+sw $t4 ($t3)                  
+li $t4 4                      #LOAD   temp IR35   None   const 4  
+lw $t6, 0($sp)                #MULT   temp IR37   temp IR35   local 0  
+mult $t4, $t6                 
 mflo $t5                      
-lw $t7, 76($sp)               #ADD   faddr IR31   temp IR33   local 76  
-add $t6, $t5, $t7             
-lw $t5 208($sp)               #STORE   faddr IR31   None   local 208  
-sw $t5 ($t6)                  
-li $t5 4                      #LOAD   temp IR35   None   const 4  
-lw $t8, 0($sp)                #MULT   temp IR37   temp IR35   local 0  
-mult $t5, $t8                 
-mflo $t7                      
-move $t8 $t7                  #LOAD   temp IR36   None   temp IR37  
-lw $t9, 4($sp)                #ADD   temp IR39   temp IR36   local 4  
-add $t7, $t8, $t9             
-mult 4, $t7                   #MULT   temp IR40   const 4   temp IR39  
-mflo $t8                      
-lw False, 140($sp)            #ADD   faddr IR38   temp IR40   local 140  
-add $t9, $t8, False           
-li $t8 f0.0                   #STORE   faddr IR38   None   fconst 0.0  
-sw $t8 faddr IR38($sp)        
-lw $t8 204($sp)               #LOAD   temp IR42   None   local 204  
-add $t8, $t8, 1               #ADD   temp IR42   temp IR42   const 1  
-sw $t8 204($sp)               #STORE   local 204   None   temp IR42  
-lw $t8 208($sp)               #LOAD   temp IR43   None   local 208  
-add $t8, $t8, 1               #ADD   temp IR43   temp IR43   const 1  
-sw $t8 208($sp)               #STORE   local 208   None   temp IR43  
-lw $t8 4($sp)                 #LOAD   temp IR44   None   local 4  
-add $t8, $t8, 1               #ADD   temp IR44   temp IR44   const 1  
-sw $t8 4($sp)                 #STORE   local 4   None   temp IR44  
+move $t6 $t5                  #LOAD   temp IR36   None   temp IR37  
+lw $t7, 4($sp)                #ADD   temp IR39   temp IR36   local 4  
+add $t5, $t6, $t7             
+mult 4, $t5                   #MULT   temp IR40   const 4   temp IR39  
+mflo $t6                      
+lw $t7, 140($sp)              #ADD   faddr IR38   temp IR40   local 140  
+add $t5, $t6, $t7             
+li $t6 f0.0                   #STORE   faddr IR38   None   fconst 0.0  
+sw $t6 faddr IR38($sp)        
+lw $t6 204($sp)               #LOAD   temp IR42   None   local 204  
+add $t6, $t6, 1               #ADD   temp IR42   temp IR42   const 1  
+sw $t6 204($sp)               #STORE   local 204   None   temp IR42  
+lw $t6 208($sp)               #LOAD   temp IR43   None   local 208  
+add $t6, $t6, 1               #ADD   temp IR43   temp IR43   const 1  
+sw $t6 208($sp)               #STORE   local 208   None   temp IR43  
+lw $t6 4($sp)                 #LOAD   temp IR44   None   local 4  
+add $t6, $t6, 1               #ADD   temp IR44   temp IR44   const 1  
+sw $t6 4($sp)                 #STORE   local 4   None   temp IR44  
 j L1                          #JUMP   label L1   None   None  
 L2:                           #LABEL   label L2   None   None  
-lw $t8 0($sp)                 #LOAD   temp IR45   None   local 0  
-add $t8, $t8, 1               #ADD   temp IR45   temp IR45   const 1  
-sw $t8 0($sp)                 #STORE   local 0   None   temp IR45  
+lw $t6 0($sp)                 #LOAD   temp IR45   None   local 0  
+add $t6, $t6, 1               #ADD   temp IR45   temp IR45   const 1  
+sw $t6 0($sp)                 #STORE   local 0   None   temp IR45  
 j L3                          #JUMP   label L3   None   None  
 L4:                           #LABEL   label L4   None   None  
-li $t8 0                      #STORE   local 0   None   const 0  
-sw $t8 0($sp)                 
+li $t6 0                      #STORE   local 0   None   const 0  
+sw $t6 0($sp)                 
 L9:                           #LABEL   label L9   None   None  
-li $t8 0                      #STORE   local 4   None   const 0  
-sw $t8 4($sp)                 
+li $t6 0                      #STORE   local 4   None   const 0  
+sw $t6 4($sp)                 
 L7:                           #LABEL   label L7   None   None  
-li $t8 0                      #STORE   local 8   None   const 0  
-sw $t8 8($sp)                 
+li $t6 0                      #STORE   local 8   None   const 0  
+sw $t6 8($sp)                 
 L5:                           #LABEL   label L5   None   None  
-li $t8 4                      #LOAD   temp IR49   None   const 4  
-lw False, 0($sp)              #MULT   temp IR51   temp IR49   local 0  
-mult $t8, False               
-mflo False                    
-move False False              #LOAD   temp IR50   None   temp IR51  
-lw False, 8($sp)              #ADD   temp IR53   temp IR50   local 8  
-add False, None, False        
-mult 4, None                  #MULT   temp IR54   const 4   temp IR53  
-mflo False                    
-lw False, 12($sp)             #ADD   faddr IR52   temp IR54   local 12  
-add False, None, False        
-li False 4                    #LOAD   temp IR55   None   const 4  
+li $t6 4                      #LOAD   temp IR49   None   const 4  
+lw $t8, 0($sp)                #MULT   temp IR51   temp IR49   local 0  
+mult $t6, $t8                 
+mflo $t7                      
+move $t8 $t7                  #LOAD   temp IR50   None   temp IR51  
+lw $t9, 8($sp)                #ADD   temp IR53   temp IR50   local 8  
+add $t7, $t8, $t9             
+mult 4, $t7                   #MULT   temp IR54   const 4   temp IR53  
+mflo $t8                      
+lw $t9, 12($sp)               #ADD   faddr IR52   temp IR54   local 12  
+add $t7, $t8, $t9             
+li $t8 4                      #LOAD   temp IR55   None   const 4  
 lw False, 0($sp)              #MULT   temp IR57   temp IR55   local 0  
-mult False, False             
-mflo False                    
-move False False              #LOAD   temp IR56   None   temp IR57  
+mult $t8, False               
+mflo $t9                      
+move False $t9                #LOAD   temp IR56   None   temp IR57  
 lw False, 4($sp)              #ADD   temp IR59   temp IR56   local 4  
-add False, None, False        
-mult 4, None                  #MULT   temp IR60   const 4   temp IR59  
+add $t9, None, False          
+mult 4, $t9                   #MULT   temp IR60   const 4   temp IR59  
 mflo False                    
 lw False, 76($sp)             #ADD   faddr IR58   temp IR60   local 76  
-add False, None, False        
+add $t9, None, False          
 li False 4                    #LOAD   temp IR61   None   const 4  
 lw False, 4($sp)              #MULT   temp IR63   temp IR61   local 4  
-mult False, False             
+mult None, False              
 mflo False                    
 move False False              #LOAD   temp IR62   None   temp IR63  
 lw False, 8($sp)              #ADD   temp IR65   temp IR62   local 8  
@@ -111,7 +110,7 @@ lw False, 140($sp)            #ADD   faddr IR64   temp IR66   local 140
 add False, None, False        
 lw {} {}({})                  #LOAD   ftemp FR2   None   faddr IR58  
 lw {} {}({})                  #LOAD   ftemp FR3   None   faddr IR64  
-mult False, None              #MULT   ftemp FR1   ftemp FR2   ftemp FR3  
+mult None, None               #MULT   ftemp FR1   ftemp FR2   ftemp FR3  
 mflo False                    
 sw False faddr IR52($sp)      #STORE   faddr IR52   None   ftemp FR1  
 lw False 8($sp)               #LOAD   temp IR68   None   local 8  
@@ -130,113 +129,3 @@ sw False 0($sp)               #STORE   local 0   None   temp IR70
 j L9                          #JUMP   label L9   None   None  
 L10:                          #LABEL   label L10   None   None  
 li False 0                    #LOAD   return   None   const 0  
-=======
-.text
-main:
-sub $sp, $sp, 212
-li $t0 1
-sw $t0 204($sp)
-li $t0 2
-sw $t0 208($sp)
-li $t0 0
-sw $t0 0($sp)
-L3:
-li $t0 0
-sw $t0 4($sp)
-L1:
-lw $t1, 0($sp)
-mult None, $t1
-mflo $t0
-lw $t2, 4($sp)
-add $t1, None, $t2
-li $t3, 4
-mult $t3, $t1
-mflo $t2
-lw $t3, 12($sp)
-add $t1, $t2, $t3
-sw  faddr IR24($sp)
-lw $t4, 0($sp)
-mult None, $t4
-mflo $t3
-lw $t5, 4($sp)
-add $t4, None, $t5
-li $t6, 4
-mult $t6, $t4
-mflo $t5
-lw $t6, 76($sp)
-add $t4, $t5, $t6
-sw  faddr IR31($sp)
-lw $t7, 0($sp)
-mult None, $t7
-mflo $t6
-lw $t8, 4($sp)
-add $t7, None, $t8
-li $t9, 4
-mult $t9, $t7
-mflo $t8
-lw $t9, 140($sp)
-add $t7, $t8, $t9
-li $t9 f0.0
-sw $t9 faddr IR38($sp)
-add $t9, $t9, 1
-sw  204($sp)
-add False, None, 1
-sw  208($sp)
-add False, None, 1
-sw  4($sp)
-L2:
-add False, None, 1
-sw  0($sp)
-L4:
-li False 0
-sw False 0($sp)
-L9:
-li False 0
-sw False 4($sp)
-L7:
-li False 0
-sw False 8($sp)
-L5:
-lw False, 0($sp)
-mult None, False
-mflo False
-lw False, 8($sp)
-add False, None, False
-li False, 4
-mult False, None
-mflo False
-lw False, 12($sp)
-add False, None, False
-lw False, 0($sp)
-mult None, False
-mflo False
-lw False, 4($sp)
-add False, None, False
-li False, 4
-mult False, None
-mflo False
-lw False, 76($sp)
-add False, None, False
-lw False, 4($sp)
-mult None, False
-mflo False
-lw False, 8($sp)
-add False, None, False
-li False, 4
-mult False, None
-mflo False
-lw False, 140($sp)
-add False, None, False
-mult None, None
-mflo False
-sw False faddr IR52($sp)
-add False, None, 1
-sw  8($sp)
-L6:
-add False, None, 1
-sw  4($sp)
-L8:
-add False, None, 1
-sw  0($sp)
-L10:
->>>>>>> kurt
