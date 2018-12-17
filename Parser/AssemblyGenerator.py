@@ -49,7 +49,7 @@ class AssemblyGenerator():
 				self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=VReg)
 			return Reg
 
-	def FormatOperand(self, ThreeACOperand):
+	def FormatOperand(self, ThreeACOperand, Dest):
 		#if the first operand is a const, remove the const
 		if 'const' in ThreeACOperand:
 			store = "li {}, {}"
@@ -63,7 +63,10 @@ class AssemblyGenerator():
 
 		#if the first operand is a local variable, load it into a register for use
 		elif 'local' in ThreeACOperand:
-			store = "lw {}, {}"
+			if 'addr' in Dest:
+				store = "la {}, {}"
+			else:
+				store = "lw {}, {}"
 			Op = ThreeACOperand
 			Op = Op.replace('local ', '')
 			Opout = "{}({})"
@@ -352,8 +355,8 @@ class AssemblyGenerator():
 				Reg = self.RegisterTable.GetFirstOpenRegister('t')
 				self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=VReg)
 
-		RegA = self.FormatOperand(ThreeACLine['OpA'])
-		RegB = self.FormatOperand(ThreeACLine['OpB'])
+		RegA = self.FormatOperand(ThreeACLine['OpA'], ThreeACLine['Dest'])
+		RegB = self.FormatOperand(ThreeACLine['OpB'], ThreeACLine['Dest'])
 		
 
 		#format assembly function calls then send them off
@@ -382,8 +385,8 @@ class AssemblyGenerator():
 				Reg = self.RegisterTable.GetFirstOpenRegister('t')
 				self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=VReg)
 
-		RegA = self.FormatOperand(ThreeACLine['OpA'])
-		RegB = self.FormatOperand(ThreeACLine['OpB'])
+		RegA = self.FormatOperand(ThreeACLine['OpA'], ThreeACLine['Dest'])
+		RegB = self.FormatOperand(ThreeACLine['OpB'], ThreeACLine['Dest'])
 		
 
 		#format assembly function calls then send them off
@@ -411,8 +414,8 @@ class AssemblyGenerator():
 				Reg = self.RegisterTable.GetFirstOpenRegister('t')
 				self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=VReg)
 
-		RegA = self.FormatOperand(ThreeACLine['OpA'])
-		RegB = self.FormatOperand(ThreeACLine['OpB'])
+		RegA = self.FormatOperand(ThreeACLine['OpA'], ThreeACLine['Dest'])
+		RegB = self.FormatOperand(ThreeACLine['OpB'], ThreeACLine['Dest'])
 
 		#format assembly function calls then send them off
 		mult = mult.format(RegA, RegB)
@@ -441,8 +444,8 @@ class AssemblyGenerator():
 				Reg = self.RegisterTable.GetFirstOpenRegister('t')
 				self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=VReg)
 
-		RegA = self.FormatOperand(ThreeACLine['OpA'])
-		RegB = self.FormatOperand(ThreeACLine['OpB'])
+		RegA = self.FormatOperand(ThreeACLine['OpA'], ThreeACLine['Dest'])
+		RegB = self.FormatOperand(ThreeACLine['OpB'], ThreeACLine['Dest'])
 
 		#format assembly function calls then send them off
 		div = div.format(RegA, RegB)
@@ -487,8 +490,8 @@ class AssemblyGenerator():
 		ASMout = "bge {}, {}, {}"
 		Dest = ThreeACLine['Dest']
 		Dest = Dest.replace('label ', '')
-		OpA = self.FormatOperand(ThreeACLine['OpA'])
-		OpB = self.FormatOperand(ThreeACLine['OpB'])
+		OpA = self.FormatOperand(ThreeACLine['OpA'], ThreeACLine['Dest'])
+		OpB = self.FormatOperand(ThreeACLine['OpB'], ThreeACLine['Dest'])
 		ASMout = ASMout.format(OpA, OpB, Dest)
 		self.AddLineToASM(ASMout)
 
@@ -503,8 +506,8 @@ class AssemblyGenerator():
 		ASMout = "blt {}, {}, {}"
 		Dest = ThreeACLine['Dest']
 		Dest = Dest.replace('label ', '')
-		OpA = self.FormatOperand(ThreeACLine['OpA'])
-		OpB = self.FormatOperand(ThreeACLine['OpB'])
+		OpA = self.FormatOperand(ThreeACLine['OpA'], ThreeACLine['Dest'])
+		OpB = self.FormatOperand(ThreeACLine['OpB'], ThreeACLine['Dest'])
 		ASMout = ASMout.format(OpA, OpB, Dest)
 		self.AddLineToASM(ASMout)
 
@@ -517,8 +520,8 @@ class AssemblyGenerator():
 		ASMout = "ble {}, {}, {}"
 		Dest = ThreeACLine['Dest']
 		Dest = Dest.replace('label ', '')
-		OpA = self.FormatOperand(ThreeACLine['OpA'])
-		OpB = self.FormatOperand(ThreeACLine['OpB'])
+		OpA = self.FormatOperand(ThreeACLine['OpA'], ThreeACLine['Dest'])
+		OpB = self.FormatOperand(ThreeACLine['OpB'], ThreeACLine['Dest'])
 		ASMout = ASMout.format(OpA, OpB, Dest)
 		self.AddLineToASM(ASMout)
 
@@ -531,8 +534,8 @@ class AssemblyGenerator():
 		ASMout = "bgt {}, {}, {}"
 		Dest = ThreeACLine['Dest']
 		Dest = Dest.replace('label ', '')
-		OpA = self.FormatOperand(ThreeACLine['OpA'])
-		OpB = self.FormatOperand(ThreeACLine['OpB'])
+		OpA = self.FormatOperand(ThreeACLine['OpA'], ThreeACLine['Dest'])
+		OpB = self.FormatOperand(ThreeACLine['OpB'], ThreeACLine['Dest'])
 		ASMout = ASMout.format(OpA, OpB, Dest)
 		self.AddLineToASM(ASMout)
 
