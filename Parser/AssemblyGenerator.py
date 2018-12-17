@@ -59,7 +59,7 @@ class AssemblyGenerator():
 			self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=ThreeACOperand)
 			store = store.format(Reg, Opout)
 			self.AddLineToASM(store)
-			
+
 
 		#if the first operand is a local variable, load it into a register for use
 		elif 'local' in ThreeACOperand:
@@ -171,21 +171,24 @@ class AssemblyGenerator():
 		self.AddLineToASM(Tmplt, ThreeACLine)
 
 	def LoadWord(self, ThreeACLine):
-		LW = 'lw {} {}({})'
+		LW = 'lw {} {}'
 		FLW = 'lwc1 {} ({})'
 		DestReg = self.AssignRegister(ThreeACLine, 'Dest')
 		StackPtr = self.RegisterTable.GetStackPtr()['assembly name']
 
 		if 'local' in ThreeACLine['OpB']:
-			StackOffset = ThreeACLine['OpB'].replace('local ', '')
-			LW = LW.format(DestReg, StackOffset, StackPtr)
+			Src = self.GetDerefAddr(ThreeACLine, 'OpB')
+			LW = LW.format(DestReg, Src)
 
 		elif 'f' in ThreeACLine['OpB']:
 			if 'addr' in ThreeACLine['OpB']:
 				Src = self.AssignRegister(ThreeACLine, 'OpB')
 				LW = FLW.format(DestReg, Src)
-		else:
-			pass
+		elif 'addr' in ThreeACLine['OpB']:
+			Dest = self.AssignRegister(ThreeACLine, 'Dest')
+			Src = self.GetDerefAddr(ThreeACLine, 'OpB')
+			LW = LW.format(Dest, Src)
+
 
 
 		return LW
@@ -255,11 +258,10 @@ class AssemblyGenerator():
 					FSW = FSW.format(Reg, Dest)
 					self.AddLineToASM(FSW, ThreeACLine)
 
-
 		#case for storage from an address to an addr holding temp
 		elif 'local' in ThreeACLine['OpB'] and 'addr' in ThreeACLine['Dest']:
 
-			Dest = self.GetDerefAddr(ThreeACLine, 'Dest')
+			Dest = self.GetDerefAddr(ThreeACLine, 'OpB')
 
 			#get register for the vlaue we are storing from
 			SrcReg = self.RegisterTable.GetFirstOpenRegister('t')
@@ -280,8 +282,14 @@ class AssemblyGenerator():
 
 
 		else:
+			if 'addr' in ThreeACLine['OpB']:
+				Src = self.GetDerefAddr(ThreeACLine, 'OpB')
+				Reg = self.AssignRegister(ThreeACLine, 'OpB')
+				LoadWord = LoadWord.format(Reg, Src)
+				self.AddLineToASM(LoadWord, ThreeACLine)
+
 			#case for storage from a normal temp
-			if 'temp' in ThreeACLine['OpB']:
+			elif 'temp' in ThreeACLine['OpB']:
 				VReg = ThreeACLine['OpB']
 				Reg = self.RegisterTable.FindRegisterWithVReg(VReg)
 				if Reg is None:
@@ -357,7 +365,7 @@ class AssemblyGenerator():
 
 		RegA = self.FormatOperand(ThreeACLine['OpA'], ThreeACLine['Dest'])
 		RegB = self.FormatOperand(ThreeACLine['OpB'], ThreeACLine['Dest'])
-		
+
 
 		#format assembly function calls then send them off
 		add = add.format(Reg, RegA, RegB)
@@ -374,7 +382,7 @@ class AssemblyGenerator():
 	def SUB(self, ThreeACLine):
 		#staging strings used for assembly generation
 		sub = "sub {}, {}, {}"
-		
+
 		#find register location for where its getting stored
 		if 'IR' in ThreeACLine['Dest'] or 'FR' in ThreeACLine['Dest']:
 			VReg = ThreeACLine['Dest']
@@ -387,7 +395,7 @@ class AssemblyGenerator():
 
 		RegA = self.FormatOperand(ThreeACLine['OpA'], ThreeACLine['Dest'])
 		RegB = self.FormatOperand(ThreeACLine['OpB'], ThreeACLine['Dest'])
-		
+
 
 		#format assembly function calls then send them off
 		sub = sub.format(Reg, RegA, RegB)

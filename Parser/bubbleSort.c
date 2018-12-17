@@ -1,27 +1,29 @@
 int main()
 {
+	int vals[3];
 	int a;
 	int b;
-	int vals[10];
 	int c;
-	
-	for (a = 0; a < 10; a++)
+	int next;
+
+	for (a = 0; a < 3; a++)
 	{
-		vals[a] = 10 - a;
+		vals[a] = 3 - a;
 	}
 
 
-	for (a=0; a<10; a++)
+	for (a=0; a < 3; a++)
 	{
 
-		for (b=0; b<9; b++)
+		for (b=0; b < 2; b++)
 		{
-			if (vals[b] > vals[b + 1])
+			next = b + 1;
+			if (vals[b] > vals[next])
 			{
 
 				c = vals[b];
-				vals[b] = vals[b + 1];
-				vals[b + 1]= c;
+				vals[b] = vals[next];
+				vals[next]= c;
 			}
 		}
 	}

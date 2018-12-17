@@ -349,6 +349,7 @@ class CodeGenerator(object):
                     RemainingOffsets = self.GetFormattedOperand(LHS)
                     self.Load3AC(Instruction = "ADD", Dest=ArrayAccessRegister, OperandA=RemainingOffsets, OperandB=OffsetReg, LineNo=Subtree.Loc[0])
                 else:
+                    #this is where problems happen for 3ac to reg conv.
                     self.Load3AC(Instruction = "LOAD", Dest=ArrayAccessRegister, OperandB=OffsetReg, LineNo=Subtree.Loc[0])
 
             # we are not still calculating dimensional offsets
