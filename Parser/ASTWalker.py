@@ -52,7 +52,7 @@ class CodeGenerator(object):
                     for i in range(0, LineNo):
                         source = file.readline()
                 print('#' + source)
-                self.Output.insert(i-1, {'Instruction': "COMMENT", 'Dest': '#'+ source, 'OpA': '', 'OpB': '', 'LineNo': None, '3ACLineNo': ''})
+                self.Output.insert(i-1, {'Instruction': "COMMENT", 'Dest': '#'+ source, 'OpA': '', 'OpB': '', 'LineNo': None, '3ACLineNo': None})
 
             print("%s %s %s %s" % ( line['Instruction'].ljust(Pads[0]), line['Dest'].ljust(Pads[1]), line['OpA'].ljust(Pads[2]), line['OpB'].ljust(Pads[3]) ) )
 

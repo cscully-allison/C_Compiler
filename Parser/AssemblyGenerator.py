@@ -19,6 +19,21 @@ class AssemblyGenerator():
 			for Line in self.Output:
 				Asmout.write(Line + '\n')
 
+	def GetDerefAddr(self, ThreeACLine, Op):
+		Tmplt = '{}({})'
+
+		if 'local' in ThreeACLine[Op]:
+			WordLoc = ThreeACLine[Op].replace('local ', '')
+			StackPtr = self.RegisterTable.GetStackPtr()['assembly name']
+			Tmplt = Tmplt.format(WordLoc, StackPtr)
+		elif 'addr' in ThreeACLine[Op]:
+			WordLoc = self.AssignRegister(ThreeACLine, Op)
+			Tmplt = Tmplt.format('',WordLoc)
+
+		return Tmplt
+
+
+
 	def AssignRegister(self, ThreeACLine, Op):
 		VReg = ThreeACLine[Op]
 		if 'f' in VReg and 'IR' not in VReg:
@@ -185,30 +200,38 @@ class AssemblyGenerator():
 		Reg = ''
 		Store = "sw {} {}"
 		Deref = "{}({})"
-		FLI = "li.s {} {}"
+		FLI = "l.s {} {}"
+		FSW = "swc1 {} {}"
 		LoadWord = "lw {} {}"
 
 		#floating point adressing
 		if 'f' in ThreeACLine['OpB']:
-				#case for floating point constant
-				if 'const' in ThreeACLine['OpB']:
-					#get a register
-					Reg = self.AssignRegister(ThreeACLine, 'OpB')
-					FLI = FLI.format( Reg, ThreeACLine['OpB'].replace('const ', ''))
-					self.AddLineToASM(FLI, ThreeACLine)
+				# case for the local
+				if 'addr' in ThreeACLine['Dest'] or 'local' in ThreeACLine['Dest']:
+					Dest = self.GetDerefAddr(ThreeACLine, 'Dest')
+
+					#case for floating point constant
+					if 'const' in ThreeACLine['OpB']:
+						#get a register
+						Reg = self.AssignRegister(ThreeACLine, 'OpB')
+						FLI = FLI.format( Reg, ThreeACLine['OpB'].replace('const ', ''))
+						self.AddLineToASM(FLI, ThreeACLine)
+
+					FSW = FSW.format(Reg, Dest)
+					self.AddLineToASM(FSW, ThreeACLine)
+
 
 		#case for storage from an address to an addr holding temp
 		elif 'local' in ThreeACLine['OpB'] and 'addr' in ThreeACLine['Dest']:
 
-			WordLoc = ThreeACLine['OpB'].replace('local ', '')
-			StackPtr = self.RegisterTable.GetStackPtr()['assembly name']
+			Dest = self.GetDerefAddr(ThreeACLine, 'Dest')
 
 			#get register for the vlaue we are storing from
 			SrcReg = self.RegisterTable.GetFirstOpenRegister('t')
 			self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=ThreeACLine['OpB'])
 
 			#load word
-			LoadWord = LoadWord.format(SrcReg, Deref.format(WordLoc, StackPtr))
+			LoadWord = LoadWord.format(SrcReg, Dest)
 			self.AddLineToASM(LoadWord, ThreeACLine)
 
 
@@ -239,9 +262,8 @@ class AssemblyGenerator():
 				self.AddLineToASM(LoadImmediate, ThreeACLine)
 
 			#user register to STORE
-			WordLoc = ThreeACLine['Dest'].replace('local ', '')
-			StackPtr = self.RegisterTable.GetStackPtr()['assembly name']
-			Store = Store.format(Reg, Deref.format(WordLoc, StackPtr))
+			Dest = self.GetDerefAddr(ThreeACLine, 'Dest')
+			Store = Store.format(Reg, Dest)
 			self.AddLineToASM(Store, ThreeACLine)
 
 
