@@ -4,6 +4,12 @@ int main()
 	int b;
 	int vals[10];
 	int c;
+	
+	for (a = 0; a < 10; a++)
+	{
+		vals[a] = 10 - a;
+	}
+
 
 	for (a=0; a<10; a++)
 	{

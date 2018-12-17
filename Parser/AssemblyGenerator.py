@@ -34,7 +34,39 @@ class AssemblyGenerator():
 				self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=VReg)
 			return Reg
 
+	def FormatOperand(self, ThreeACOperand):
+		#if the first operand is a const, remove the const
+		if 'const' in ThreeACOperand:
+			store = "li {}, {}"
+			Op = ThreeACOperand
+			Opout = Op.replace('const ', '')
+			Reg = self.RegisterTable.GetFirstOpenRegister('t')
+			self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=ThreeACOperand)
+			store = store.format(Reg, Opout)
+			self.AddLineToASM(store)
+			
 
+		#if the first operand is a local variable, load it into a register for use
+		elif 'local' in ThreeACOperand:
+			store = "lw {}, {}"
+			Op = ThreeACOperand
+			Op = Op.replace('local ', '')
+			Opout = "{}({})"
+			SP = self.RegisterTable.GetStackPtr()['assembly name']
+
+			#loads data from stack pointer and puts it into register for later use
+			Opout = Opout.format(Op, SP)
+			Reg = self.RegisterTable.GetFirstOpenRegister('t')
+			self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=ThreeACOperand)
+			store = store.format(Reg, Opout)
+			self.AddLineToASM(store)
+
+		#if the value is already in a register, find the register
+		elif 'IR' in ThreeACOperand or 'FR' in ThreeACOperand:
+			Reg = self.RegisterTable.FindRegisterWithVReg(ThreeACOperand)
+			#set the register name to the main output of the function
+
+		return Reg
 
 	def AddLineToASM(self, line, ThreeACLine=None):
 		if ThreeACLine is not None and ThreeACLine is not self.PriorLine:
@@ -694,19 +726,65 @@ class AssemblyGenerator():
 		print ("in not")
 
 	def BRNE(self, ThreeACLine):
-		print ("in brne")
+		ASMout = "bne {}, {}, {}" #t0, t1, target
 
 	def BREQ(self, ThreeACLine):
-		print ("in breq")
+		ASMout = "beq {}, {}, {}" #to, t1, target
 
 	def BRGE(self, ThreeACLine):
-		print ("in brge")
+		ASMout = "bge {}, {}, {}"
+		Dest = ThreeACLine['Dest']
+		Dest = Dest.replace('label ', '')
+		OpA = self.FormatOperand(ThreeACLine['OpA'])
+		OpB = self.FormatOperand(ThreeACLine['OpB'])
+		ASMout = ASMout.format(OpA, OpB, Dest)
+		self.AddLineToASM(ASMout)
+
+		if OpA is not None:
+			self.RegisterTable.ClearRegister(OpA)
+		if OpB is not None:
+			self.RegisterTable.ClearRegister(OpB)
+
+
 
 	def BRLT(self, ThreeACLine):
-		print ("in brlt")
+		ASMout = "blt {}, {}, {}"
+		Dest = ThreeACLine['Dest']
+		Dest = Dest.replace('label ', '')
+		OpA = self.FormatOperand(ThreeACLine['OpA'])
+		OpB = self.FormatOperand(ThreeACLine['OpB'])
+		ASMout = ASMout.format(OpA, OpB, Dest)
+		self.AddLineToASM(ASMout)
+
+		if OpA is not None:
+			self.RegisterTable.ClearRegister(OpA)
+		if OpB is not None:
+			self.RegisterTable.ClearRegister(OpB)
 
 	def BRLE(self, ThreeACLine):
-		print ("in brle")
+		ASMout = "ble {}, {}, {}"
+		Dest = ThreeACLine['Dest']
+		Dest = Dest.replace('label ', '')
+		OpA = self.FormatOperand(ThreeACLine['OpA'])
+		OpB = self.FormatOperand(ThreeACLine['OpB'])
+		ASMout = ASMout.format(OpA, OpB, Dest)
+		self.AddLineToASM(ASMout)
+
+		if OpA is not None:
+			self.RegisterTable.ClearRegister(OpA)
+		if OpB is not None:
+			self.RegisterTable.ClearRegister(OpB)
 
 	def BRGT(self, ThreeACLine):
-		print ("in brgt")
+		ASMout = "bgt {}, {}, {}"
+		Dest = ThreeACLine['Dest']
+		Dest = Dest.replace('label ', '')
+		OpA = self.FormatOperand(ThreeACLine['OpA'])
+		OpB = self.FormatOperand(ThreeACLine['OpB'])
+		ASMout = ASMout.format(OpA, OpB, Dest)
+		self.AddLineToASM(ASMout)
+
+		if OpA is not None:
+			self.RegisterTable.ClearRegister(OpA)
+		if OpB is not None:
+			self.RegisterTable.ClearRegister(OpB)
