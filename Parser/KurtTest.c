@@ -3,11 +3,10 @@ int main(int arg1)
 	int a;
 	int b;
 	int c;
-	b = 2;
-	c = 5;
+	int d;
 
-for (a=0; a < 5; a++)
-{
-	b = c + 1;
-}
+	a = 2 / 1;
+	b = a / 1;
+	c = 3 / b;
+	d = c / b;
 }
