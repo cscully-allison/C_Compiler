@@ -4,11 +4,9 @@ int main(int arg1)
 	int b;
 	int c;
 	int d;
-	a = 3;
 
-	b = a * 3;
-	c = 16 * b;
-	d = 5 * 10;
-	a = d * c;
+	a = 2 / 1;
+	b = a / 1;
+	c = 3 / b;
+	d = c / b;
 }
-
