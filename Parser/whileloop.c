@@ -9,9 +9,7 @@ int main(){
   i = 3, j = 4;
   c = 1;
 
-  //arr[1][1] = 1;
-
-
+  arr[1][1] = 1;
   //CharFunction(d);
 
   while(test <= 10){

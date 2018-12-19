@@ -430,13 +430,13 @@ class AssemblyGenerator():
 		self.RegisterTable.PushStackPtr(Offset)
 		self.AddLineToASM(StackUpdate)
 
-		arg = 0
+		argo = 0
 		for arg in range(0, int(ThreeACLine['OpB']), 4):
 			ArgLoad = "sw $a{} {}({})"
 			ArgOffset = arg
-			ArgLoad = ArgLoad.format(arg, ArgOffset, Reg)
+			ArgLoad = ArgLoad.format(argo, ArgOffset, Reg)
 			self.AddLineToASM(ArgLoad)
-			self.RegisterTable.ClearRegister('$a' + arg )
+			self.RegisterTable.ClearRegister('$a' + str(arg) )
 			arg += 1
 
 
