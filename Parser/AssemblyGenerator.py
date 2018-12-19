@@ -317,7 +317,7 @@ class AssemblyGenerator():
 					if 'const' in ThreeACLine['OpB']:
 						#get a register
 						Reg = self.AssignRegister(ThreeACLine, 'OpB')
-						FLI = FLI.format( Reg, ThreeACLine['OpB'].replace('const ', ''))
+						FLI = FLI.format( Reg, ThreeACLine['OpB'].replace('fconst ', ''))
 						self.AddLineToASM(FLI, ThreeACLine)
 
 					FSW = FSW.format(Reg, Dest)
@@ -341,6 +341,27 @@ class AssemblyGenerator():
 			VReg = ThreeACLine['Dest']
 			Reg = self.RegisterTable.FindRegisterWithVReg(VReg)
 			Store = Store.format(SrcReg, Deref.format('', Reg))
+			self.AddLineToASM(Store)
+
+			self.RegisterTable.ClearRegister(SrcReg)
+
+		#case for storage from an address to an addr holding temp
+		elif 'local' in ThreeACLine['OpB'] and 'local' in ThreeACLine['Dest']:
+			Intermediate = 'lw {} {}'
+
+			Dest = self.GetDerefAddr(ThreeACLine, 'OpB')
+			DestAddr = self.GetDerefAddr(ThreeACLine, 'Dest')
+
+			#get register for the vlaue we are storing from
+			SrcReg = self.RegisterTable.GetFirstOpenRegister('t')
+			self.RegisterTable.SetRegisterData(AssemblyName=Reg, NewValue=ThreeACLine['OpB'])
+
+
+			#load word
+			LoadWord = LoadWord.format(SrcReg, Dest)
+			self.AddLineToASM(LoadWord, ThreeACLine)
+
+			Store = Store.format(SrcReg, DestAddr)
 			self.AddLineToASM(Store)
 
 			self.RegisterTable.ClearRegister(SrcReg)
@@ -409,12 +430,14 @@ class AssemblyGenerator():
 		self.RegisterTable.PushStackPtr(Offset)
 		self.AddLineToASM(StackUpdate)
 
+		arg = 0
 		for arg in range(0, int(ThreeACLine['OpB']), 4):
 			ArgLoad = "sw $a{} {}({})"
 			ArgOffset = arg
 			ArgLoad = ArgLoad.format(arg, ArgOffset, Reg)
 			self.AddLineToASM(ArgLoad)
-			self.RegisterTable.ClearRegister('$a' + str(ArgOffset))
+			self.RegisterTable.ClearRegister('$a' + arg )
+			arg += 1
 
 
 	def ARGS(self, ThreeACLine):
