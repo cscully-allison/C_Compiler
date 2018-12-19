@@ -1,5 +1,5 @@
 # CS 660
-# PA 5, 6, 7, 8, 9: Symbol Table, Lexical Analyzer, Parser, Abstarct Syntax Tree, 3AC
+# PA 5, 6, 7, 8, 9, 10: Symbol Table, Lexical Analyzer, Parser, Abstarct Syntax Tree, 3AC, Assembly Generation
 
 # Connor Scully-Allison and Kurt Andersen
 ### October 19, 2018
@@ -20,7 +20,7 @@
 [Project Wiki](https://www.github.com/cscully-allison/C_Compilier/wiki/CS-660:-Connor-Scully-Allison-and-Kurt-Andersen) <br>
 [Symbol Table README](./SymbolTable/) <br>
 [Lexical Analyzer README](./LexicalAnalizer/) <br>
-[Parser README / Abstract Syntax Tree / 3AC](./Parser/) <br>
+[Parser README / Abstract Syntax Tree / 3AC / Assembly Generation](./Parser/) <br>
 
 <a name="language"/>
 
