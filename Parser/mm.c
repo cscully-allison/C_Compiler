@@ -1,4 +1,5 @@
 int PrintInt(int);
+char PrintChar(char);
 
 int main(){
   int i, j, k;
@@ -33,6 +34,7 @@ int main(){
     for(j=0; j < 2; j++){
       out = c[i][j];
       PrintInt(out);
+      PrintChar('-');
     }
   }
 
