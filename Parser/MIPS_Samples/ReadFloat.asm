@@ -6,7 +6,7 @@ somecode:
 	#tells system program is done
 	li $v0, 10
 	syscall
-	
+
 ReadFloat:
 	li, $v0, 6
 	syscall

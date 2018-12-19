@@ -2,7 +2,7 @@ somecode:
 	jal ReadChar
 	move $a1, $v1
 	jal PrintChar
-	
+
 	#tells system program is done
 	li $v0, 10
 	syscall

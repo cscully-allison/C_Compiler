@@ -4,6 +4,7 @@ class RegisterTable():
 	def __init__ (self, filepath = None):
 
 		self.Registers = []
+		self.LastStackInc = []
 
 		#get data from file
 		manager = ConfigManager(filepath)
@@ -81,6 +82,11 @@ class RegisterTable():
 		#no register found
 		return False
 
+	def GetReturnReg(self):
+		for Register in self.Registers:
+			if '$v' in Register['assembly name']:
+				return Register['assembly name']
+
 	def GetStackPtr(self):
 		for Register in self.Registers:
 			if Register['assembly name'] == '$sp':
@@ -89,10 +95,24 @@ class RegisterTable():
 	def PushStackPtr(self, Increment = None):
 		Stack = self.GetStackPtr()
 		Stack['value'] += Increment
+		self.LastStackInc.append(Increment)
+		print(self.LastStackInc)
 
-	def PopStackPtr(self, Decrement = None):
+	def GetLastStackInc(self):
+		print(self.LastStackInc)
+		Increment = self.LastStackInc.pop()
+		self.LastStackInc.append(Increment)
+
+		print(Increment)
+
+		return Increment
+
+	def PopStackPtr(self):
+		print(self.LastStackInc)
 		Stack = self.GetStackPtr()
+		Decrement = self.LastStackInc.pop()
 		Stack['value'] -= Decrement
+		return Decrement
 
 	def SetSRegister(self, NewValue = None, NewDataType = None):
 		RegisterName = self.GetFirstOpenRegister('$s')
@@ -148,3 +168,10 @@ class RegisterTable():
 				elem['value'] = None
 				elem['data type'] = None
 				return True
+
+	def ClearArgumentRegisters(self):
+		for Register in self.Registers:
+			if '$a' in Register['assembly name']:
+				Register['value'] = None
+				Register['data type'] = None
+		return True

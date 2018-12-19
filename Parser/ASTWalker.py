@@ -94,6 +94,7 @@ class CodeGenerator(object):
 
     def AllocateRegister(self, ID):
         Register = None
+        print(ID)
         if 'float' in ID['Type']:
             Register = FloatRegister.DispenseTicket()
         else:
@@ -181,6 +182,21 @@ class CodeGenerator(object):
         Type = Type[:-1]
 
         return Type
+
+    def HandleAddress(self, Op):
+        if 'faddr' in Op:
+            Reg = FloatRegister.DispenseTicket()
+            Reg = self.GetFormattedOperand(Reg)
+            self.Load3AC(Instruction = "LOAD", Dest=Reg, OperandB=Op)
+        elif 'addr' in Op:
+            Reg = IntRegister.DispenseTicket()
+            Reg = self.GetFormattedOperand(Reg)
+            self.Load3AC(Instruction = "LOAD", Dest=Reg, OperandB=Op)
+        else:
+            return Op
+
+        return Reg
+
 
     def FormatConstant(self, Const):
         if type(Const) is not type({}):
@@ -394,6 +410,7 @@ class CodeGenerator(object):
         #check for return vale and call recursion
         if Subtree.ReturnExpression is not None:
             Return = self.Output3AC(Subtree.ReturnExpression)
+            print(Return)
             ReturnOp = self.GetFormattedOperand(Return)
             #load in special reserved register
             self.Load3AC(Instruction = "LOAD", Dest=ReturnRegister_Const, OperandB=ReturnOp)
@@ -445,7 +462,9 @@ class CodeGenerator(object):
 
         # check for compound operation
         if Ins is not None:
-            self.Load3AC(Instruction = Ins, Dest=AssignRegister, OperandA = LHSOp, OperandB = RHSOp)
+            OpA = self.HandleAddress(LHSOp)
+            OpB = self.HandleAddress(RHSOp)
+            self.Load3AC(Instruction = Ins, Dest=AssignRegister, OperandA = OpA, OperandB = OpB)
             self.Load3AC(Instruction = "STORE", Dest=LHSOp, OperandB=AssignRegister)
         else:
             self.Load3AC(Instruction = "STORE", Dest=LHSOp, OperandB=RHSOp)
