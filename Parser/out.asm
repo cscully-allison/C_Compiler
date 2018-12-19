@@ -1,4 +1,4 @@
-.text                         #PROCENTRY   label main   32   0
+.text                         #PROCENTRY   label main   160   4
 jal main                      
 li $v0, 10                    
 syscall                       
@@ -36,101 +36,64 @@ PrintInt:
 	syscall
 	jr $ra
 main:                         
-sub $sp, $sp, 32              
-li $t0 1                      #STORE   local 0   None   const 1  
-sw $t0 0($sp)                 
-li $t0 3                      #STORE   local 4   None   const 3  
-sw $t0 4($sp)                 
-li $t0 4                      #STORE   local 8   None   const 4  
-sw $t0 8($sp)                 
-li $t0 1                      #STORE   local 28   None   const 1  
-sw $t0 28($sp)                
-L7:                           #LABEL   label L7   None   None  
-lw $t0, 0($sp)                
-li $t1, 10                    
-bgt $t0, $t1, L8              
-lw $a0 0($sp)                 #VALOUT   local 0   None   None  
-sub $sp, $sp, 4               #CALL   label PrintInt   None   None  
-sw $ra 0($sp)                 
-jal PrintInt                  
-lw $ra 0($sp)                 
-add $sp, $sp, 4               
-move $t0 $v0                  #LOAD   temp IR11   None   const return  
-li $a0 '-'                    #VALOUT   const '-'   None   None  
-sub $sp, $sp, 4               #CALL   label PrintChar   None   None  
-sw $ra 0($sp)                 
-jal PrintChar                 
-lw $ra 0($sp)                 
-add $sp, $sp, 4               
-move $t1 $v0                  #LOAD   temp IR12   None   const return  
-lw $t2 0($sp)                 #LOAD   temp IR13   None   local 0  
-li $t3, 1                     
-add $t2, $t2, $t3             #ADD   temp IR13   temp IR13   const 1  
-sw $t2 0($sp)                 #STORE   local 0   None   temp IR13  
-lw $t2 4($sp)                 #LOAD   temp IR14   None   local 4  
-li $t3, 1                     
-add $t2, $t2, $t3             #ADD   temp IR14   temp IR14   const 1  
-sw $t2 4($sp)                 #STORE   local 4   None   temp IR14  
-lw $t2 8($sp)                 #LOAD   temp IR15   None   local 8  
-li $t3, 1                     
-add $t2, $t2, $t3             #ADD   temp IR15   temp IR15   const 1  
-sw $t2 8($sp)                 #STORE   local 8   None   temp IR15  
-lw $a0 4($sp)                 #VALOUT   local 4   None   None  
-sub $sp, $sp, 4               #CALL   label PrintInt   None   None  
-sw $ra 0($sp)                 
-jal PrintInt                  
-lw $ra 0($sp)                 
-add $sp, $sp, 4               
-move $t2 $v0                  #LOAD   temp IR16   None   const return  
-li $a0 '-'                    #VALOUT   const '-'   None   None  
-sub $sp, $sp, 4               #CALL   label PrintChar   None   None  
-sw $ra 0($sp)                 
-jal PrintChar                 
-lw $ra 0($sp)                 
-add $sp, $sp, 4               
-move $t3 $v0                  #LOAD   temp IR17   None   const return  
-lw $a0 8($sp)                 #VALOUT   local 8   None   None  
-sub $sp, $sp, 4               #CALL   label PrintInt   None   None  
-sw $ra 0($sp)                 
-jal PrintInt                  
-lw $ra 0($sp)                 
-add $sp, $sp, 4               
-move $t4 $v0                  #LOAD   temp IR18   None   const return  
-li $a0 '-'                    #VALOUT   const '-'   None   None  
-sub $sp, $sp, 4               #CALL   label PrintChar   None   None  
-sw $ra 0($sp)                 
-jal PrintChar                 
-lw $ra 0($sp)                 
-add $sp, $sp, 4               
-move $t5 $v0                  #LOAD   temp IR19   None   const return  
-j L7                          #JUMP   label L7   None   None  
-L8:                           #LABEL   label L8   None   None  
-L11:                          #LABEL   label L11   None   None  
-lw $a0 0($sp)                 #VALOUT   local 0   None   None  
-sub $sp, $sp, 4               #CALL   label PrintInt   None   None  
-sw $ra 0($sp)                 
-jal PrintInt                  
-lw $ra 0($sp)                 
-add $sp, $sp, 4               
-move $t6 $v0                  #LOAD   temp IR20   None   const return  
-li $a0 '-'                    #VALOUT   const '-'   None   None  
-sub $sp, $sp, 4               #CALL   label PrintChar   None   None  
-sw $ra 0($sp)                 
-jal PrintChar                 
-lw $ra 0($sp)                 
-add $sp, $sp, 4               
-move $t7 $v0                  #LOAD   temp IR21   None   const return  
-lw $t8 0($sp)                 #LOAD   temp IR22   None   local 0  
-li $t9, 1                     
-add $t8, $t8, $t9             #ADD   temp IR22   temp IR22   const 1  
-sw $t8 0($sp)                 #STORE   local 0   None   temp IR22  
-lw $t8, 0($sp)                
-li $t9, 20                    
-bge $t8, $t9, L12             
-j L11                         #JUMP   label L11   None   None  
-L12:                          #LABEL   label L12   None   None  
-li $v0 0                      #LOAD   return   None   const 0  
-add $sp, $sp, 32              
-jr $ra                        
-add $sp, $sp, 32              
+sub $sp, $sp, 164             
+sw $a0 0($sp)                 
+li $t0 3                      #LOAD   temp IR5   None   const 3  
+li $t2, 4                     
+mult $t2, $t0                 #MULT   temp IR6   const 4   temp IR5  
+mflo $t1                      
+la $t2, 4($sp)                
+add $t0, $t1, $t2             #ADD   addr IR4   temp IR6   local 4  
+
+#	arr1[3]=3;
+                
+
+#	arr2[3][6] = arr1[3];
+     
+
+#	arr1[2] = arr2[3][6];
+     
+li $t1 3                      #STORE   addr IR4   None   const 3  
+sw $t1 ($t0)                  
+li $t1 7                      #LOAD   temp IR8   None   const 7  
+li $t3, 3                     
+mult $t1, $t3                 #MULT   temp IR10   temp IR8   const 3  
+mflo $t2                      
+move $t1 $t2                  #LOAD   temp IR9   None   temp IR10  
+li $t3, 6                     
+add $t2, $t1, $t3             #ADD   temp IR12   temp IR9   const 6  
+li $t3, 4                     
+mult $t3, $t2                 #MULT   temp IR13   const 4   temp IR12  
+mflo $t1                      
+la $t3, 24($sp)               
+add $t2, $t1, $t3             #ADD   addr IR11   temp IR13   local 24  
+li $t1 3                      #LOAD   temp IR15   None   const 3  
+li $t4, 4                     
+mult $t4, $t1                 #MULT   temp IR16   const 4   temp IR15  
+mflo $t3                      
+la $t4, 4($sp)                
+add $t1, $t3, $t4             #ADD   addr IR14   temp IR16   local 4  
+lw $t1 ($t1)                  #STORE   addr IR11   None   addr IR14  
+sw $t1 ($t2)                  
+li $t1 2                      #LOAD   temp IR19   None   const 2  
+li $t4, 4                     
+mult $t4, $t1                 #MULT   temp IR20   const 4   temp IR19  
+mflo $t3                      
+la $t4, 4($sp)                
+add $t1, $t3, $t4             #ADD   addr IR18   temp IR20   local 4  
+li $t3 7                      #LOAD   temp IR21   None   const 7  
+li $t5, 3                     
+mult $t3, $t5                 #MULT   temp IR23   temp IR21   const 3  
+mflo $t4                      
+move $t3 $t4                  #LOAD   temp IR22   None   temp IR23  
+li $t5, 6                     
+add $t4, $t3, $t5             #ADD   temp IR25   temp IR22   const 6  
+li $t5, 4                     
+mult $t5, $t4                 #MULT   temp IR26   const 4   temp IR25  
+mflo $t3                      
+la $t5, 24($sp)               
+add $t4, $t3, $t5             #ADD   addr IR24   temp IR26   local 24  
+lw $t4 ($t4)                  #STORE   addr IR18   None   addr IR24  
+sw $t4 ($t1)                  
+add $sp, $sp, 164             
 jr $ra                        

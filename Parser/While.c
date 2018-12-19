@@ -1,8 +1,16 @@
+int PrintInt(int);
 int main()
 {
 	int i;
-	while (i>5)
+	int a;
+	i = 0;
+	a = 1;
+
+
+	while (i<5)
 	{
-		i = 3;
+		i = i + a;
 	}
+
+	PrintInt(i);
 }

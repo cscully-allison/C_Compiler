@@ -1,7 +1,14 @@
+int PrintInt(int);
 int main()
 {
 	int a;
+	int i;
+	i = 0;
+	a = 1;
+
 	do{
-		a=5;
-	} while (a < 3);
+		i = i + a;
+	} while (i < 0);
+
+	PrintInt(i);
 }

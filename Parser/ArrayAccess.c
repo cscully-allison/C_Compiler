@@ -5,5 +5,5 @@ int main(int arg1)
 
 	arr1[3]=3;
 	arr2[3][6] = arr1[3];
-	arr1[2] = arr2[2][2];
+	arr1[2] = arr2[3][6];
 }
