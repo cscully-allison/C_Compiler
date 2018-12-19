@@ -9,9 +9,9 @@ int main(){
   i = 3, j = 4;
   c = 1;
 
-  //arr[1][1] = 1;
-
-
+  arr[2][1] = 43;
+  i = arr[2][1];
+  PrintInt(i);
   //CharFunction(d);
 
   while(test <= 10){
@@ -20,14 +20,9 @@ int main(){
     test++;
     i++, j++;
     PrintInt(i);
-    PrintChar('-');
-    PrintInt(j);
-    PrintChar('-');
   }
 
   do{
-    PrintInt(test);
-    PrintChar('-');
     test++;
   }while(test < 20);
 

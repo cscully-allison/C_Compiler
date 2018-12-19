@@ -923,6 +923,7 @@ class AssignmentExpression(Node):
     #we cannot increment a constant
     def RunSemanticAnalysis(self, ST):
         LHSId = self.FetchId(self.Left)
+        print(LHSId)
         LHS = ST.FindSymbolInTable(LHSId)
 
         if LHS is False:
@@ -945,6 +946,8 @@ class AssignmentExpression(Node):
         if not IsNode(Subtree): return
         if Subtree.GetChildren() is None: return
 
+        if Subtree.__class__.__name__ == 'ArrayAccess':
+            return(self.FetchId(Subtree.ArrayName))
 
         for Child in Subtree.GetChildren():
             if Child.__class__.__name__ == 'Identifier':
