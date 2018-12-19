@@ -6,6 +6,7 @@ int main(){
   int b[2][2];
   int c[2][2];
   int aval, bval;
+  int newval;
 
   aval = 3;
   bval = 2;
@@ -15,27 +16,17 @@ int main(){
       a[i][j] = aval;
       b[i][j] = bval;
       c[i][j] = 0;
-
-      aval++;
-      bval++;
     }
   }
 
   for(i=0; i < 2; i++){
     for(j=0; j < 2; j++){
       for(k=0; k < 2; k++){
-          c[i][k] += a[i][j] * b[j][k];
+
+           newval = a[i][j] * b[j][k];
+          c[i][j] = c[i][j] + newval;
       }
     }
   }
-
-  for (i=0; i<2; i++)
-  {
-    for (j=0; j<2; j++)
-    {
-      PrintInt(c[i][j]);
-    }
-  }
-
   return 0;
 }
