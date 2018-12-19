@@ -21,7 +21,7 @@ In order to run the tests please refer to the Parser and Linked Test Cases of th
 In order to run the tests please refer to the AST Test Cases section of the [User Manual](https://github.com/cscully-allison/C_Compilier/wiki/User-Manual#AST).
 
 ## Important Code Files
-Assembly Code Generator: [AssemblyGenerator.py(AssemblyGenerator.py)<br>
+Assembly Code Generator: [AssemblyGenerator.py](AssemblyGenerator.py)<br>
 Abstract Symbol Table Builder: [ASTBuilder.py](ASTBuilder.py)<br>
 Abstract Symbol Table Walker: [ASTWalker.py](ASTWalker.py)<br>
 Grammar Rules: [parser_m.py](Parser_M.py)<br>
