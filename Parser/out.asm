@@ -1,4 +1,4 @@
-.text                         #PROCENTRY   label main   8 0
+.text                         #PROCENTRY   label main   4 0
 jal main                      
 li $v0, 10                    
 syscall                       
@@ -36,92 +36,55 @@ PrintInt:
 	syscall
 	jr $ra
 main:                         
-sub $sp, $sp, 8               
-li $t0 5                      #STORE   local 0   None   const 5  
+sub $sp, $sp, 4               
+li $t0 1                      #STORE   local 0   None   const 1  
 sw $t0 0($sp)                 
-li $a0 10                     #VALOUT   const 10   None   None  
-sub $sp, $sp, 4               #CALL   label fact   None   None  
-sw $ra 0($sp)                 
-jal fact                      
-lw $ra 0($sp)                 
-add $sp, $sp, 4               
-move $t0 $v0                  #LOAD   temp IR10   None   const return  
-sw $t0 4($sp)                 #STORE   local 4   None   temp IR10  
-lw $a0 4($sp)                 #VALOUT   local 4   None   None  
+L3:                           #LABEL   label L3   None   None  
+lw $t0, 0($sp)                
+li $t1, 10                    
+bgt $t0, $t1, L4              
+lw $a0 0($sp)                 #VALOUT   local 0   None   None  
 sub $sp, $sp, 4               #CALL   label PrintInt   None   None  
 sw $ra 0($sp)                 
 jal PrintInt                  
 lw $ra 0($sp)                 
 add $sp, $sp, 4               
-move $t0 $v0                  #LOAD   temp IR12   None   const return  
-li $a0 ' '                    #VALOUT   const ' '   None   None  
-sub $sp, $sp, 4               #CALL   label PrintChar   None   None  
-sw $ra 0($sp)                 
-jal PrintChar                 
-lw $ra 0($sp)                 
-add $sp, $sp, 4               
-move $t1 $v0                  #LOAD   temp IR13   None   const return  
+move $t0 $v0                  #LOAD   temp IR5   None   const return  
 li $a0 '-'                    #VALOUT   const '-'   None   None  
 sub $sp, $sp, 4               #CALL   label PrintChar   None   None  
 sw $ra 0($sp)                 
 jal PrintChar                 
 lw $ra 0($sp)                 
 add $sp, $sp, 4               
-move $t2 $v0                  #LOAD   temp IR14   None   const return  
-li $a0 ' '                    #VALOUT   const ' '   None   None  
-sub $sp, $sp, 4               #CALL   label PrintChar   None   None  
-sw $ra 0($sp)                 
-jal PrintChar                 
-lw $ra 0($sp)                 
-add $sp, $sp, 4               
-move $t3 $v0                  #LOAD   temp IR15   None   const return  
+move $t1 $v0                  #LOAD   temp IR6   None   const return  
+lw $t2 0($sp)                 #LOAD   temp IR7   None   local 0  
+li $t3, 1                     
+add $t2, $t2, $t3             #ADD   temp IR7   temp IR7   const 1  
+sw $t2 0($sp)                 #STORE   local 0   None   temp IR7  
+j L3                          #JUMP   label L3   None   None  
+L4:                           #LABEL   label L4   None   None  
+L7:                           #LABEL   label L7   None   None  
 lw $a0 0($sp)                 #VALOUT   local 0   None   None  
-sub $sp, $sp, 4               #CALL   label fact   None   None  
-sw $ra 0($sp)                 
-jal fact                      
-lw $ra 0($sp)                 
-add $sp, $sp, 4               
-move $t4 $v0                  #LOAD   temp IR16   None   const return  
-sw $t4 4($sp)                 #STORE   local 4   None   temp IR16  
-lw $a0 4($sp)                 #VALOUT   local 4   None   None  
 sub $sp, $sp, 4               #CALL   label PrintInt   None   None  
 sw $ra 0($sp)                 
 jal PrintInt                  
 lw $ra 0($sp)                 
 add $sp, $sp, 4               
-move $t4 $v0                  #LOAD   temp IR18   None   const return  
-add $sp, $sp, 8               
-jr $ra                        
-fact:                         
-sub $sp, $sp, 12              
-sw $a0 0($sp)                 
-lw $t5, 0($sp)                
-li $t6, 1                     
-bgt $t5, $t6, L9              
-li $v0 1                      #LOAD   return   None   const 1  
-add $sp, $sp, 12              
-jr $ra                        
-j L10                         #JUMP   label L10   None   None  
-L9:                           #LABEL   label L9   None   None  
-lw $t6, 0($sp)                
-li $t7, 1                     
-sub $t5, $t6, $t7             #SUB   temp IR5   local 0   const 1  
-sw $t5 4($sp)                 #STORE   local 4   None   temp IR5  
-lw $a0 4($sp)                 #VALOUT   local 4   None   None  
-sub $sp, $sp, 4               #CALL   label fact   None   None  
+move $t2 $v0                  #LOAD   temp IR8   None   const return  
+li $a0 '-'                    #VALOUT   const '-'   None   None  
+sub $sp, $sp, 4               #CALL   label PrintChar   None   None  
 sw $ra 0($sp)                 
-jal fact                      
+jal PrintChar                 
 lw $ra 0($sp)                 
 add $sp, $sp, 4               
-move $t5 $v0                  #LOAD   temp IR20   None   const return  
-sw $t5 8($sp)                 #STORE   local 8   None   temp IR20  
-lw $t6, 8($sp)                
-lw $t7, 0($sp)                
-mult $t6, $t7                 #MULT   temp IR8   local 8   local 0  
-mflo $t5                      
-move $v0 $t5                  #LOAD   return   None   temp IR8  
-add $sp, $sp, 12              
+move $t3 $v0                  #LOAD   temp IR9   None   const return  
+lw $t4, 0($sp)                
+li $t5, 0                     
+ble $t4, $t5, L8              
+j L7                          #JUMP   label L7   None   None  
+L8:                           #LABEL   label L8   None   None  
+li $v0 0                      #LOAD   return   None   const 0  
+add $sp, $sp, 4               
 jr $ra                        
-L10:                          #LABEL   label L10   None   None  
-add $sp, $sp, 12              
+add $sp, $sp, 4               
 jr $ra                        

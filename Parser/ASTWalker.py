@@ -43,7 +43,7 @@ class CodeGenerator(object):
 
 
 
-        print("%s %s %s %s" % ('Instruction'.ljust(Pads[0]), 'Destination'.ljust(Pads[1]), 'Operand A'.ljust(Pads[2]), 'Operand B'.ljust(Pads[3])))
+        #print("%s %s %s %s" % ('Instruction'.ljust(Pads[0]), 'Destination'.ljust(Pads[1]), 'Operand A'.ljust(Pads[2]), 'Operand B'.ljust(Pads[3])))
         for i, line in enumerate(self.Output):
             if line['LineNo'] is not None and line['LineNo'] > LineNo:
                 LineNo = line['LineNo']
@@ -54,7 +54,7 @@ class CodeGenerator(object):
                 print('#' + source)
                 self.Output.insert(i-1, {'Instruction': "COMMENT", 'Dest': '#'+ source, 'OpA': '', 'OpB': '', 'LineNo': None, '3ACLineNo': None})
 
-            print("%s %s %s %s" % ( line['Instruction'].ljust(Pads[0]), line['Dest'].ljust(Pads[1]), line['OpA'].ljust(Pads[2]), line['OpB'].ljust(Pads[3]) ) )
+        #    print("%s %s %s %s" % ( line['Instruction'].ljust(Pads[0]), line['Dest'].ljust(Pads[1]), line['OpA'].ljust(Pads[2]), line['OpB'].ljust(Pads[3]) ) )
 
 
     '''
@@ -94,7 +94,6 @@ class CodeGenerator(object):
 
     def AllocateRegister(self, ID):
         Register = None
-        print(ID)
         if 'float' in ID['Type']:
             Register = FloatRegister.DispenseTicket()
         else:
@@ -410,7 +409,6 @@ class CodeGenerator(object):
         #check for return vale and call recursion
         if Subtree.ReturnExpression is not None:
             Return = self.Output3AC(Subtree.ReturnExpression)
-            print(Return)
             ReturnOp = self.GetFormattedOperand(Return)
             #load in special reserved register
             self.Load3AC(Instruction = "LOAD", Dest=ReturnRegister_Const, OperandB=ReturnOp)

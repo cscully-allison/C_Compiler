@@ -96,19 +96,14 @@ class RegisterTable():
 		Stack = self.GetStackPtr()
 		Stack['value'] += Increment
 		self.LastStackInc.append(Increment)
-		print(self.LastStackInc)
 
 	def GetLastStackInc(self):
-		print(self.LastStackInc)
 		Increment = self.LastStackInc.pop()
 		self.LastStackInc.append(Increment)
-
-		print(Increment)
 
 		return Increment
 
 	def PopStackPtr(self):
-		print(self.LastStackInc)
 		Stack = self.GetStackPtr()
 		Decrement = self.LastStackInc.pop()
 		Stack['value'] -= Decrement
