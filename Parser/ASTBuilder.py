@@ -923,7 +923,6 @@ class AssignmentExpression(Node):
     #we cannot increment a constant
     def RunSemanticAnalysis(self, ST):
         LHSId = self.FetchId(self.Left)
-        print(LHSId)
         LHS = ST.FindSymbolInTable(LHSId)
 
         if LHS is False:

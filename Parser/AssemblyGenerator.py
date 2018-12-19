@@ -666,31 +666,9 @@ class AssemblyGenerator():
 
 	def BRNE(self, ThreeACLine):
 		ASMout = "bne {}, {}, {}" #t0, t1, target
-		Dest = ThreeACLine['Dest']
-		Dest = Dest.replace('label ', '')
-		OpA = self.FormatOperand(ThreeACLine['OpA'], ThreeACLine['Dest'])
-		OpB = self.FormatOperand(ThreeACLine['OpB'], ThreeACLine['Dest'])
-		ASMout = ASMout.format(OpA, OpB, Dest)
-		self.AddLineToASM(ASMout)
-
-		if OpA is not None:
-			self.RegisterTable.ClearRegister(OpA)
-		if OpB is not None:
-			self.RegisterTable.ClearRegister(OpB)
 
 	def BREQ(self, ThreeACLine):
 		ASMout = "beq {}, {}, {}" #to, t1, target
-		Dest = ThreeACLine['Dest']
-		Dest = Dest.replace('label ', '')
-		OpA = self.FormatOperand(ThreeACLine['OpA'], ThreeACLine['Dest'])
-		OpB = self.FormatOperand(ThreeACLine['OpB'], ThreeACLine['Dest'])
-		ASMout = ASMout.format(OpA, OpB, Dest)
-		self.AddLineToASM(ASMout)
-
-		if OpA is not None:
-			self.RegisterTable.ClearRegister(OpA)
-		if OpB is not None:
-			self.RegisterTable.ClearRegister(OpB)
 
 	def BRGE(self, ThreeACLine):
 		ASMout = "bge {}, {}, {}"
