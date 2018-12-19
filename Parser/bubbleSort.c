@@ -1,21 +1,24 @@
+int PrintInt(int);
+char PrintChar(char);
+
 int main()
 {
-	int vals[3];
+	int vals[10];
 	int a;
 	int b;
 	int c;
+
 	int next;
 
-	for (a = 0; a < 3; a++)
+	for (a = 0; a < 10; a++)
 	{
-		vals[a] = 3 - a;
+		vals[a] = 10 - a;
 	}
 
-
-	for (a=0; a < 3; a++)
+	for (a=0; a < 10; a++)
 	{
 
-		for (b=0; b < 2; b++)
+		for (b=0; b < 9; b++)
 		{
 			next = b + 1;
 			if (vals[b] > vals[next])
@@ -26,5 +29,12 @@ int main()
 				vals[next]= c;
 			}
 		}
+	}
+
+	//post sort print
+	for (a=0; a<10; a++)
+	{
+		PrintInt(vals[a]);
+		PrintChar('-');
 	}
 }
